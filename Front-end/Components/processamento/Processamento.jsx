@@ -10,7 +10,7 @@ import {
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import Header from "../header/Header";
-import { styles } from "./ProcessamentoInteligenteStyles";
+import { styles } from "./ProcessamentoStyles";
 
 const informacoes = [
   {
@@ -46,7 +46,7 @@ function InformacaoExtraida({ titulo, valor, icone }) {
       <MaterialCommunityIcons
         name={icone}
         size={23}
-        color="#650000"
+        color="#640303"
       />
 
       <View style={styles.textosInformacao}>
