@@ -3,6 +3,8 @@ import Dashboard from './Components/dashboard/Dashboard';
 import Importacao from './Components/importacao/Importacao';
 import Login from './Components/login/Login';
 import Processamento from './Components/processamento/Processamento';
+import Dados from './Components/dados/Dados';
+import Integracoes from './Components/Integracoes/Integracoes';
 
 export default function App() {
   return (
@@ -11,7 +13,9 @@ export default function App() {
       {/* <Cadastro /> */}
       {/* <Dashboard /> */}
       {/* <Importacao /> */}
-      <Processamento />
+      {/* <Processamento /> */}
+      {/* <Dados /> */}
+      <Integracoes />
     </>
   );
 }
