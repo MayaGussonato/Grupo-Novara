@@ -1,81 +1,155 @@
+
 import { StyleSheet } from "react-native";
 
 export const loginStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E7F3F1",
-    paddingHorizontal: 26,
-    paddingTop: 60,
+    backgroundColor: "#003C3A",
+  },
+
+  banner: {
+    height: "34%",
+    minHeight: 220,
+    backgroundColor: "#003C3A",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    paddingTop: 10,
+  },
+
+  formaBanner: {
+    position: "absolute",
   },
 
   logo: {
-    width: 210,
-    height: 100,
-    alignSelf: "center",
-    marginBottom: 45,
+    width: "88%",
+    height: 105,
+    maxWidth: 330,
   },
 
-  title: {
-    fontSize: 40,
+  slogan: {
+    color: "#F3FFFC",
+    fontSize: 20,
+    textAlign: "center",
+    lineHeight: 29,
+    marginTop: -2,
     fontWeight: "400",
-    color: "#287F7D",
+  },
+
+  cartao: {
+    flex: 1,
+    marginTop: -3,
+    backgroundColor: "#F3FFFC",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderWidth: 2,
+    borderColor: "#159BFF",
+  },
+
+  conteudoCartao: {
+    paddingHorizontal: 25,
+    paddingTop: 25,
+    paddingBottom: 30,
+  },
+
+  boasVindas: {
+    color: "#398783",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  titulo: {
+    color: "#174847",
+    fontSize: 40,
+    fontWeight: "500",
+    marginTop: -2,
     marginBottom: 25,
   },
 
-  formulario: {
-    width: "100%",
-  },
-
   input: {
-    height: 40,
+    height: 38,
     borderWidth: 1,
-    borderColor: "#70AAA9",
+    borderColor: "#65A9A5",
     borderRadius: 5,
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
-    fontSize: 17,
-    color: "#287F7D",
-    marginBottom: 24,
+    fontSize: 16,
+    color: "#174847",
+    marginBottom: 15,
   },
 
-  entrar: {
-    height: 37,
-    backgroundColor: "#287F7D",
+  senhaContainer: {
+    height: 38,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#65A9A5",
+    borderRadius: 5,
+    backgroundColor: "#FFFFFF",
+  },
+
+  inputSenha: {
+    flex: 1,
+    height: "100%",
+    paddingHorizontal: 12,
+    fontSize: 16,
+    color: "#174847",
+  },
+
+  iconeSenha: {
+    height: "100%",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+  },
+
+  esqueciSenha: {
+    alignSelf: "flex-start",
+    marginTop: 6,
+    marginBottom: 20,
+  },
+
+  textoLink: {
+    color: "#650000",
+    fontSize: 11,
+  },
+
+  botaoEntrar: {
+    height: 38,
+    backgroundColor: "#460303",
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 42,
   },
 
-  textoEntrar: {
-    color: "#fff",
-    fontSize: 18,
+  textoBotaoEntrar: {
+    color: "#FFFFFF",
+    fontSize: 16,
   },
 
   divisor: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 12,
-    marginBottom: 12,
+    marginVertical: 12,
   },
 
-  traso: {
+  linha: {
     flex: 1,
     height: 1,
-    backgroundColor: "#A8CECA",
+    backgroundColor: "#65A9A5",
   },
 
   textoOu: {
-    color: "#287F7D",
-    fontSize: 12,
-    marginHorizontal: 15,
+    color: "#285F60",
+    fontSize: 13,
+    fontWeight: "600",
+    marginHorizontal: 14,
   },
 
-  google: {
+  botaoGoogle: {
     height: 38,
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#70AAA9",
+    borderColor: "#65A9A5",
     borderRadius: 5,
     flexDirection: "row",
     alignItems: "center",
@@ -83,13 +157,14 @@ export const loginStyles = StyleSheet.create({
   },
 
   textoGoogle: {
-    fontSize: 17,
+    paddingLeft: 10,
+    fontSize: 16,
     color: "#83B8B8",
   },
 
   criarConta: {
-    marginTop: 10,
     alignSelf: "flex-start",
+    marginTop: 12,
   },
 
   textoCriarConta: {

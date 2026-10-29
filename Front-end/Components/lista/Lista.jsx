@@ -30,7 +30,7 @@ export default function Lista({ navigation }) {
   const [ordem, setOrdem] = useState("recentes");
   const [pagina, setPagina] = useState(1);
   const [modalFiltros, setModalFiltros] = useState(false);
-  const [filtroTipo, setFiltroTipo] = useState("Todos");
+  const [filtroTipo, setFiltroTipo] = useState("Todos");    
 
   const documentosFiltrados = useMemo(() => {
     let resultado = documentosIniciais.filter((doc) => {
@@ -180,7 +180,7 @@ export default function Lista({ navigation }) {
               <MaterialCommunityIcons
                 name="file-pdf-box"
                 size={27}
-                color="#650000"
+                color="#640303"
               />
 
               <View style={styles.infoDocumento}>

@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   StatusBar,
   Alert,
+  Image,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
@@ -78,27 +79,16 @@ export default function Importacao({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="#287F7D"
-      />
 
       <Header
         navigation={navigation}
         titulo="Importação de documentos"
       />
-
-      <ScrollView
-        contentContainerStyle={styles.conteudo}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.tituloPagina}>Documentos</Text>
+      <View style={styles.conteudo}>
 
         <View style={styles.areaSelecao}>
-          <MaterialCommunityIcons
-            name="file-document"
-            size={54}
-            color="#650000"
+          <Image 
+            source={require('../../assets/upload.png')}
           />
 
           <Text style={styles.textoArraste}>
@@ -123,8 +113,13 @@ export default function Importacao({ navigation }) {
               selecionar arquivos
             </Text>
           </TouchableOpacity>
+          </View>
         </View>
-
+      <ScrollView
+        contentContainerStyle={styles.conteudo}
+        showsVerticalScrollIndicator={false}
+      >
+        
         <View style={styles.listaDocumentos}>
           {documentos.map((documento) => (
             <View key={documento.id} style={styles.documento}>
@@ -170,7 +165,9 @@ export default function Importacao({ navigation }) {
               </TouchableOpacity>
             </View>
           ))}
+          
         </View>
+        
       </ScrollView>
 
       <View style={styles.acoes}>

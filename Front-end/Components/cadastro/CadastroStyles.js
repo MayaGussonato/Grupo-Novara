@@ -5,7 +5,7 @@ export const cadastroStyles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#E7F3F1",
         paddingHorizontal: 26,
-        paddingTop: 60,
+        paddingTop: 10,
     },
 
     logo: {
@@ -15,10 +15,10 @@ export const cadastroStyles = StyleSheet.create({
     },
 
     title: {
-        fontSize: 40,
+        fontSize: 25,
         fontWeight: "400",
-        color: "#287F7D",
-        marginBottom: 25,
+        color: "#174847",
+        marginBottom: 15,
     },
 
     formulario: {
@@ -34,12 +34,12 @@ export const cadastroStyles = StyleSheet.create({
         paddingHorizontal: 12,
         fontSize: 17,
         color: "#287F7D",
-        marginBottom: 18,
+        marginBottom: 15,
     },
 
-    entrar: {
+    cadastrar: {
         height: 37,
-        backgroundColor: "#287F7D",
+        backgroundColor: "#460303",
         borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
@@ -95,14 +95,24 @@ export const cadastroStyles = StyleSheet.create({
         fontSize: 11,
         color: "#650000",
     },
+
+
+    cargoPicker: {
+        width: "100%",
+        height: 42,
+        color: "#83B8B8",
+    },
+    text: {
+        fontSize: 16,
+        color: "#247A78",
+        marginBottom: 5,
+    },
     cargoContainer: {
         height: 42,
-        borderWidth: 1,
-        borderColor: "#70AAA9",
-        borderRadius: 5,
         backgroundColor: "#FFFFFF",
-        marginBottom: 24,
+        borderRadius: 5,
         justifyContent: "center",
+        marginBottom: 12,
         overflow: "hidden",
     },
 
@@ -110,5 +120,8 @@ export const cadastroStyles = StyleSheet.create({
         width: "100%",
         height: 42,
         color: "#83B8B8",
+        borderColor: "#65A9A5",
+        backgroundColor: "transparent",
+        borderRadius: 5,
     },
 })

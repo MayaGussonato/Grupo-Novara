@@ -14,13 +14,6 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
   },
 
-  tituloPagina: {
-    fontSize: 29,
-    fontWeight: "500",
-    color: "#111111",
-    marginBottom: 28,
-  },
-
   areaSelecao: {
     width: "100%",
     minHeight: 200,

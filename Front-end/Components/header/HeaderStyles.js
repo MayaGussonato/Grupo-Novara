@@ -3,9 +3,9 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   header: {
-    height: 61,
+    height: 50,
     width: "100%",
-    backgroundColor: "#287F7D",
+    backgroundColor: "transparent",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -20,9 +20,14 @@ export const styles = StyleSheet.create({
   },
 
   titulo: {
-    color: "#FFFFFF",
+    color: "#000000",
     fontSize: 14,
     fontWeight: "500",
     textAlign: "center",
   },
+
+  sim: {
+    height: 40,
+    width: 30,
+  }
 });

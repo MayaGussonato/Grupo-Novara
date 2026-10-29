@@ -15,24 +15,14 @@ export default function Header({
         onPress={() => navigation?.openDrawer?.()}
       >
         <Ionicons
-          name="ellipsis-horizontal"
+          name="arrow-back-outline"
           size={27}
-          color="#FFFFFF"
+          color="#000000"
         />
       </TouchableOpacity>
 
       <Text style={styles.titulo}>{titulo}</Text>
-
-      <TouchableOpacity
-        style={styles.botao}
-        onPress={() => navigation?.navigate?.("Perfil")}
-      >
-        <Ionicons
-          name="person-circle-outline"
-          size={39}
-          color="#FFFFFF"
-        />
-      </TouchableOpacity>
+      <View style={styles.sim}></View>
     </View>
   );
 }
