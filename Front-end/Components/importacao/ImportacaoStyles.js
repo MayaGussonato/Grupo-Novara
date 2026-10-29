@@ -117,7 +117,7 @@ export const styles = StyleSheet.create({
   acoes: {
     paddingHorizontal: 26,
     paddingTop: 10,
-    paddingBottom: 24,
+    paddingBottom: 80,
     backgroundColor: "#E7F3F1",
     gap: 22,
   },

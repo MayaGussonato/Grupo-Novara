@@ -17,7 +17,7 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 
-import styles from "./validacaoStyle";
+import styles from "./ValidacaoStyle";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
 

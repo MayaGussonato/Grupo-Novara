@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { dashboardStyles as styles } from "./DashboardStyles";
+import Footer from "../footer/Footer";
 
 const indicadores = [
   {
@@ -225,6 +226,7 @@ export default function Dashboard({ navigation }) {
           ))}
         </View>
       </ScrollView>
+      <Footer />
     </View>
   );
 }

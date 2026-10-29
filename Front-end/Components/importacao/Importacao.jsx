@@ -15,6 +15,7 @@ import * as DocumentPicker from "expo-document-picker";
 
 import Header from "../header/Header";
 import { styles } from "./ImportacaoStyles";
+import Footer from "../footer/Footer";
 
 export default function Importacao({ navigation }) {
   const [documentos, setDocumentos] = useState([]);
@@ -189,6 +190,7 @@ export default function Importacao({ navigation }) {
           <Ionicons name="trash-outline" size={22} color="#650000" />
           <Text style={styles.textoLimpar}>Limpar Seleção</Text>
         </TouchableOpacity>
+        <Footer />
       </View>
     </SafeAreaView>
   );

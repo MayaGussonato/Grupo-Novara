@@ -10,7 +10,7 @@ export const dashboardStyles = StyleSheet.create({
   conteudo: {
     paddingHorizontal: 26,
     paddingTop: 30,
-    paddingBottom: 25,
+    paddingBottom: 80,
   },
 
   titulo: {
