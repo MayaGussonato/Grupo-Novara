@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\90124765858\\Desktop\\Grupo-Novara\\Back-end\\LabFlowAPI\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{34DE2024-74DF-2A1E-8775-407FC0E74874}|LabFlowAPI\\LabFlowAPI.csproj|c:\\users\\90124765858\\desktop\\grupo-novara\\back-end\\labflowapi\\labflowapi\\controllers\\documentocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{34DE2024-74DF-2A1E-8775-407FC0E74874}|LabFlowAPI\\LabFlowAPI.csproj|solutionrelative:labflowapi\\controllers\\documentocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{34DE2024-74DF-2A1E-8775-407FC0E74874}|LabFlowAPI\\LabFlowAPI.csproj|c:\\users\\90124765858\\desktop\\grupo-novara\\back-end\\labflowapi\\labflowapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{34DE2024-74DF-2A1E-8775-407FC0E74874}|LabFlowAPI\\LabFlowAPI.csproj|solutionrelative:labflowapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DocumentoController.cs",
+              "DocumentMoniker": "C:\\Users\\90124765858\\Desktop\\Grupo-Novara\\Back-end\\LabFlowAPI\\LabFlowAPI\\Controllers\\DocumentoController.cs",
+              "RelativeDocumentMoniker": "LabFlowAPI\\Controllers\\DocumentoController.cs",
+              "ToolTip": "C:\\Users\\90124765858\\Desktop\\Grupo-Novara\\Back-end\\LabFlowAPI\\LabFlowAPI\\Controllers\\DocumentoController.cs",
+              "RelativeToolTip": "LabFlowAPI\\Controllers\\DocumentoController.cs",
+              "ViewState": "AgIAAOMAAAAAAAAAAAAAAAIBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-29T16:44:02.37Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\90124765858\\Desktop\\Grupo-Novara\\Back-end\\LabFlowAPI\\LabFlowAPI\\Program.cs",
+              "RelativeDocumentMoniker": "LabFlowAPI\\Program.cs",
+              "ToolTip": "C:\\Users\\90124765858\\Desktop\\Grupo-Novara\\Back-end\\LabFlowAPI\\LabFlowAPI\\Program.cs",
+              "RelativeToolTip": "LabFlowAPI\\Program.cs",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAIwGsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-29T12:22:13.732Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
