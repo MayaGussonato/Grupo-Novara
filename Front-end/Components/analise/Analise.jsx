@@ -9,6 +9,7 @@ import {
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { AnaliseStyles as styles } from "./AnaliseStyles";
 import Headers from "../header/Header";
+import Footer from "../footer/Footer";
 
 const abas = ["Resumo", "Dados Extraídos", "Histórico"];
 
@@ -233,7 +234,9 @@ export default function Analise({ route, navigation }) {
             ))}
           </View>
         )}
+        <View style={{marginTop: 100}}></View>
       </ScrollView>
+      <Footer />
     </>
   );
 }

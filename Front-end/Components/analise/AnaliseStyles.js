@@ -173,7 +173,7 @@ export const AnaliseStyles = StyleSheet.create({
 
   paginaDocumento: {
     width: "76%",
-    minHeight: 175,
+    minHeight: 200,
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#D8E0E8",
