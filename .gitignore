@@ -1,0 +1,7 @@
+# Visual Studio
+.vs/
+**/.vs/
+
+# Arquivos gerados pelo .NET
+**/bin/
+**/obj/

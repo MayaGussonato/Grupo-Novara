@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useRef, useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -260,3 +261,39 @@ export default function App() {
     </PreferencesProvider>
   );
 }
+=======
+import Cadastro from './Components/cadastro/Cadastro';
+import Dashboard from './Components/dashboard/Dashboard';
+import Importacao from './Components/importacao/Importacao';
+import Login from './Components/login/Login';
+import Analise from './Components/analise/Analise';
+import Validacao from "./Components/validacao/Validacao";
+import Dados from './Components/dados/Dados';
+import Administracao from './Components/administracao/Administracao';
+import { SafeAreaView } from 'react-native-web';
+import { styles } from './Styles';
+import Perfil from './Components/perfil/Perfil';
+import Atendimento from './Components/atendimento/Atendimento';
+import Integracoes from './Components/integracoes/Integracoes';
+import { TemaProvider } from './Components/context/TemaContext';
+
+export default function App() {
+  return (
+    <SafeAreaView style={styles.container}>
+      <TemaProvider>
+        <Login />
+        {/* <Cadastro /> */}
+        {/* <Dashboard /> */}
+        {/* <Importacao /> */}
+        {/* <Analise /> */}
+        {/* <Validacao /> */}
+        {/* <Dados /> */}
+        {/* <Administracao /> */}
+        {/* <Perfil /> */}
+        {/* <Atendimento /> */}
+        {/* <Integracoes /> */}
+      </TemaProvider>
+    </SafeAreaView>
+  );
+}
+>>>>>>> 22b38c39db79bcdbab7461ddaeb697d75fd3429c

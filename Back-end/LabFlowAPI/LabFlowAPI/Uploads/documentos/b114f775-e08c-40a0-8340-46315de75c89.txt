@@ -1,0 +1,1 @@
+Scaffold-DbContext "Server=(localdb)\MSSQLLocalDB;Database=LabFlowDb;Trusted_Connection=True;TrustServerCertificate=True"Microsoft.EntityFrameWorkCore.SqlServer -OutputDir Models -ContextDir BdContextLabFlowDb -Context LabFlowFbContext -DataAnnotations
