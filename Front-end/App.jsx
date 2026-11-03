@@ -8,6 +8,9 @@ import Dados from './Components/dados/Dados';
 import Administracao from './Components/administracao/Administracao';
 import { SafeAreaView } from 'react-native-web';
 import { styles } from './Styles';
+import Perfil from './Components/perfil/Perfil';
+import Atendimento from './Components/atendimento/Atendimento';
+import Integracoes from './Components/integracoes/Integracoes';
 
 export default function App() {
   return (
@@ -19,7 +22,10 @@ export default function App() {
       {/* <Analise /> */}
       {/* <Validacao /> */}
       {/* <Dados /> */}
-      <Administracao />
+      {/* <Administracao /> */}
+      {/* <Perfil /> */}
+      {/* <Atendimento /> */}
+      <Integracoes />
     </SafeAreaView>
   );
 }
