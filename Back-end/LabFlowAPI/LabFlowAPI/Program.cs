@@ -1,14 +1,39 @@
 using System.Text;
+
 using LabFlowAPI.Data;
 using LabFlowAPI.Interface;
 using LabFlowAPI.Repositories;
+using LabFlowAPI.Services.IA;
 using LabFlowAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+// ---------- Inteligência Artificial ----------
+
+builder.Services.AddHttpClient<LlamaService>(client =>
+{
+	var ollamaUrl = builder.Configuration["IA:Ollama:BaseUrl"]
+		?? "http://localhost:11434/";
+
+	client.BaseAddress = new Uri(ollamaUrl);
+	client.Timeout = TimeSpan.FromMinutes(3);
+});
+
+builder.Services.AddHttpClient<GroqService>(client =>
+{
+	var groqUrl = builder.Configuration["IA:Groq:BaseUrl"]
+		?? "https://api.groq.com/openai/v1/";
+
+	client.BaseAddress = new Uri(groqUrl);
+	client.Timeout = TimeSpan.FromMinutes(3);
+}); 
+
+builder.Services.AddScoped<ILanguageModelService, LhamaIAService>();
 
 // ---------- Banco de dados ----------
 // A connection string fica no appsettings.json (ConnectionStrings:LabFlow) e não no código.
