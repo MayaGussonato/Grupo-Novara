@@ -105,6 +105,8 @@ public class ValidacaoController : ControllerBase
         }
     }
 
+    
+
     private static ValidacaoResponseDTO Mapear(Validacao v)
     {
         JsonElement? corrigidos = null;

@@ -52,6 +52,7 @@ public partial class LabFlowContext : DbContext
 
             entity.Property(e => e.DataEnvio).HasDefaultValueSql("(sysdatetime())");
             entity.Property(e => e.StatusDocumento).HasDefaultValue("Processando");
+            entity.Property(e => e.Excluido).HasDefaultValue(false);
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Documentos)
                 .OnDelete(DeleteBehavior.ClientSetNull)

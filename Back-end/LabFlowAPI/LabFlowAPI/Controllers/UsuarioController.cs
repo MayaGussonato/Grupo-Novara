@@ -185,4 +185,67 @@ public class UsuarioController : ControllerBase
         PerfilAcesso = u.PerfilAcesso,
         Ativo = u.Ativo == true
     };
+
+
+    // PUT: api/Usuario/{id}/reativar
+    [Authorize(Roles = Perfis.Administrador)]
+    [HttpPut("{id:int}/reativar")]
+    public IActionResult Reativar(int id)
+    {
+        try
+        {
+            return _usuarioRepository.AlterarAtivo(id, true, User.GetIdUsuario())
+                ? NoContent()
+                : NotFound("Usuário não encontrado.");
+        }
+        catch (Exception erro)
+        {
+            return BadRequest(erro.Message);
+        }
+    }
+
+    // DELETE: api/Usuario/{id}
+    // Soft delete: desativa o acesso, inutiliza a senha e libera o e-mail para um novo
+    // cadastro. O usuário e todo o histórico dele continuam no banco.
+    [Authorize(Roles = Perfis.Administrador)]
+    [HttpDelete("{id:int}")]
+    public IActionResult Excluir(int id)
+    {
+        var idLogado = User.GetIdUsuario();
+
+        // Evita que o administrador se exclua e deixe o sistema sem acesso
+        if (idLogado == id)
+        {
+            return BadRequest("Você não pode excluir a sua própria conta.");
+        }
+
+        try
+        {
+            var usuario = _usuarioRepository.BuscarPorId(id);
+
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            if (usuario.Ativo != true)
+            {
+                return Conflict("Este usuário já está desativado ou excluído.");
+            }
+
+            // Um administrador precisa existir enquanto o sistema estiver em uso
+            if (usuario.PerfilAcesso == Perfis.Administrador)
+            {
+                return Conflict("Rebaixe o perfil do administrador antes de excluí-lo.");
+            }
+
+            return _usuarioRepository.Excluir(id, idLogado)
+                ? NoContent()
+                : NotFound("Usuário não encontrado.");
+        }
+        catch (Exception erro)
+        {
+            return BadRequest(erro.Message);
+        }
+    }
 }

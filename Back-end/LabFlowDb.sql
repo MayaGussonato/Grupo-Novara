@@ -31,6 +31,7 @@ Status_Arquivo VARCHAR(30) NOT NULL DEFAULT 'Processando',
 Nivel_Confianca DECIMAL(5,2),
 TamanhoBytes BIGINT,
 HashArquivo VARCHAR(64),                    -- SHA-256 do conteúdo
+Excluido BIT NOT NULL DEFAULT 0,            -- soft delete: 1 = excluído pelo usuário
 CONSTRAINT Documento_Usuario FOREIGN KEY (IdUsuario) REFERENCES Usuario(IdUsuario),
 CONSTRAINT CK_Documento_Status CHECK (Status_Arquivo IN ('Processando', 'Aprovado', 'Revisao', 'Erro')),
 CONSTRAINT CK_Documento_Confianca CHECK (Nivel_Confianca IS NULL OR Nivel_Confianca BETWEEN 0 AND 100),
@@ -114,6 +115,10 @@ GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Documento_HashArquivo' AND object_id = OBJECT_ID('dbo.Documento'))
     CREATE INDEX IX_Documento_HashArquivo ON Documento(HashArquivo);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Documento_Excluido' AND object_id = OBJECT_ID('dbo.Documento'))
+    CREATE INDEX IX_Documento_Excluido ON Documento(Excluido) INCLUDE (IdUsuario, Status_Arquivo);
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Historico_IdDocumento' AND object_id = OBJECT_ID('dbo.Historico'))

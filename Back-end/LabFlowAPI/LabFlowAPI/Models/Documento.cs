@@ -53,6 +53,12 @@ public partial class Documento
     [Unicode(false)]
     public string? HashArquivo { get; set; }
 
+    /// <summary>
+    /// Soft delete: true quando o usuário excluiu o documento.
+    /// O registro e todo o histórico continuam no banco; a API apenas deixa de exibi-los.
+    /// </summary>
+    public bool Excluido { get; set; }
+
     [InverseProperty("IdDocumentoNavigation")]
     public virtual ICollection<Extracao> Extracaos { get; set; } = new List<Extracao>();
 

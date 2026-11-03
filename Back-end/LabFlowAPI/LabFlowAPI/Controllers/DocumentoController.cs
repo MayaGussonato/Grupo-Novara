@@ -251,6 +251,33 @@ public class DocumentoController : ControllerBase
         return Ok(_historicoRepository.ListarPorDocumento(id));
     }
 
+    // DELETE: api/Documento/{id}  (soft delete: some da API, histórico fica no banco)
+    [HttpDelete("{id:int}")]
+    public IActionResult Excluir(int id)
+    {
+        var documento = _documentoRepository.BuscarPorId(id);
+
+        if (documento == null)
+        {
+            return NotFound("Documento não encontrado.");
+        }
+
+        if (!PodeAcessar(documento.IdUsuario))
+        {
+            return Forbid();
+        }
+
+        // Documento já aprovado pode ter sido enviado ao ERP: não se exclui
+        if (documento.StatusDocumento == "Aprovado")
+        {
+            return Conflict("Documento aprovado não pode ser excluído.");
+        }
+
+        return _documentoRepository.Excluir(id, User.GetIdUsuario())
+            ? NoContent()
+            : NotFound("Documento não encontrado.");
+    }
+
     private bool PodeAcessar(int idDonoDocumento)
     {
         return User.PodeVerTodosDocumentos() || User.GetIdUsuario() == idDonoDocumento;

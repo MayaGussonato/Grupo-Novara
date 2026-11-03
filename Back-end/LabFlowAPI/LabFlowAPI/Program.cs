@@ -50,12 +50,35 @@ builder.Services
             NameClaimType = "name",
             RoleClaimType = "role"
         };
+
+
+        // >>> NOVO: derruba o token de quem foi desativado ou removido <<<
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = contexto =>
+            {
+                var idUsuario = contexto.Principal?.GetIdUsuario();
+
+                var repositorio = contexto.HttpContext.RequestServices
+                    .GetRequiredService<IUsuarioRepository>();
+
+                var usuario = idUsuario == null ? null : repositorio.BuscarPorId(idUsuario.Value);
+
+                // Usuário apagado ou desativado: o token deixa de valer na hora
+                if (usuario == null || usuario.Ativo != true)
+                {
+                    contexto.Fail("Usuário inativo ou inexistente.");
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
-// ---------- OpenAPI / Swagger ----------
+// ---------- Swagger ----------
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

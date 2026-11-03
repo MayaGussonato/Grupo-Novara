@@ -36,6 +36,7 @@ public class DocumentoRepository : IDocumentoRepository
 
     public int? BuscarIdPorHash(string hash)
     {
+        // Documentos excluídos continuam bloqueando o reenvio: o arquivo já está no servidor.
         return _context.Documentos
             .Where(d => d.HashArquivo == hash)
             .Select(d => (int?)d.IdDocumento)
@@ -44,18 +45,20 @@ public class DocumentoRepository : IDocumentoRepository
 
     public Documento? BuscarPorId(int id)
     {
-        return _context.Documentos.Find(id);
+        return _context.Documentos
+            .FirstOrDefault(d => d.IdDocumento == id && !d.Excluido);
     }
 
     public DocumentoResponseDTO? BuscarDetalhe(int id)
     {
-        return Projetar(_context.Documentos.Where(d => d.IdDocumento == id))
+        return Projetar(_context.Documentos.Where(d => d.IdDocumento == id && !d.Excluido))
             .FirstOrDefault();
     }
 
     public List<DocumentoResponseDTO> Listar(int? idUsuario, string? status, int pagina, int tamanho)
     {
-        var consulta = _context.Documentos.AsQueryable();
+        // Soft delete: documentos excluídos não aparecem em nenhuma listagem da API
+        var consulta = _context.Documentos.Where(d => !d.Excluido);
 
         if (idUsuario != null)
         {
@@ -74,6 +77,35 @@ public class DocumentoRepository : IDocumentoRepository
             .Take(tamanho);
 
         return Projetar(paginado).ToList();
+    }
+
+    public bool Excluir(int id, int? idUsuario)
+    {
+        var documento = _context.Documentos.FirstOrDefault(d => d.IdDocumento == id && !d.Excluido);
+
+        if (documento == null)
+        {
+            return false;
+        }
+
+        using var transacao = _context.Database.BeginTransaction();
+
+        documento.Excluido = true;
+
+        // O histórico continua no banco; este registro documenta quem excluiu e quando
+        _context.HistoricoAtividades.Add(new Historico
+        {
+            IdDocumento = documento.IdDocumento,
+            IdUsuario = idUsuario,
+            Acao = "Documento excluído",
+            Detalhes = $"Arquivo '{documento.NomeArquivo}' removido da listagem (soft delete).",
+            DataHora = DateTime.Now
+        });
+
+        _context.SaveChanges();
+        transacao.Commit();
+
+        return true;
     }
 
     private IQueryable<DocumentoResponseDTO> Projetar(IQueryable<Documento> consulta)

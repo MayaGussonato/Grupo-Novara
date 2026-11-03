@@ -48,3 +48,20 @@ GO
 IF COL_LENGTH('dbo.Documento', 'HashArquivo') IS NULL
     ALTER TABLE Documento ADD HashArquivo VARCHAR(64);
 GO
+-- Soft delete de documento: o registro e o histórico continuam no banco,
+-- a API apenas deixa de exibir o documento.
+IF COL_LENGTH('dbo.Documento', 'Excluido') IS NULL
+    ALTER TABLE Documento ADD Excluido BIT NOT NULL CONSTRAINT DF_Documento_Excluido DEFAULT 0;
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = 'IX_Documento_Excluido'
+      AND object_id = OBJECT_ID('dbo.Documento')
+)
+BEGIN
+    CREATE INDEX IX_Documento_Excluido
+    ON Documento(Excluido) INCLUDE (IdUsuario, Status_Arquivo);
+END;
+GO
