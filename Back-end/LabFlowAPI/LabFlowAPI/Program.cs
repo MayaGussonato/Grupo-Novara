@@ -3,7 +3,9 @@ using System.Text;
 using LabFlowAPI.Data;
 using LabFlowAPI.Interface;
 using LabFlowAPI.Repositories;
+using LabFlowAPI.Services.Documentos;
 using LabFlowAPI.Services.IA;
+using LabFlowAPI.Services.Processamento;
 using LabFlowAPI.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +35,19 @@ builder.Services.AddHttpClient<GroqService>(client =>
 	client.Timeout = TimeSpan.FromMinutes(3);
 }); 
 
-builder.Services.AddScoped<ILanguageModelService, LhamaIAService>();
+builder.Services.AddScoped<ILanguageModelService, LhamaIAChatService>();
+
+// ---------- LHAMA IA: extração estruturada de documentos ----------
+// Um único HttpClient atende os dois provedores (Groq e Ollama falam OpenAI-compatible);
+// a URL de cada um vem do appsettings, então a ordem de fallback é configuração, não código.
+builder.Services.AddHttpClient<ILhamaIa, LhamaIaService>(client =>
+{
+    client.Timeout = TimeSpan.FromMinutes(3);
+});
+
+builder.Services.AddScoped<ILeitorDocumento, LeitorDocumento>();
+builder.Services.AddScoped<IConferenciaExtracao, ConferenciaExtracaoService>();
+builder.Services.AddScoped<IProcessadorDocumento, ProcessadorDocumento>();
 
 // ---------- Banco de dados ----------
 // A connection string fica no appsettings.json (ConnectionStrings:LabFlow) e não no código.
