@@ -11,21 +11,24 @@ import { styles } from './Styles';
 import Perfil from './Components/perfil/Perfil';
 import Atendimento from './Components/atendimento/Atendimento';
 import Integracoes from './Components/integracoes/Integracoes';
+import { TemaProvider } from './Components/context/TemaContext';
 
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
-      {/* <Login /> */}
-      {/* <Cadastro /> */}
-      {/* <Dashboard /> */}
-      {/* <Importacao /> */}
-      {/* <Analise /> */}
-      {/* <Validacao /> */}
-      {/* <Dados /> */}
-      {/* <Administracao /> */}
-      {/* <Perfil /> */}
-      {/* <Atendimento /> */}
-      <Integracoes />
+      <TemaProvider>
+        <Login />
+        {/* <Cadastro /> */}
+        {/* <Dashboard /> */}
+        {/* <Importacao /> */}
+        {/* <Analise /> */}
+        {/* <Validacao /> */}
+        {/* <Dados /> */}
+        {/* <Administracao /> */}
+        {/* <Perfil /> */}
+        {/* <Atendimento /> */}
+        {/* <Integracoes /> */}
+      </TemaProvider>
     </SafeAreaView>
   );
 }

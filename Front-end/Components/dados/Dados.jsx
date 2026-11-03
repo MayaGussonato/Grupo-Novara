@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,10 +6,11 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Styles as styles } from "./DadosStyles";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { criarDadosStyles } from "./DadosStyles";
 import Header from "../header/Header";
 import Footer from "../footer/Footer";
+import { useTema } from "../context/TemaContext";
 
 const dados = [
   { campo: "Documento", valor: "NF-18291" },
@@ -29,6 +29,13 @@ const formatos = [
 
 export default function Dados() {
   const [formatoSelecionado, setFormatoSelecionado] = useState("JSON");
+  const { cores, modoEscuro } = useTema();
+
+  // Recria os estilos sempre que o tema mudar
+  const styles = useMemo(
+    () => criarDadosStyles(cores, modoEscuro),
+    [cores, modoEscuro]
+  );
 
   function exportar() {
     Alert.alert(
@@ -39,9 +46,8 @@ export default function Dados() {
 
   return (
     <View style={styles.container}>
-      <Header
-        titulo="Dados do Documento"
-      />
+      <Header titulo="Dados do Documento" />
+
       <ScrollView
         contentContainerStyle={styles.conteudo}
         showsVerticalScrollIndicator={false}
@@ -57,14 +63,11 @@ export default function Dados() {
         </View>
 
         {/* Formatos de exportação */}
-        <Text style={styles.tituloExportar}>
-          Exportar dados como:
-        </Text>
+        <Text style={styles.tituloExportar}>Exportar dados como:</Text>
 
         <View style={styles.listaFormatos}>
           {formatos.map((formato) => {
-            const selecionado =
-              formatoSelecionado === formato.nome;
+            const selecionado = formatoSelecionado === formato.nome;
 
             return (
               <TouchableOpacity
@@ -73,22 +76,18 @@ export default function Dados() {
                   styles.formato,
                   selecionado && styles.formatoSelecionado,
                 ]}
-                onPress={() =>
-                  setFormatoSelecionado(formato.nome)
-                }
+                onPress={() => setFormatoSelecionado(formato.nome)}
                 activeOpacity={0.7}
               >
                 <View style={styles.iconeArquivo}>
                   <MaterialCommunityIcons
                     name={formato.icone}
                     size={30}
-                    color="#650000"
+                    color={cores.vinho}
                   />
                 </View>
 
-                <Text style={styles.nomeFormato}>
-                  {formato.nome}
-                </Text>
+                <Text style={styles.nomeFormato}>{formato.nome}</Text>
               </TouchableOpacity>
             );
           })}
@@ -100,11 +99,10 @@ export default function Dados() {
           activeOpacity={0.8}
           onPress={exportar}
         >
-          <Text style={styles.textoBotao}>
-            Exportar
-          </Text>
+          <Text style={styles.textoBotao}>Exportar</Text>
         </TouchableOpacity>
       </ScrollView>
+
       <Footer />
     </View>
   );

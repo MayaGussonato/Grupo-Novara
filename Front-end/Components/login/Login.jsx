@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -11,12 +10,21 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
-import { loginStyles as styles } from "./LoginStyles";
+import { criarLoginStyles } from "./LoginStyles";
+import { useTema } from "../context/TemaContext"; // mesmo caminho usado no Perfil
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const { cores, modoEscuro } = useTema();
+
+  // Recria os estilos sempre que o tema mudar
+  const styles = useMemo(
+    () => criarLoginStyles(cores, modoEscuro),
+    [cores, modoEscuro]
+  );
 
   function entrar() {
     if (!email.trim() || !senha) {
@@ -30,15 +38,20 @@ export default function Login({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={["#004240", "#013333"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={styles.container}
+    >
       <StatusBar style="light" />
 
       {/* Banner superior */}
       <View style={styles.banner}>
         <Image
-          source={(require("../../assets/fundo.png"))}
+          source={require("../../assets/fundo.png")}
           style={styles.formaBanner}
-          />
+        />
 
         <Image
           source={require("../../assets/Logo-branco.png")}
@@ -47,7 +60,7 @@ export default function Login({ navigation }) {
         />
 
         <Text style={styles.slogan}>
-          Automação inteligente{"\n"}de documentos.
+          Automação inteligente de documentos.
         </Text>
       </View>
 
@@ -66,7 +79,7 @@ export default function Login({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#83B8B8"
+          placeholderTextColor={cores.textoSecundario}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
@@ -79,7 +92,7 @@ export default function Login({ navigation }) {
           <TextInput
             style={styles.inputSenha}
             placeholder="Senha"
-            placeholderTextColor="#83B8B8"
+            placeholderTextColor={cores.textoSecundario}
             secureTextEntry={!mostrarSenha}
             value={senha}
             onChangeText={setSenha}
@@ -92,7 +105,7 @@ export default function Login({ navigation }) {
             <Ionicons
               name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
               size={20}
-              color="#83B8B8"
+              color={cores.textoSecundario}
             />
           </TouchableOpacity>
         </View>
@@ -102,9 +115,7 @@ export default function Login({ navigation }) {
           style={styles.esqueciSenha}
           onPress={() => navigation?.navigate?.("RecuperarSenha")}
         >
-          <Text style={styles.textoLink}>
-            Esqueceu sua senha?
-          </Text>
+          <Text style={styles.textoLink}>Esqueceu sua senha?</Text>
         </TouchableOpacity>
 
         {/* Entrar */}
@@ -134,8 +145,11 @@ export default function Login({ navigation }) {
             )
           }
         >
-          <Image
-            source={require("../../assets/Google.png")}
+          <Ionicons
+            name="logo-google"
+            size={20}
+            color={cores.textoSecundario}
+            style={styles.iconeGoogle}
           />
           <Text style={styles.textoGoogle}>Entrar com Google</Text>
         </TouchableOpacity>
@@ -145,11 +159,9 @@ export default function Login({ navigation }) {
           style={styles.criarConta}
           onPress={() => navigation?.navigate?.("Cadastro")}
         >
-          <Text style={styles.textoCriarConta}>
-            Crie uma conta
-          </Text>
+          <Text style={styles.textoCriarConta}>Crie uma conta</Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }

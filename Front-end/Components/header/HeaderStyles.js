@@ -1,4 +1,3 @@
-
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -20,7 +19,6 @@ export const styles = StyleSheet.create({
   },
 
   titulo: {
-    color: "#000000",
     fontSize: 14,
     fontWeight: "500",
     textAlign: "center",
@@ -29,5 +27,5 @@ export const styles = StyleSheet.create({
   sim: {
     height: 40,
     width: 30,
-  }
+  },
 });

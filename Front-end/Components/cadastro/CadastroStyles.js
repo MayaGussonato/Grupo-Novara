@@ -3,7 +3,6 @@ import { StyleSheet } from "react-native";
 export const cadastroStyles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#E7F3F1",
         paddingHorizontal: 26,
         paddingTop: 10,
     },
@@ -17,7 +16,6 @@ export const cadastroStyles = StyleSheet.create({
     title: {
         fontSize: 25,
         fontWeight: "400",
-        color: "#174847",
         marginBottom: 15,
     },
 
@@ -28,18 +26,14 @@ export const cadastroStyles = StyleSheet.create({
     input: {
         height: 40,
         borderWidth: 1,
-        borderColor: "#70AAA9",
         borderRadius: 5,
-        backgroundColor: "#FFFFFF",
         paddingHorizontal: 12,
         fontSize: 17,
-        color: "#287F7D",
         marginBottom: 15,
     },
 
     cadastrar: {
         height: 37,
-        backgroundColor: "#460303",
         borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
@@ -51,41 +45,6 @@ export const cadastroStyles = StyleSheet.create({
         fontSize: 18,
     },
 
-    divisor: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 12,
-        marginBottom: 12,
-    },
-
-    traso: {
-        flex: 1,
-        height: 1,
-        backgroundColor: "#A8CECA",
-    },
-
-    textoOu: {
-        color: "#287F7D",
-        fontSize: 12,
-        marginHorizontal: 15,
-    },
-
-    google: {
-        height: 38,
-        backgroundColor: "#FFFFFF",
-        borderWidth: 1,
-        borderColor: "#70AAA9",
-        borderRadius: 5,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-
-    textoGoogle: {
-        fontSize: 17,
-        color: "#83B8B8",
-    },
-
     criarConta: {
         marginTop: 10,
         alignSelf: "flex-start",
@@ -93,23 +52,20 @@ export const cadastroStyles = StyleSheet.create({
 
     textoCriarConta: {
         fontSize: 11,
-        color: "#650000",
     },
 
-
-    cargoPicker: {
-        width: "100%",
-        height: 42,
-        color: "#83B8B8",
-    },
     text: {
         fontSize: 16,
-        color: "#247A78",
         marginBottom: 5,
     },
+
+    textoNegrito: {
+        fontWeight: "bold",
+    },
+
     cargoContainer: {
         height: 42,
-        backgroundColor: "#FFFFFF",
+        borderWidth: 1,
         borderRadius: 5,
         justifyContent: "center",
         marginBottom: 12,
@@ -119,9 +75,7 @@ export const cadastroStyles = StyleSheet.create({
     cargoPicker: {
         width: "100%",
         height: 42,
-        color: "#83B8B8",
-        borderColor: "#65A9A5",
         backgroundColor: "transparent",
         borderRadius: 5,
     },
-})
+});

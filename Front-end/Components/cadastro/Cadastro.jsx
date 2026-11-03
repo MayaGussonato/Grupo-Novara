@@ -2,89 +2,101 @@ import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Picker } from "@react-native-picker/picker";
 import { useState } from "react";
-import { cadastroStyles } from './CadastroStyles'
+import { cadastroStyles as styles } from './CadastroStyles'
+import { useTema } from "../context/TemaContext";
 
 export default function Cadastro() {
     const [cargo, setCargo] = useState("");
+    const [perfil, setPerfil] = useState("");
+    const { cores, modoEscuro } = useTema();
+
     return (
-        <View style={cadastroStyles.container}>
-            <StatusBar style="dark" />
+        <View style={[styles.container, { backgroundColor: cores.background }]}>
+            <StatusBar style={modoEscuro ? "light" : "dark"} />
+            
             <View style={{ alignItems: "center"}}>
                 <Image
                     source={require("../../assets/Logo.png")}
-                    style={cadastroStyles.logo}
+                    style={styles.logo}
                     resizeMode="contain"
                 />
 
-                <Text style={cadastroStyles.title}>Cadastrar Usuario</Text>
+                <Text style={[styles.title, { color: cores.texto }]}>Cadastrar Usuário</Text>
             </View>
-            <View style={cadastroStyles.formulario}>
+
+            <View style={styles.formulario}>
                 <View>
-                    <Text style={cadastroStyles.text}><strong>Nome</strong></Text>
+                    <Text style={[styles.text, { color: cores.texto }, styles.textoNegrito]}>Nome</Text>
                     <TextInput
-                        style={cadastroStyles.input}
+                        style={[styles.input, { backgroundColor: cores.input, borderColor: cores.borda, color: cores.texto }]}
                         placeholder="Nome"
-                        placeholderTextColor="#83B8B8"
+                        placeholderTextColor={modoEscuro ? cores.textoSecundario : "#83B8B8"}
                         autoCapitalize="none"
                     />
                 </View>
+
                 <View>
-                    <Text style={cadastroStyles.text}><strong>Email</strong></Text>
+                    <Text style={[styles.text, { color: cores.texto }, styles.textoNegrito]}>Email</Text>
                     <TextInput
-                        style={cadastroStyles.input}
+                        style={[styles.input, { backgroundColor: cores.input, borderColor: cores.borda, color: cores.texto }]}
                         placeholder="exemple@gmail.com"
-                        placeholderTextColor="#83B8B8"
+                        placeholderTextColor={modoEscuro ? cores.textoSecundario : "#83B8B8"}
                         autoCapitalize="none"
                     />
                 </View>
+
                 <View>
-                    <Text style={cadastroStyles.text}><strong>Senha</strong></Text>
+                    <Text style={[styles.text, { color: cores.texto }, styles.textoNegrito]}>Senha</Text>
                     <TextInput
-                        style={cadastroStyles.input}
+                        style={[styles.input, { backgroundColor: cores.input, borderColor: cores.borda, color: cores.texto }]}
                         placeholder="Ex: 123"
-                        placeholderTextColor="#83B8B8"
+                        placeholderTextColor={modoEscuro ? cores.textoSecundario : "#83B8B8"}
                         secureTextEntry
                     />
                 </View>
+
                 <View>
-                    <Text style={cadastroStyles.text}><strong>Cargo</strong></Text>
-                    <View style={cadastroStyles.cargoContainer}>
+                    <Text style={[styles.text, { color: cores.texto }, styles.textoNegrito]}>Cargo</Text>
+                    <View style={[styles.cargoContainer, { backgroundColor: cores.input, borderColor: cores.borda }]}>
                         <Picker
                             selectedValue={cargo}
                             onValueChange={(itemValue) => setCargo(itemValue)}
-                            style={cadastroStyles.cargoPicker}
+                            style={[styles.cargoPicker, { color: cores.texto }]}
+                            dropdownIconColor={cores.textoSecundario}
                         >
-                            <Picker.Item label="Selecione um Cargo" value="" />
-                            <Picker.Item label="Administrador" value="administrador" />
-                            <Picker.Item label="Desenvolvedor" value="desenvolvedor" />
-                            <Picker.Item label="Analista" value="analista" />
-                            <Picker.Item label="Estagiário" value="estagiario" />
-                        </Picker>
-                    </View>
-                </View>
-                <View>
-                    <Text style={cadastroStyles.text}><strong>Perfil de Acesso</strong></Text>
-                    <View style={cadastroStyles.cargoContainer}>
-                        <Picker
-                            selectedValue={cargo}
-                            onValueChange={(itemValue) => setCargo(itemValue)}
-                            style={cadastroStyles.cargoPicker}
-                        >
-                            <Picker.Item label="Perfil de acesso" value="" />
-                            <Picker.Item label="Administrador" value="administrador" />
-                            <Picker.Item label="Desenvolvedor" value="desenvolvedor" />
-                            <Picker.Item label="Analista" value="analista" />
-                            <Picker.Item label="Estagiário" value="estagiario" />
+                            <Picker.Item label="Selecione um Cargo" value="" style={{ backgroundColor: cores.input, color: cores.textoSecundario }} />
+                            <Picker.Item label="Administrador" value="administrador" style={{ backgroundColor: cores.input, color: cores.texto }} />
+                            <Picker.Item label="Desenvolvedor" value="desenvolvedor" style={{ backgroundColor: cores.input, color: cores.texto }} />
+                            <Picker.Item label="Analista" value="analista" style={{ backgroundColor: cores.input, color: cores.texto }} />
+                            <Picker.Item label="Estagiário" value="estagiario" style={{ backgroundColor: cores.input, color: cores.texto }} />
                         </Picker>
                     </View>
                 </View>
 
-                <TouchableOpacity style={cadastroStyles.cadastrar} activeOpacity={0.8}>
-                    <Text style={cadastroStyles.textoEntrar}>Cadastrar</Text>
+                <View>
+                    <Text style={[styles.text, { color: cores.texto }, styles.textoNegrito]}>Perfil de Acesso</Text>
+                    <View style={[styles.cargoContainer, { backgroundColor: cores.input, borderColor: cores.borda }]}>
+                        <Picker
+                            selectedValue={perfil}
+                            onValueChange={(itemValue) => setPerfil(itemValue)}
+                            style={[styles.cargoPicker, { color: cores.texto }]}
+                            dropdownIconColor={cores.textoSecundario}
+                        >
+                            <Picker.Item label="Perfil de acesso" value="" style={{ backgroundColor: cores.input, color: cores.textoSecundario }} />
+                            <Picker.Item label="Administrador" value="administrador" style={{ backgroundColor: cores.input, color: cores.texto }} />
+                            <Picker.Item label="Desenvolvedor" value="desenvolvedor" style={{ backgroundColor: cores.input, color: cores.texto }} />
+                            <Picker.Item label="Analista" value="analista" style={{ backgroundColor: cores.input, color: cores.texto }} />
+                            <Picker.Item label="Estagiário" value="estagiario" style={{ backgroundColor: cores.input, color: cores.texto }} />
+                        </Picker>
+                    </View>
+                </View>
+
+                <TouchableOpacity style={[styles.cadastrar, { backgroundColor: cores.vinho || "#460303" }]} activeOpacity={0.8}>
+                    <Text style={styles.textoEntrar}>Cadastrar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={cadastroStyles.criarConta}>
-                    <Text style={cadastroStyles.textoCriarConta}>
+                <TouchableOpacity style={styles.criarConta}>
+                    <Text style={[styles.textoCriarConta, { color: cores.vinho || "#650000" }]}>
                         Entrar na conta
                     </Text>
                 </TouchableOpacity>

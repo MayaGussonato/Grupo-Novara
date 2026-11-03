@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,14 +6,26 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { AnaliseStyles as styles } from "./AnaliseStyles";
-import Headers from "../header/Header";
+import { criarAnaliseStyles } from "./AnaliseStyles";
 import Footer from "../footer/Footer";
+import Header from "../header/Header";
+import { useTema } from "../context/TemaContext";
 
 const abas = ["Resumo", "Dados Extraídos", "Histórico"];
 
 export default function Analise({ route, navigation }) {
   const [abaAtiva, setAbaAtiva] = useState("Resumo");
+
+  const { cores, modoEscuro } = useTema();
+
+  // Recria os estilos sempre que o tema mudar
+  const styles = useMemo(
+    () => criarAnaliseStyles(cores, modoEscuro),
+    [cores, modoEscuro]
+  );
+
+  const corSucesso = modoEscuro ? "#6FD98F" : "#17652D";
+  const corAlerta = "#F2A23A";
 
   const nomeDocumento =
     route?.params?.nomeDocumento || "NF-18291.pdf";
@@ -24,25 +35,25 @@ export default function Analise({ route, navigation }) {
       texto: "Campos Extraídos",
       valor: "12",
       icone: "check-circle",
-      cor: "#17652D",
+      cor: corSucesso,
     },
     {
       texto: "Campos Validados",
       valor: "10",
       icone: "check-circle",
-      cor: "#17652D",
+      cor: corSucesso,
     },
     {
       texto: "Campos com Atenção",
       valor: "2",
       icone: "warning-outline",
-      cor: "#F2A23A",
+      cor: corAlerta,
     },
     {
       texto: "Tempo de processamento",
       valor: "19s",
       icone: "warning-outline",
-      cor: "#F2A23A",
+      cor: corAlerta,
     },
   ];
 
@@ -55,8 +66,9 @@ export default function Analise({ route, navigation }) {
   ];
 
   return (
-    <>
-      <Headers />
+    <View style={styles.container}>
+      <Header />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
@@ -70,7 +82,7 @@ export default function Analise({ route, navigation }) {
           <MaterialCommunityIcons
             name="file-pdf-box"
             size={30}
-            color="#650000"
+            color={cores.vinho}
           />
 
           <View style={styles.infoDocumento}>
@@ -86,7 +98,7 @@ export default function Analise({ route, navigation }) {
             <Ionicons
               name="checkmark-circle"
               size={11}
-              color="#17652D"
+              color={corSucesso}
             />
             <Text style={styles.textoStatus}>Processado</Text>
           </View>
@@ -154,9 +166,7 @@ export default function Analise({ route, navigation }) {
             </View>
 
             {/* Pré-visualização */}
-            <Text style={styles.tituloPrevia}>
-              Pré Visualização
-            </Text>
+            <Text style={styles.tituloPrevia}>Pré Visualização</Text>
 
             <TouchableOpacity
               style={styles.cardPrevia}
@@ -176,9 +186,7 @@ export default function Analise({ route, navigation }) {
                     <View style={styles.quadradoAmarelo} />
                   </View>
 
-                  <Text style={styles.textoMicrosoft}>
-                    Microsoft
-                  </Text>
+                  <Text style={styles.textoMicrosoft}>Microsoft</Text>
 
                   <Text style={styles.textoNfe}>NF-e</Text>
                 </View>
@@ -224,7 +232,7 @@ export default function Analise({ route, navigation }) {
                 <Ionicons
                   name="checkmark-circle"
                   size={17}
-                  color="#287F7D"
+                  color={cores.primario}
                 />
                 <View style={styles.infoEvento}>
                   <Text style={styles.nomeCampo}>{titulo}</Text>
@@ -234,9 +242,11 @@ export default function Analise({ route, navigation }) {
             ))}
           </View>
         )}
-        <View style={{marginTop: 100}}></View>
+
+        <View style={{ marginTop: 100 }} />
       </ScrollView>
+
       <Footer />
-    </>
+    </View>
   );
 }
