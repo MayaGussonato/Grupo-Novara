@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from "react";
 import {
   View,
@@ -8,9 +7,10 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { AdministracaoStyles as styles } from "./AdministracaoStyles";
+import { criarAdministracaoStyles } from "./AdministracaoStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
+import { useTema } from "../context/TemaContext";
 
 const listaInicial = [
   { id: "1", nome: "Mayara Gussonato", status: "Ativo" },
@@ -25,6 +25,14 @@ export default function Usuarios({ navigation }) {
   const [abaAtiva, setAbaAtiva] = useState("Resumo");
   const [usuarios] = useState(listaInicial);
 
+  const { cores, modoEscuro } = useTema();
+
+  // Recria os estilos sempre que o tema mudar
+  const styles = useMemo(
+    () => criarAdministracaoStyles(cores, modoEscuro),
+    [cores, modoEscuro]
+  );
+
   const usuariosFiltrados = useMemo(() => {
     return usuarios.filter((usuario) =>
       usuario.nome
@@ -35,9 +43,8 @@ export default function Usuarios({ navigation }) {
 
   return (
     <View style={styles.container}>
-        <Header 
-            titulo="Administração"
-        />
+      <Header titulo="Administração" />
+
       <ScrollView
         contentContainerStyle={styles.conteudo}
         showsVerticalScrollIndicator={false}
@@ -75,7 +82,7 @@ export default function Usuarios({ navigation }) {
           <Ionicons
             name="search-outline"
             size={19}
-            color="#287F7D"
+            color={cores.primario}
           />
 
           <TextInput
@@ -85,7 +92,7 @@ export default function Usuarios({ navigation }) {
                 ? "Pesquisar Documentos"
                 : "Pesquisar Perfil de Acesso"
             }
-            placeholderTextColor="#A6ADAC"
+            placeholderTextColor={cores.textoSecundario}
             value={pesquisa}
             onChangeText={setPesquisa}
           />
@@ -95,7 +102,7 @@ export default function Usuarios({ navigation }) {
               <Ionicons
                 name="close-circle"
                 size={18}
-                color="#83B8B8"
+                color={cores.textoSecundario}
               />
             </TouchableOpacity>
           )}
@@ -118,7 +125,7 @@ export default function Usuarios({ navigation }) {
                 <Ionicons
                   name="person-outline"
                   size={19}
-                  color="#650000"
+                  color={cores.vinho}
                 />
 
                 <Text
@@ -162,11 +169,10 @@ export default function Usuarios({ navigation }) {
           activeOpacity={0.8}
           onPress={() => navigation?.navigate?.("Cadastro")}
         >
-          <Text style={styles.textoBotaoNovo}>
-            Novo Usuário
-          </Text>
+          <Text style={styles.textoBotaoNovo}>Novo Usuário</Text>
         </TouchableOpacity>
       </ScrollView>
+
       <Footer />
     </View>
   );

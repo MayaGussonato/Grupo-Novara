@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   View,
@@ -10,34 +9,39 @@ import {
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { dashboardStyles as styles } from "./DashboardStyles";
 import Footer from "../footer/Footer";
+import { useTema } from "../context/TemaContext";
 
 const indicadores = [
   {
     titulo: "1324",
     descricao: "Documentos processados",
     icone: "document-text-outline",
-    cor: "#169447",
+    corDark: "#4AF272",
+    corLight: "#169447",
     tipo: "documentos",
   },
   {
     titulo: "96,4%",
     descricao: "Taxa de precisão",
     icone: "analytics-outline",
-    cor: "#169447",
+    corDark: "#4AF272",
+    corLight: "#169447",
     tipo: "precisao",
   },
   {
     titulo: "42h",
     descricao: "Tempo economizado",
     icone: "time-outline",
-    cor: "#FF963D",
+    corDark: "#FFAE6B",
+    corLight: "#FF963D",
     tipo: "tempo",
   },
   {
     titulo: "23",
     descricao: "Documentos aguardando revisão",
     icone: "eye-outline",
-    cor: "#398BFF",
+    corDark: "#6BB0FF",
+    corLight: "#398BFF",
     tipo: "revisao",
   },
 ];
@@ -59,68 +63,76 @@ const arquivos = [
 ];
 
 export default function Dashboard({ navigation }) {
+  const { cores, modoEscuro } = useTema();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: cores.background }]}>
       <StatusBar
-        barStyle="dark-content"
-        backgroundColor="#F3FFFC"
+        barStyle={modoEscuro ? "light-content" : "dark-content"}
+        backgroundColor={cores.background}
       />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <Text style={styles.titulo}>DashBoard</Text>
+        <Text style={[styles.titulo, { color: cores.texto }]}>DashBoard</Text>
 
         {/* Indicadores */}
         <View style={styles.gradeIndicadores}>
-          {indicadores.map((item) => (
-            <View
-              key={item.tipo}
-              style={styles.cardIndicador}
-            >
-              <View style={styles.linhaIndicador}>
-                {item.tipo === "precisao" ? (
-                  <MaterialCommunityIcons
-                    name="bullseye-arrow"
-                    size={35}
-                    color={item.cor}
-                  />
-                ) : (
-                  <Ionicons
-                    name={item.icone}
-                    size={35}
-                    color={item.cor}
-                  />
-                )}
+          {indicadores.map((item) => {
+            const corIcone = modoEscuro ? item.corDark : item.corLight;
+            return (
+              <View
+                key={item.tipo}
+                style={[
+                  styles.cardIndicador,
+                  { backgroundColor: cores.card, borderColor: cores.borda },
+                ]}
+              >
+                <View style={styles.linhaIndicador}>
+                  {item.tipo === "precisao" ? (
+                    <MaterialCommunityIcons
+                      name="bullseye-arrow"
+                      size={35}
+                      color={corIcone}
+                    />
+                  ) : (
+                    <Ionicons
+                      name={item.icone}
+                      size={35}
+                      color={corIcone}
+                    />
+                  )}
 
-                <Text style={styles.valorIndicador}>
-                  {item.titulo}
+                  <Text style={[styles.valorIndicador, { color: cores.texto }]}>
+                    {item.titulo}
+                  </Text>
+                </View>
+
+                <Text style={[styles.descricaoIndicador, { color: cores.textoSecundario }]}>
+                  {item.descricao}
                 </Text>
               </View>
-
-              <Text style={styles.descricaoIndicador}>
-                {item.descricao}
-              </Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
 
         {/* Gráfico */}
-        <View style={styles.cardGrafico}>
+        <View style={[styles.cardGrafico, { backgroundColor: cores.card, borderColor: cores.borda }]}>
           <View style={styles.cabecalhoGrafico}>
-            <Text style={styles.tituloGrafico}>
+            <Text style={[styles.tituloGrafico, { color: cores.texto }]}>
               Documentos processados
             </Text>
 
-            <View style={styles.seletorPeriodo}>
-              <Text style={styles.textoPeriodo}>
+            <View style={[styles.seletorPeriodo, { borderColor: cores.borda }]}>
+              <Text style={[styles.textoPeriodo, { color: cores.textoSecundario }]}>
                 Últimos 6 meses
               </Text>
               <Ionicons
                 name="chevron-down"
                 size={10}
-                color="#708080"
+                color={cores.textoSecundario}
               />
             </View>
           </View>
@@ -129,7 +141,7 @@ export default function Dashboard({ navigation }) {
             <View style={styles.eixoY}>
               {["400", "300", "200", "100", "0"].map(
                 (valor) => (
-                  <Text key={valor} style={styles.textoEixo}>
+                  <Text key={valor} style={[styles.textoEixo, { color: cores.textoSecundario }]}>
                     {valor}
                   </Text>
                 )
@@ -142,44 +154,53 @@ export default function Dashboard({ navigation }) {
                   key={linha}
                   style={[
                     styles.linhaGrade,
-                    { bottom: `${linha * 25}%` },
+                    { 
+                      bottom: `${linha * 25}%`,
+                      backgroundColor: modoEscuro ? "#2E3A38" : "#E9EFEE" 
+                    },
                   ]}
                 />
               ))}
 
               <View style={styles.barras}>
-                {meses.map((item, index) => (
-                  <View
-                    key={item.mes}
-                    style={styles.colunaBarra}
-                  >
-                    <View
-                      style={[
-                        styles.barra,
-                        {
-                          height: `${item.valor}%`,
-                          backgroundColor:
-                            index === meses.length - 1
-                              ? "#00645F"
-                              : index >= 3
-                              ? "#299D91"
-                              : "#8CCFC4",
-                        },
-                      ]}
-                    />
+                {meses.map((item, index) => {
+                  let corBarra = "#8CCFC4";
+                  if (index === meses.length - 1) {
+                    corBarra = modoEscuro ? "#4AF272" : "#00645F";
+                  } else if (index >= 3) {
+                    corBarra = "#299D91";
+                  } else {
+                    corBarra = modoEscuro ? "#1B4741" : "#8CCFC4";
+                  }
 
-                    <Text style={styles.textoMes}>
-                      {item.mes}
-                    </Text>
-                  </View>
-                ))}
+                  return (
+                    <View
+                      key={item.mes}
+                      style={styles.colunaBarra}
+                    >
+                      <View
+                        style={[
+                          styles.barra,
+                          {
+                            height: `${item.valor}%`,
+                            backgroundColor: corBarra,
+                          },
+                        ]}
+                      />
+
+                      <Text style={[styles.textoMes, { color: cores.textoSecundario }]}>
+                        {item.mes}
+                      </Text>
+                    </View>
+                  );
+                })}
               </View>
             </View>
           </View>
         </View>
 
         {/* Arquivos recentes */}
-        <Text style={styles.tituloRecentes}>
+        <Text style={[styles.tituloRecentes, { color: cores.texto }]}>
           Arquivos Recentes
         </Text>
 
@@ -187,7 +208,10 @@ export default function Dashboard({ navigation }) {
           {arquivos.map((arquivo) => (
             <TouchableOpacity
               key={arquivo.id}
-              style={styles.cardArquivo}
+              style={[
+                styles.cardArquivo,
+                { backgroundColor: cores.card, borderColor: cores.borda }
+              ]}
               activeOpacity={0.75}
               onPress={() =>
                 navigation?.navigate?.(
@@ -199,26 +223,32 @@ export default function Dashboard({ navigation }) {
               <MaterialCommunityIcons
                 name="file-pdf-box"
                 size={30}
-                color="#650000"
+                color={cores.vinho || "#650000"}
               />
 
               <View style={styles.infoArquivo}>
-                <Text style={styles.nomeArquivo}>
+                <Text style={[styles.nomeArquivo, { color: cores.texto }]}>
                   {arquivo.nome}
                 </Text>
 
-                <Text style={styles.tamanhoArquivo}>
+                <Text style={[styles.tamanhoArquivo, { color: cores.textoSecundario }]}>
                   Pdf    {arquivo.tamanho}
                 </Text>
               </View>
 
-              <View style={styles.statusConcluido}>
+              <View style={[
+                styles.statusConcluido, 
+                { backgroundColor: modoEscuro ? "#1B3B22" : "#BDFFB8" }
+              ]}>
                 <Ionicons
                   name="checkmark-circle"
                   size={12}
-                  color="#17652D"
+                  color={modoEscuro ? "#4AF272" : "#17652D"}
                 />
-                <Text style={styles.textoConcluido}>
+                <Text style={[
+                  styles.textoConcluido, 
+                  { color: modoEscuro ? "#4AF272" : "#17652D" }
+                ]}>
                   Concluído
                 </Text>
               </View>

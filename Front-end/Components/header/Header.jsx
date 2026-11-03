@@ -1,13 +1,15 @@
-
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { styles } from "./HeaderStyles";
+import { useTema } from "../context/TemaContext";
 
 export default function Header({
   navigation,
   titulo = "Dash Board",
 }) {
+  const { cores, modoEscuro } = useTema();
+
   return (
     <View style={styles.header}>
       <TouchableOpacity
@@ -17,12 +19,20 @@ export default function Header({
         <Ionicons
           name="arrow-back-outline"
           size={27}
-          color="#000000"
+          color={cores.texto}
         />
       </TouchableOpacity>
 
-      <Text style={styles.titulo}>{titulo}</Text>
-      <View style={styles.sim}></View>
+      <Text
+        style={[
+          styles.titulo,
+          { color: cores.texto },
+        ]}
+      >
+        {titulo}
+      </Text>
+
+      <View style={styles.sim} />
     </View>
   );
 }

@@ -1,5 +1,8 @@
-import { View, Image, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Image, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import styles from "./FooterStyle";
+import { useTema } from "../context/TemaContext";
 
 const icones = [
   {
@@ -21,26 +24,63 @@ const icones = [
 ];
 
 export default function Footer() {
-  return (
-    <View style={styles.footer}>
-      {icones.map((icone) => (
-        <TouchableOpacity
-          key={icone.nome}
-          style={styles.botao}
-          onPress={() => console.log(icone.nome)}
-        >
-         
-<Image
-  source={icone.imagem}
-  style={[
-    styles.icone,
-    { tintColor: "#217E7A" },
-  ]}
-/>
+  const [selecionado, setSelecionado] = useState("Documento");
+  const { cores } = useTema();
 
-        </TouchableOpacity>
-      ))}
+  return (
+    <View
+      style={[
+        styles.footer,
+        {
+          backgroundColor: cores.card,
+          borderColor: cores.secundario,
+        },
+      ]}
+    >
+      {icones.map((icone) => {
+        const ativo = selecionado === icone.nome;
+
+        return (
+          <TouchableOpacity
+            key={icone.nome}
+            style={styles.botao}
+            onPress={() => setSelecionado(icone.nome)}
+            activeOpacity={0.7}
+          >
+            <View
+              style={[
+                styles.areaIcone,
+                ativo && [
+                  styles.destaque,
+                  {
+                    backgroundColor: cores.input,
+                    shadowColor: cores.primario,
+                  },
+                ],
+              ]}
+            >
+              {icone.tipo === "icone" ? (
+                <Ionicons
+                  name={icone.imagem}
+                  size={32}
+                  color={ativo ? cores.primario : cores.textoSecundario}
+                />
+              ) : (
+                <Image
+                  source={icone.imagem}
+                  style={[
+                    styles.icone,
+                    {
+                      tintColor: ativo ? cores.primario : cores.textoSecundario,
+                    },
+                  ]}
+                  resizeMode="contain"
+                />
+              )}
+            </View>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
-

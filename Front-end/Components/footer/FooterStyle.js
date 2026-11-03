@@ -1,4 +1,3 @@
-
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
@@ -7,15 +6,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 60,
+    height: 75,
 
-    backgroundColor: "#FFFFFF",
     borderWidth: 2,
-    borderColor: "#174E4B",
     borderBottomWidth: 0,
 
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
 
     flexDirection: "row",
     alignItems: "center",
@@ -27,15 +24,49 @@ const styles = StyleSheet.create({
   },
 
   botao: {
-    flex: 1,
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
+  flex: 1,
+  height: "100%",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+areaIcone: {
+  width: 76,
+  height: 64,
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+destaque: {
+  borderRadius: 12,
+
+  shadowOffset: {
+    width: 0,
+    height: 0,
   },
+  shadowOpacity: 0.45,
+  shadowRadius: 4,
+  elevation: 4,
+},
+
+  botaoSelecionado: {
+  flex: 0.75,
+  height: "75%",
+  borderRadius: 8,
+
+  shadowColor: "#287F7D",
+  shadowOffset: {
+    width: 0,
+    height: 0,
+  },
+  shadowOpacity: 0.45,
+  shadowRadius: 4,
+  elevation: 4,
+},
 
   icone: {
-    width: 28,
-    height: 28,
+    width: 32,
+    height: 32,
     resizeMode: "contain",
   },
 });

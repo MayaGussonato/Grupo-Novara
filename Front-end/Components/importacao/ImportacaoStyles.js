@@ -1,10 +1,8 @@
-
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E7F3F1",
   },
 
   conteudo: {
@@ -17,9 +15,7 @@ export const styles = StyleSheet.create({
   areaSelecao: {
     width: "100%",
     minHeight: 200,
-    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#C8CECD",
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
@@ -28,7 +24,6 @@ export const styles = StyleSheet.create({
   },
 
   textoArraste: {
-    color: "#222222",
     fontSize: 13,
     fontWeight: "500",
     marginTop: 8,
@@ -36,7 +31,6 @@ export const styles = StyleSheet.create({
   },
 
   textoSelecione: {
-    color: "#929292",
     fontSize: 13,
     marginTop: 5,
     textAlign: "center",
@@ -45,7 +39,6 @@ export const styles = StyleSheet.create({
   botaoSelecionar: {
     width: "78%",
     minHeight: 32,
-    backgroundColor: "#287F7D",
     borderRadius: 4,
     marginTop: 20,
     paddingHorizontal: 10,
@@ -67,9 +60,7 @@ export const styles = StyleSheet.create({
 
   documento: {
     minHeight: 49,
-    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#CDD2D1",
     borderRadius: 5,
     paddingHorizontal: 8,
     paddingVertical: 7,
@@ -85,20 +76,17 @@ export const styles = StyleSheet.create({
 
   nomeDocumento: {
     fontSize: 11,
-    color: "#222222",
     fontWeight: "500",
   },
 
   tamanhoDocumento: {
     fontSize: 10,
-    color: "#A0A0A0",
     marginTop: 4,
   },
 
   status: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#C8F8C8",
     borderRadius: 5,
     paddingHorizontal: 5,
     paddingVertical: 4,
@@ -107,7 +95,6 @@ export const styles = StyleSheet.create({
 
   textoStatus: {
     fontSize: 9,
-    color: "#216B31",
   },
 
   botaoRemover: {
@@ -118,14 +105,12 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 26,
     paddingTop: 10,
     paddingBottom: 80,
-    backgroundColor: "#E7F3F1",
     gap: 22,
   },
 
   botaoProcessar: {
     width: "100%",
     height: 49,
-    backgroundColor: "#287F7D",
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
@@ -146,7 +131,6 @@ export const styles = StyleSheet.create({
   },
 
   textoLimpar: {
-    color: "#650000",
     fontSize: 14,
   },
 });

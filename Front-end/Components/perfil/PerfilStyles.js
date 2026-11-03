@@ -1,10 +1,8 @@
-
 import { StyleSheet } from "react-native";
 
 export const perfilStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F3FFFC",
   },
 
   conteudo: {
@@ -22,19 +20,39 @@ export const perfilStyles = StyleSheet.create({
   titulo: {
     fontSize: 22,
     fontWeight: "600",
-    color: "#111111",
   },
 
-  sim:{
+  sim: {
     alignItems: "center",
   },
 
   subtitulo: {
     alignItems: "center",
     fontSize: 12,
-    color: "#A0A9A7",
     marginTop: 3,
-    marginBottom: 20,
+    marginBottom: 15,
+  },
+
+  botaoTema: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    marginBottom: 15,
+  },
+
+  infoTema: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+  },
+
+  textoTema: {
+    fontSize: 13,
+    fontWeight: "500",
   },
 
   abas: {
@@ -52,24 +70,21 @@ export const perfilStyles = StyleSheet.create({
   textoAba: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#222222",
   },
 
   abaAtiva: {
     fontWeight: "700",
-    color: "#174847",
   },
 
   linhaAtiva: {
     width: "100%",
     height: 2,
-    backgroundColor: "#460303",
     position: "absolute",
     bottom: 0,
   },
 
   card: {
-    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 13,
     paddingTop: 22,
@@ -85,14 +100,13 @@ export const perfilStyles = StyleSheet.create({
     width: 62,
     height: 62,
     borderRadius: 35,
-    backgroundColor: "#D3EEEE",
     alignItems: "center",
     justifyContent: "center",
   },
 
   iniciais: {
     fontSize: 24,
-    color: "#111111",
+    color: "#FFFFFF",
   },
 
   botaoFoto: {
@@ -110,13 +124,11 @@ export const perfilStyles = StyleSheet.create({
   nomeUsuario: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#111111",
     marginTop: 5,
   },
 
   cargoUsuario: {
     fontSize: 13,
-    color: "#888888",
     marginTop: 3,
   },
 
@@ -135,7 +147,6 @@ export const perfilStyles = StyleSheet.create({
   label: {
     fontSize: 11,
     fontWeight: "500",
-    color: "#222222",
     width: "43%",
   },
 
@@ -143,17 +154,13 @@ export const perfilStyles = StyleSheet.create({
     flex: 1,
     height: 31,
     borderWidth: 1,
-    borderColor: "#DDDDDD",
     borderRadius: 4,
-    backgroundColor: "#FFFFFF",
     paddingHorizontal: 7,
     fontSize: 9,
-    color: "#777777",
   },
 
   botaoSalvar: {
     height: 37,
-    backgroundColor: "#460303",
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
@@ -172,13 +179,11 @@ export const perfilStyles = StyleSheet.create({
   tituloSeguranca: {
     fontSize: 17,
     fontWeight: "600",
-    color: "#174847",
     marginBottom: 20,
   },
 
   labelSeguranca: {
     fontSize: 12,
-    color: "#174847",
     marginBottom: 6,
     marginTop: 12,
   },
@@ -186,10 +191,8 @@ export const perfilStyles = StyleSheet.create({
   inputSeguranca: {
     height: 40,
     borderWidth: 1,
-    borderColor: "#70AAA9",
     borderRadius: 5,
     paddingHorizontal: 10,
     fontSize: 12,
-    backgroundColor: "#FFFFFF",
   },
 });
