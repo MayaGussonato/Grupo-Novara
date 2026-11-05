@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import {
     View,
@@ -9,10 +8,11 @@ import {
     Alert,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
-import { integracaoStyles as styles } from "./IntegracoesStyles";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { criarIntegracaoStyles } from "./IntegracoesStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
+import { useTema } from "../tema/TemaContext";
 
 const integracoes = [
     {
@@ -59,6 +59,14 @@ const integracoes = [
 
 export default function Integracoes() {
     const [menuAberto, setMenuAberto] = useState(null);
+
+    const { cores, modoEscuro } = useTema();
+
+    // Recria os estilos sempre que o tema mudar
+    const styles = useMemo(
+        () => criarIntegracaoStyles(cores, modoEscuro),
+        [cores, modoEscuro]
+    );
 
     function abrirMenu(integracao) {
         setMenuAberto(
@@ -170,7 +178,7 @@ export default function Integracoes() {
                                     <Ionicons
                                         name="ellipsis-vertical"
                                         size={20}
-                                        color="#111111"
+                                        color={cores.texto}
                                     />
                                 </TouchableOpacity>
 

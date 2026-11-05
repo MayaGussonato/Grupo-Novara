@@ -7,11 +7,11 @@ import {
   ScrollView,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { perfilStyles as styles } from "./PerfilStyles";
 import Header from "../header/Header";
 import Footer from "../footer/Footer";
-import { useTema } from "../context/TemaContext";
+import { useTema } from "../tema/TemaContext";
 
 export default function Perfil({ navigation }) {
   const [aba, setAba] = useState("Perfil");

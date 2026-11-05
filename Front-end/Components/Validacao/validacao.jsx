@@ -20,7 +20,7 @@ import {
 import styles from "./ValidacaoStyle";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
-import { useTema } from "../context/TemaContext";
+import { useTema } from "../tema/TemaContext";
 
 const documentosIniciais = [
   {

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, Image, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from '@react-native-vector-icons/ionicons'
 import styles from "./FooterStyle";
-import { useTema } from "../context/TemaContext";
+import { useTema } from "../tema/TemaContext";
 
 const icones = [
   {

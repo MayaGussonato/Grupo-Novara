@@ -9,9 +9,9 @@ import {
   Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { criarLoginStyles } from "./LoginStyles";
-import { useTema } from "../context/TemaContext"; // mesmo caminho usado no Perfil
+import { useTema } from "../tema/TemaContext"; // mesmo caminho usado no Perfil
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function Login({ navigation }) {

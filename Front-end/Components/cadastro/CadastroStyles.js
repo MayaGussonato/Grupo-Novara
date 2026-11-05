@@ -78,4 +78,8 @@ export const cadastroStyles = StyleSheet.create({
         backgroundColor: "transparent",
         borderRadius: 5,
     },
+
+    selector: {
+        padding: 10
+    }
 });

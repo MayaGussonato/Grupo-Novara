@@ -1,13 +1,8 @@
-
 import { StyleSheet } from "react-native";
 
 export const atendimentoStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F3FFFC",
-    borderLeftWidth: 2,
-    borderRightWidth: 2,
-    borderColor: "#159BFF",
   },
 
   conteudo: {
@@ -19,7 +14,6 @@ export const atendimentoStyles = StyleSheet.create({
 
   titulo: {
     fontSize: 14,
-    color: "#87918F",
     textAlign: "center",
     lineHeight: 21,
     marginBottom: 20,
@@ -40,18 +34,15 @@ export const atendimentoStyles = StyleSheet.create({
 
   textoFiltro: {
     fontSize: 12,
-    color: "#333333",
   },
 
   filtroAtivo: {
-    color: "#650000",
     fontWeight: "600",
   },
 
   linhaAtiva: {
     width: "100%",
     height: 2,
-    backgroundColor: "#650000",
     position: "absolute",
     bottom: 0,
   },
@@ -62,10 +53,10 @@ export const atendimentoStyles = StyleSheet.create({
 
   card: {
     minHeight: 91,
-    backgroundColor: "#FFFFFF",
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 9,
+    borderWidth: 1,
     elevation: 3,
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
@@ -80,12 +71,10 @@ export const atendimentoStyles = StyleSheet.create({
   numero: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#333333",
   },
 
   descricao: {
     fontSize: 9,
-    color: "#A0A0A0",
     marginTop: 3,
   },
 
@@ -119,24 +108,8 @@ export const atendimentoStyles = StyleSheet.create({
     paddingHorizontal: 6,
   },
 
-  statusAberto: {
-    backgroundColor: "#E3F1F8",
-  },
-
-  statusAndamento: {
-    backgroundColor: "#F8C5C5",
-  },
-
   textoStatus: {
     fontSize: 9,
-  },
-
-  textoAberto: {
-    color: "#42627B",
-  },
-
-  textoAndamento: {
-    color: "#A13E3E",
   },
 
   rodapeCard: {
@@ -147,12 +120,10 @@ export const atendimentoStyles = StyleSheet.create({
 
   data: {
     fontSize: 8,
-    color: "#A0A0A0",
   },
 
   semResultados: {
     textAlign: "center",
-    color: "#929B9A",
     fontSize: 13,
     marginTop: 25,
   },

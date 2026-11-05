@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   StatusBar,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from '@react-native-vector-icons/ionicons'
+import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons";
 import { dashboardStyles as styles } from "./DashboardStyles";
 import Footer from "../footer/Footer";
-import { useTema } from "../context/TemaContext";
+import { useTema } from "../tema/TemaContext";
 
 const indicadores = [
   {

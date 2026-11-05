@@ -6,11 +6,11 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from '@react-native-vector-icons/ionicons';
 import { criarDadosStyles } from "./DadosStyles";
 import Header from "../header/Header";
 import Footer from "../footer/Footer";
-import { useTema } from "../context/TemaContext";
+import { useTema } from "../tema/TemaContext";
 
 const dados = [
   { campo: "Documento", valor: "NF-18291" },

@@ -5,11 +5,11 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from '@react-native-vector-icons/ionicons'
 import { criarAnaliseStyles } from "./AnaliseStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
-import { useTema } from "../context/TemaContext";
+import { useTema } from "../tema/TemaContext";
 
 const abas = ["Resumo", "Dados Extraídos", "Histórico"];
 

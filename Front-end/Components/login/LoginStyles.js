@@ -5,7 +5,7 @@ export const criarLoginStyles = (cores, modoEscuro) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      background: 'linear-gradient(to right, #004240, #013333)',
+      // background: 'linear-gradient(to right, #004240, #013333)',
     },
 
     banner: {

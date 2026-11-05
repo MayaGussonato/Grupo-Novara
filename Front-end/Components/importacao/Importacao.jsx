@@ -8,13 +8,13 @@ import {
   Alert,
   Image,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from '@react-native-vector-icons/ionicons';
 import * as DocumentPicker from "expo-document-picker";
 
 import Header from "../header/Header";
 import { styles } from "./ImportacaoStyles";
 import Footer from "../footer/Footer";
-import { useTema } from "../context/TemaContext";
+import { useTema } from "../tema/TemaContext";
 
 export default function Importacao({ navigation }) {
   const [documentos, setDocumentos] = useState([]);

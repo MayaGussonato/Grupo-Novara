@@ -6,11 +6,11 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from '@react-native-vector-icons/ionicons'
 import { criarAdministracaoStyles } from "./AdministracaoStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
-import { useTema } from "../context/TemaContext";
+import { useTema } from "../tema/TemaContext";
 
 const listaInicial = [
   { id: "1", nome: "Mayara Gussonato", status: "Ativo" },

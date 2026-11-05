@@ -149,6 +149,7 @@ export const dashboardStyles = StyleSheet.create({
 
   listaArquivos: {
     gap: 12,
+    paddingBottom: 20,
   },
 
   cardArquivo: {
