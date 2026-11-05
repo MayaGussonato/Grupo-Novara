@@ -7,10 +7,10 @@ namespace LabFlowAPI.Repositories;
 
 public class UsuarioRepository : IUsuarioRepository
 {
-    /// <summary>Sufixo gravado no e-mail de um usuário excluído, para liberar o UNIQUE.</summary>
+    /// Sufixo gravado no e-mail de um usuário excluído, para liberar o UNIQUE.
     private const string SufixoEmailExcluido = ".excluido";
 
-    /// <summary>Provedor usado para marcar a conta como excluída (só "Local" loga).</summary>
+    ///Provedor usado para marcar a conta como excluída (só "Local" loga).
     private const string ProvedorLoginExcluido = "Excluido";
 
     private readonly LabFlowContext _context;

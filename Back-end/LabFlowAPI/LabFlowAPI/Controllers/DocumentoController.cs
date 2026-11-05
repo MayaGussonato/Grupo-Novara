@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using LabFlowAPI.DTO;
 using LabFlowAPI.Interface;
 using LabFlowAPI.Models;
+using LabFlowAPI.Services.Processamento;
 using LabFlowAPI.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,15 +37,18 @@ public class DocumentoController : ControllerBase
 
     private readonly IDocumentoRepository _documentoRepository;
     private readonly IHistoricoRepository _historicoRepository;
+    private readonly IProcessadorDocumento _processador;
     private readonly IWebHostEnvironment _environment;
 
     public DocumentoController(
         IDocumentoRepository documentoRepository,
         IHistoricoRepository historicoRepository,
+        IProcessadorDocumento processador,
         IWebHostEnvironment environment)
     {
         _documentoRepository = documentoRepository;
         _historicoRepository = historicoRepository;
+        _processador = processador;
         _environment = environment;
     }
 
@@ -249,6 +253,83 @@ public class DocumentoController : ControllerBase
         }
 
         return Ok(_historicoRepository.ListarPorDocumento(id));
+    }
+
+    // POST: api/Documento/{id}/processar  (fluxo da LHAMA IA)
+    // Lê o arquivo, extrai os campos com IA, confere contra o original e grava a extração.
+    [HttpPost("{id:int}/processar")]
+    public async Task<IActionResult> Processar(int id, CancellationToken cancellationToken)
+    {
+        var idUsuario = User.GetIdUsuario();
+
+        if (idUsuario == null)
+        {
+            return Unauthorized();
+        }
+
+        var documento = _documentoRepository.BuscarPorId(id);
+
+        if (documento == null)
+        {
+            return NotFound("Documento não encontrado.");
+        }
+
+        if (!PodeAcessar(documento.IdUsuario))
+        {
+            return Forbid();
+        }
+
+        if (documento.StatusDocumento == "Aprovado")
+        {
+            return Conflict("Documento já aprovado: não é reprocessado.");
+        }
+
+        var caminho = CaminhoFisico(documento.CaminhoArquivo);
+
+        if (caminho == null)
+        {
+            return NotFound("Arquivo físico não encontrado.");
+        }
+
+        try
+        {
+            var resultado = await _processador.ProcessarAsync(
+                id, caminho, idUsuario.Value, cancellationToken);
+
+            return Ok(resultado);
+        }
+        catch (ProcessamentoException erro)
+        {
+            return StatusCode(erro.CodigoHttp, new { erro = erro.Message });
+        }
+        catch (InvalidOperationException erro)
+        {
+            // Nenhum provedor de IA respondeu
+            return StatusCode(503, new { erro = erro.Message });
+        }
+    }
+
+    /// <summary>
+    /// Resolve o caminho do arquivo garantindo que ele não escapa da pasta Uploads.
+    /// Devolve null quando o arquivo não existe ou o caminho é suspeito.
+    /// </summary>
+    private string? CaminhoFisico(string caminhoRelativo)
+    {
+        var raiz = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, "Uploads"))
+                   + Path.DirectorySeparatorChar;
+
+        var caminho = Path.GetFullPath(Path.Combine(
+            _environment.ContentRootPath,
+            "Uploads",
+            caminhoRelativo.Replace('/', Path.DirectorySeparatorChar)));
+
+        if (!caminho.StartsWith(raiz, StringComparison.OrdinalIgnoreCase) ||
+            !System.IO.File.Exists(caminho))
+        {
+            return null;
+        }
+
+        return caminho;
     }
 
     // DELETE: api/Documento/{id}  (soft delete: some da API, histórico fica no banco)

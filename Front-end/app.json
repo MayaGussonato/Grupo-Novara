@@ -21,8 +21,16 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+<<<<<<< HEAD
       "@react-native-vector-icons/ionicons",
       "@react-native-vector-icons/material-design-icons"
+=======
+<<<<<<< HEAD
+=======
+      "expo-router",
+>>>>>>> 22b38c39db79bcdbab7461ddaeb697d75fd3429c
+      "expo-font"
+>>>>>>> 0bc0c2a9be06be2dd341e3d081588a5ba9076e09
     ]
   }
 }
