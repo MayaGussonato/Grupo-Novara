@@ -9,10 +9,10 @@ import {
   Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons } from '@react-native-vector-icons/ionicons';
-import { criarLoginStyles } from "./LoginStyles";
-import { useTema } from "../tema/TemaContext"; // mesmo caminho usado no Perfil
 import { LinearGradient } from "expo-linear-gradient";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { criarLoginStyles } from "./LoginStyles";
+import { useTema } from "../tema/TemaContext";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -37,11 +37,16 @@ export default function Login({ navigation }) {
     console.log("Senha preenchida.");
   }
 
+  // Cores do degradê (de cima para baixo, na região do banner)
+  const coresGradiente = modoEscuro
+    ? ["#15423E", "#013535"]
+    : ["#003232", "#053734"];
+
   return (
     <LinearGradient
-      colors={["#004240", "#013333"]}
+      colors={coresGradiente}
       start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
+      end={{ x: 2, y: 0 }}
       style={styles.container}
     >
       <StatusBar style="light" />
@@ -60,7 +65,7 @@ export default function Login({ navigation }) {
         />
 
         <Text style={styles.slogan}>
-          Automação inteligente de documentos.
+          Automação inteligente{"\n"}de documentos.
         </Text>
       </View>
 
@@ -149,7 +154,6 @@ export default function Login({ navigation }) {
             name="logo-google"
             size={20}
             color={cores.textoSecundario}
-            style={styles.iconeGoogle}
           />
           <Text style={styles.textoGoogle}>Entrar com Google</Text>
         </TouchableOpacity>

@@ -128,6 +128,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     minHeight: 28,
+    paddingBottom: 20
   },
 
   textoLimpar: {

@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  SafeAreaView,
   Image,
 } from "react-native";
 
@@ -17,7 +16,7 @@ import {
   Poppins_700Bold,
 } from "@expo-google-fonts/poppins";
 
-import styles from "./ValidacaoStyle";
+import styles from "./validacaoStyle";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
 import { useTema } from "../tema/TemaContext";
@@ -131,7 +130,7 @@ export default function Validacao() {
   }
 
   return (
-    <SafeAreaView
+    <View
       style={[
         styles.container,
         { backgroundColor: cores.background },
@@ -393,6 +392,6 @@ export default function Validacao() {
       </View>
 
       <Footer />
-    </SafeAreaView>
+    </View>
   );
 }

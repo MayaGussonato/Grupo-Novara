@@ -265,10 +265,10 @@ import Dashboard from './Components/dashboard/Dashboard';
 import Importacao from './Components/importacao/Importacao';
 import Login from './Components/login/Login';
 import Analise from './Components/analise/Analise';
-import Validacao from "./Components/validacao/Validacao";
+import Validacao from "./Components/Validacao/validacao";
 import Dados from './Components/dados/Dados';
 import Administracao from './Components/administracao/Administracao';
-import { SafeAreaView } from 'react-native-web';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import styles from './Styles';
 import Perfil from './Components/perfil/Perfil';
 import Atendimento from './Components/atendimento/Atendimento';
@@ -277,6 +277,7 @@ import { TemaProvider } from './Components/tema/TemaContext';
 
 export default function App() {
   return (
+    <SafeAreaProvider>
     <SafeAreaView style={styles.container}>
       <TemaProvider>
         {/* <Login /> */}
@@ -292,5 +293,6 @@ export default function App() {
         {/* <Integracoes /> */}
       </TemaProvider>
     </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

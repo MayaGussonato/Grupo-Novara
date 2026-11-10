@@ -3,15 +3,15 @@ import { StyleSheet } from "react-native";
 // Agora os estilos são gerados a partir das cores do TemaContext.
 export const criarLoginStyles = (cores, modoEscuro) =>
   StyleSheet.create({
+    // O fundo agora é o LinearGradient
     container: {
       flex: 1,
-      // background: 'linear-gradient(to right, #004240, #013333)',
     },
 
     banner: {
       height: "34%",
       minHeight: 220,
-      backgroundColor: modoEscuro ? "#0B2523" : "#003C3A",
+      // sem backgroundColor: o degradê do container aparece por trás
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
@@ -43,6 +43,8 @@ export const criarLoginStyles = (cores, modoEscuro) =>
       backgroundColor: cores.background,
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
+      // Faixa fina nas laterais onde o degradê do container aparece (a "borda")
+      marginHorizontal: 2,
     },
 
     conteudoCartao: {

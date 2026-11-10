@@ -74,7 +74,7 @@ export const cadastroStyles = StyleSheet.create({
 
     cargoPicker: {
         width: "100%",
-        height: 42,
+        height: 52,
         backgroundColor: "transparent",
         borderRadius: 5,
     },

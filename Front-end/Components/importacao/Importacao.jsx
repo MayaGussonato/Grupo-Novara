@@ -4,11 +4,11 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Alert,
   Image,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from '@react-native-vector-icons/ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons";
+import MaterialCommunityIcons from '@react-native-vector-icons/material-design-icons';
 import * as DocumentPicker from "expo-document-picker";
 
 import Header from "../header/Header";
@@ -77,7 +77,7 @@ export default function Importacao({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: cores.background }]}>
+    <View style={[styles.container, { backgroundColor: cores.background }]}>
       <Header navigation={navigation} titulo="Importação de documentos" />
 
       <ScrollView
@@ -181,6 +181,6 @@ export default function Importacao({ navigation }) {
 
         <Footer />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

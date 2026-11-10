@@ -6,7 +6,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { MaterialCommunityIcons } from '@react-native-vector-icons/ionicons';
+import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons";
 import { criarDadosStyles } from "./DadosStyles";
 import Header from "../header/Header";
 import Footer from "../footer/Footer";

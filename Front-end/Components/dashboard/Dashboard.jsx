@@ -4,9 +4,9 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  StatusBar,
 } from "react-native";
-import { Ionicons } from '@react-native-vector-icons/ionicons'
+import { StatusBar } from "expo-status-bar";
+import Ionicons from "@react-native-vector-icons/ionicons";
 import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons";
 import { dashboardStyles as styles } from "./DashboardStyles";
 import Footer from "../footer/Footer";
@@ -68,10 +68,7 @@ export default function Dashboard({ navigation }) {
 
   return (
     <View style={[styles.container, { backgroundColor: cores.background }]}>
-      <StatusBar
-        barStyle={modoEscuro ? "light-content" : "dark-content"}
-        backgroundColor={cores.background}
-      />
+      <StatusBar style={modoEscuro ? "light" : "dark"} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

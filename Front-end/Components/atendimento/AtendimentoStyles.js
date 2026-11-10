@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 export const atendimentoStyles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingBottom: 70,
   },
 
   conteudo: {

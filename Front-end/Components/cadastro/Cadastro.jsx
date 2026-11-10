@@ -23,7 +23,6 @@ function Seletor({ valor, aoMudar, placeholder, cores, modoEscuro }) {
                 // O modo padrão ("dialog") abre uma janela do sistema que ignora a cor do app.
                 mode="dropdown"
                 // iOS: deixa a roda do picker no tema certo
-                themeVariant={modoEscuro ? "dark" : "light"}
                 itemStyle={{ color: cores.texto }}
                 dropdownIconColor={cores.textoSecundario}
                 // backgroundColor aqui sobrescreve o "transparent" do CadastroStyles

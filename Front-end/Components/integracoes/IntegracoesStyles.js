@@ -8,7 +8,6 @@ export const criarIntegracaoStyles = (cores, modoEscuro) =>
       backgroundColor: cores.background,
       borderLeftWidth: 2,
       borderRightWidth: 2,
-      borderColor: "#159BFF",
     },
 
     conteudo: {

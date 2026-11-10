@@ -5,9 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 
-import { Ionicons } from '@react-native-vector-icons/ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { perfilStyles as styles } from "./PerfilStyles";
 import Header from "../header/Header";
 import Footer from "../footer/Footer";
@@ -25,7 +26,7 @@ export default function Perfil({ navigation }) {
   const { cores, modoEscuro, alternarTema } = useTema();
 
   function salvarAlteracoes() {
-    alert("Alterações salvas com sucesso!");
+    Alert.alert("Sucesso", "Alterações salvas com sucesso!");
   }
 
   const corTexto = cores.texto;

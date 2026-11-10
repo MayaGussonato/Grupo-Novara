@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import Ionicons from '@react-native-vector-icons/ionicons'
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { criarAdministracaoStyles } from "./AdministracaoStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
