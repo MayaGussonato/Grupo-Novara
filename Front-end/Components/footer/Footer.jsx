@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
+
 import { View, Image, TouchableOpacity } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons";
+import { useNavigate, useLocation } from "react-router-dom";
+
 import styles from "./FooterStyle";
 import { useTema } from "../tema/TemaContext";
 
@@ -8,24 +10,60 @@ const icones = [
   {
     nome: "Dashboard",
     imagem: require("../../assets/Dashboard.png"),
+    rota: "/dashboard",
   },
   {
     nome: "Documento",
     imagem: require("../../assets/Documento.png"),
+    rota: "/validacao",
   },
   {
     nome: "Integrar",
     imagem: require("../../assets/Integrar.png"),
+    rota: "/integracoes",
   },
   {
     nome: "Opcoes",
     imagem: require("../../assets/Opcoes.png"),
+    rota: "/perfil",
   },
 ];
 
 export default function Footer() {
-  const [selecionado, setSelecionado] = useState("Documento");
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { cores } = useTema();
+
+  function verificarSelecionado(nome) {
+    const caminho = location.pathname;
+
+    if (nome === "Dashboard") {
+      return caminho === "/dashboard";
+    }
+
+    if (nome === "Documento") {
+      return [
+        "/validacao",
+        "/importacao",
+        "/analise",
+        "/dados",
+      ].includes(caminho);
+    }
+
+    if (nome === "Integrar") {
+      return caminho === "/integracoes";
+    }
+
+    if (nome === "Opcoes") {
+      return [
+        "/perfil",
+        "/administracao",
+      ].includes(caminho);
+    }
+
+    return false;
+  }
 
   return (
     <View
@@ -38,13 +76,13 @@ export default function Footer() {
       ]}
     >
       {icones.map((icone) => {
-        const ativo = selecionado === icone.nome;
+        const ativo = verificarSelecionado(icone.nome);
 
         return (
           <TouchableOpacity
             key={icone.nome}
             style={styles.botao}
-            onPress={() => setSelecionado(icone.nome)}
+            onPress={() => navigate(icone.rota)}
             activeOpacity={0.7}
           >
             <View
@@ -59,24 +97,18 @@ export default function Footer() {
                 ],
               ]}
             >
-              {icone.tipo === "icone" ? (
-                <Ionicons
-                  name={icone.imagem}
-                  size={32}
-                  color={ativo ? cores.primario : cores.textoSecundario}
-                />
-              ) : (
-                <Image
-                  source={icone.imagem}
-                  style={[
-                    styles.icone,
-                    {
-                      tintColor: ativo ? cores.primario : cores.textoSecundario,
-                    },
-                  ]}
-                  resizeMode="contain"
-                />
-              )}
+              <Image
+                source={icone.imagem}
+                style={[
+                  styles.icone,
+                  {
+                    tintColor: ativo
+                      ? cores.primario
+                      : cores.textoSecundario,
+                  },
+                ]}
+                resizeMode="contain"
+              />
             </View>
           </TouchableOpacity>
         );

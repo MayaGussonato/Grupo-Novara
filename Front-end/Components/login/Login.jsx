@@ -35,6 +35,10 @@ export default function Login({ navigation }) {
     // Aqui você pode conectar a autenticação da sua API.
     console.log("E-mail:", email);
     console.log("Senha preenchida.");
+
+    // Redireciona o usuário para a Dashboard após a validação
+    // ATENÇÃO: Substitua 'Analise' pelo nome exato que você deu para a tela de Dashboard no seu arquivo de Rotas principal!
+    navigation?.navigate?.("Analise");
   }
 
   // Cores do degradê (de cima para baixo, na região do banner)
