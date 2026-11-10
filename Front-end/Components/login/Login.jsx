@@ -1,18 +1,11 @@
 import React, { useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  Alert,
-} from "react-native";
+import {View,Text,TextInput,TouchableOpacity,Image,ScrollView,Alert,} from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { criarLoginStyles } from "./LoginStyles";
 import { useTema } from "../tema/TemaContext";
+import { useAuth } from "../../Services/AuthContext";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -26,146 +19,160 @@ export default function Login({ navigation }) {
     [cores, modoEscuro]
   );
 
-  function entrar() {
+
+
+  // Dentro do componente:
+  const { entrar: autenticar } = useAuth();
+
+  async function entrar() {
     if (!email.trim() || !senha) {
-      Alert.alert("Atenção", "Preencha seu e-mail e sua senha.");
+      Alert.alert("Atenção", "Preencha e-mail e senha.");
       return;
     }
 
-    // Aqui você pode conectar a autenticação da sua API.
-    console.log("E-mail:", email);
-    console.log("Senha preenchida.");
+    try {
+      await autenticar(email.trim(), senha);
+
+      // O App deve atualizar a tela para o dashboard.
+    } catch (erro) {
+      Alert.alert("Erro no login", erro.message);
+    }
   }
 
-  // Cores do degradê (de cima para baixo, na região do banner)
-  const coresGradiente = modoEscuro
-    ? ["#15423E", "#013535"]
-    : ["#003232", "#053734"];
+  // Aqui você pode conectar a autenticação da sua API.
+  console.log("E-mail:", email);
+  console.log("Senha preenchida.");
 
-  return (
-    <LinearGradient
-      colors={coresGradiente}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 2, y: 0 }}
-      style={styles.container}
+
+// Cores do degradê (de cima para baixo, na região do banner)
+const coresGradiente = modoEscuro
+  ? ["#15423E", "#013535"]
+  : ["#003232", "#053734"];
+
+return (
+  <LinearGradient
+    colors={coresGradiente}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 2, y: 0 }}
+    style={styles.container}
+  >
+    <StatusBar style="light" />
+
+    {/* Banner superior */}
+    <View style={styles.banner}>
+      <Image
+        source={require("../../assets/fundo.png")}
+        style={styles.formaBanner}
+      />
+
+      <Image
+        source={require("../../assets/Logo-branco.png")}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+
+      <Text style={styles.slogan}>
+        Automação inteligente{"\n"}de documentos.
+      </Text>
+    </View>
+
+    {/* Cartão de login */}
+    <ScrollView
+      style={styles.cartao}
+      contentContainerStyle={styles.conteudoCartao}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
     >
-      <StatusBar style="light" />
+      <Text style={styles.boasVindas}>Bem-Vindo (A)</Text>
 
-      {/* Banner superior */}
-      <View style={styles.banner}>
-        <Image
-          source={require("../../assets/fundo.png")}
-          style={styles.formaBanner}
-        />
+      <Text style={styles.titulo}>Login</Text>
 
-        <Image
-          source={require("../../assets/Logo-branco.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+      {/* E-mail */}
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor={cores.textoSecundario}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+        value={email}
+        onChangeText={setEmail}
+      />
 
-        <Text style={styles.slogan}>
-          Automação inteligente{"\n"}de documentos.
-        </Text>
-      </View>
-
-      {/* Cartão de login */}
-      <ScrollView
-        style={styles.cartao}
-        contentContainerStyle={styles.conteudoCartao}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.boasVindas}>Bem-Vindo (A)</Text>
-
-        <Text style={styles.titulo}>Login</Text>
-
-        {/* E-mail */}
+      {/* Senha */}
+      <View style={styles.senhaContainer}>
         <TextInput
-          style={styles.input}
-          placeholder="Email"
+          style={styles.inputSenha}
+          placeholder="Senha"
           placeholderTextColor={cores.textoSecundario}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={email}
-          onChangeText={setEmail}
+          secureTextEntry={!mostrarSenha}
+          value={senha}
+          onChangeText={setSenha}
         />
 
-        {/* Senha */}
-        <View style={styles.senhaContainer}>
-          <TextInput
-            style={styles.inputSenha}
-            placeholder="Senha"
-            placeholderTextColor={cores.textoSecundario}
-            secureTextEntry={!mostrarSenha}
-            value={senha}
-            onChangeText={setSenha}
-          />
-
-          <TouchableOpacity
-            style={styles.iconeSenha}
-            onPress={() => setMostrarSenha(!mostrarSenha)}
-          >
-            <Ionicons
-              name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color={cores.textoSecundario}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Recuperar senha */}
         <TouchableOpacity
-          style={styles.esqueciSenha}
-          onPress={() => navigation?.navigate?.("RecuperarSenha")}
-        >
-          <Text style={styles.textoLink}>Esqueceu sua senha?</Text>
-        </TouchableOpacity>
-
-        {/* Entrar */}
-        <TouchableOpacity
-          style={styles.botaoEntrar}
-          activeOpacity={0.8}
-          onPress={entrar}
-        >
-          <Text style={styles.textoBotaoEntrar}>Entrar</Text>
-        </TouchableOpacity>
-
-        {/* Divisor */}
-        <View style={styles.divisor}>
-          <View style={styles.linha} />
-          <Text style={styles.textoOu}>ou</Text>
-          <View style={styles.linha} />
-        </View>
-
-        {/* Google */}
-        <TouchableOpacity
-          style={styles.botaoGoogle}
-          activeOpacity={0.8}
-          onPress={() =>
-            Alert.alert(
-              "Google",
-              "A autenticação com Google ainda precisa ser configurada."
-            )
-          }
+          style={styles.iconeSenha}
+          onPress={() => setMostrarSenha(!mostrarSenha)}
         >
           <Ionicons
-            name="logo-google"
+            name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
             size={20}
             color={cores.textoSecundario}
           />
-          <Text style={styles.textoGoogle}>Entrar com Google</Text>
         </TouchableOpacity>
+      </View>
 
-        {/* Criar conta */}
-        <TouchableOpacity
-          style={styles.criarConta}
-          onPress={() => navigation?.navigate?.("Cadastro")}
-        >
-          <Text style={styles.textoCriarConta}>Crie uma conta</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </LinearGradient>
-  );
+      {/* Recuperar senha */}
+      <TouchableOpacity
+        style={styles.esqueciSenha}
+        onPress={() => navigation?.navigate?.("RecuperarSenha")}
+      >
+        <Text style={styles.textoLink}>Esqueceu sua senha?</Text>
+      </TouchableOpacity>
+
+      {/* Entrar */}
+      <TouchableOpacity
+        style={styles.botaoEntrar}
+        activeOpacity={0.8}
+        onPress={entrar}
+      >
+        <Text style={styles.textoBotaoEntrar}>Entrar</Text>
+      </TouchableOpacity>
+
+      {/* Divisor */}
+      <View style={styles.divisor}>
+        <View style={styles.linha} />
+        <Text style={styles.textoOu}>ou</Text>
+        <View style={styles.linha} />
+      </View>
+
+      {/* Google */}
+      <TouchableOpacity
+        style={styles.botaoGoogle}
+        activeOpacity={0.8}
+        onPress={() =>
+          Alert.alert(
+            "Google",
+            "A autenticação com Google ainda precisa ser configurada."
+          )
+        }
+      >
+        <Ionicons
+          name="logo-google"
+          size={20}
+          color={cores.textoSecundario}
+        />
+        <Text style={styles.textoGoogle}>Entrar com Google</Text>
+      </TouchableOpacity>
+
+      {/* Criar conta */}
+      <TouchableOpacity
+        style={styles.criarConta}
+        onPress={() => navigation?.navigate?.("Cadastro")}
+      >
+        <Text style={styles.textoCriarConta}>Crie uma conta</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  </LinearGradient>
+);
 }

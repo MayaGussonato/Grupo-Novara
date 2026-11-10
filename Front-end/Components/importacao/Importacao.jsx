@@ -15,6 +15,7 @@ import Header from "../header/Header";
 import { styles } from "./ImportacaoStyles";
 import Footer from "../footer/Footer";
 import { useTema } from "../tema/TemaContext";
+import {enviarDocumento,processarDocumento,} from "../../Services/documentoService";
 
 export default function Importacao({ navigation }) {
   const [documentos, setDocumentos] = useState([]);
@@ -52,43 +53,66 @@ export default function Importacao({ navigation }) {
     }
   }
 
-  function processarDocumentos() {
-    if (documentos.length === 0) {
-      Alert.alert(
-        "Nenhum documento",
-        "Selecione pelo menos um arquivo antes de continuar."
+async function processarDocumentos() {
+  if (documentos.length === 0) {
+    Alert.alert("Atenção", "Selecione algum documento.");
+    return;
+  }
+
+  try {
+    for (const documento of documentos) {
+      // Primeiro: envia o arquivo.
+      const cadastro = await enviarDocumento(
+        documento.asset,
+        tipoDocumento
       );
-      return;
+
+      // Segundo: inicia a análise da IA.
+      const resultado = await processarDocumento(
+        cadastro.idDocumento
+      );
+
+      console.log("Resultado:", resultado);
     }
 
     Alert.alert(
-      "Documentos selecionados",
-      `${documentos.length} arquivo(s) pronto(s) para processamento.`
+      "Sucesso",
+      "Os documentos foram enviados e processados."
     );
-  }
 
-  function limparSelecao() {
     setDocumentos([]);
+  } catch (erro) {
+    Alert.alert("Erro", erro.message);
   }
+  
+  Alert.alert(
+    "Documentos selecionados",
+    `${documentos.length} arquivo(s) pronto(s) para processamento.`
+  );
+}
 
-  function formatarNome(nome) {
-    if (nome.length <= 25) return nome;
-    return `${nome.slice(0, 22)}...`;
-  }
+function limparSelecao() {
+  setDocumentos([]);
+}
 
-  return (
-    <View style={[styles.container, { backgroundColor: cores.background }]}>
+function formatarNome(nome) {
+  if (nome.length <= 25) return nome;
+  return `${nome.slice(0, 22)}...`;
+}
+
+return (
+  <View style={[styles.container, { backgroundColor: cores.background }]}>
       <Header navigation={navigation} titulo="Importação de documentos" />
 
       <ScrollView
         contentContainerStyle={styles.conteudo}
         showsVerticalScrollIndicator={false}
-      >
+        >
         <View style={[styles.areaSelecao, { backgroundColor: cores.card, borderColor: cores.borda }]}>
           <Image
             source={require('../../assets/upload.png')}
             style={modoEscuro ? { tintColor: cores.textoSecundario } : null}
-          />
+            />
 
           <Text style={[styles.textoArraste, { color: cores.texto }]}>
             Arraste seus documentos pra cá
@@ -102,7 +126,7 @@ export default function Importacao({ navigation }) {
             style={[styles.botaoSelecionar, { backgroundColor: cores.primario || "#287F7D" }]}
             onPress={selecionarArquivos}
             activeOpacity={0.8}
-          >
+            >
             <Ionicons name="download-outline" size={21} color="#FFFFFF" />
             <Text style={styles.textoBotaoSelecionar}>selecionar arquivos</Text>
           </TouchableOpacity>
@@ -111,14 +135,14 @@ export default function Importacao({ navigation }) {
         <View style={styles.listaDocumentos}>
           {documentos.map((documento) => (
             <View
-              key={documento.id}
-              style={[styles.documento, { backgroundColor: cores.card, borderColor: cores.borda }]}
+            key={documento.id}
+            style={[styles.documento, { backgroundColor: cores.card, borderColor: cores.borda }]}
             >
               <MaterialCommunityIcons
                 name="file-pdf-box"
                 size={27}
                 color={cores.vinho || "#650000"}
-              />
+                />
 
               <View style={styles.infoDocumento}>
                 <Text style={[styles.nomeDocumento, { color: cores.texto }]}>
@@ -135,7 +159,7 @@ export default function Importacao({ navigation }) {
                   name="checkmark-circle"
                   size={11}
                   color={modoEscuro ? "#4AF272" : "#216B31"}
-                />
+                  />
                 <Text style={[styles.textoStatus, { color: modoEscuro ? "#4AF272" : "#216B31" }]}>
                   Selecionado
                 </Text>
@@ -145,16 +169,16 @@ export default function Importacao({ navigation }) {
                 onPress={() =>
                   setDocumentos((atuais) =>
                     atuais.filter((item) => item.id !== documento.id)
-                  )
-                }
-                accessibilityLabel={`Remover ${documento.nome}`}
-                style={styles.botaoRemover}
-              >
+              )
+            }
+            accessibilityLabel={`Remover ${documento.nome}`}
+            style={styles.botaoRemover}
+            >
                 <Ionicons
                   name="close-circle-outline"
                   size={19}
                   color={cores.vinho || "#650000"}
-                />
+                  />
               </TouchableOpacity>
             </View>
           ))}
@@ -166,7 +190,7 @@ export default function Importacao({ navigation }) {
           style={[styles.botaoProcessar, { backgroundColor: cores.primario || "#287F7D" }]}
           onPress={processarDocumentos}
           activeOpacity={0.8}
-        >
+          >
           <Text style={styles.textoBotaoProcessar}>Processar Documento</Text>
         </TouchableOpacity>
 
@@ -174,7 +198,7 @@ export default function Importacao({ navigation }) {
           style={styles.botaoLimpar}
           onPress={limparSelecao}
           activeOpacity={0.8}
-        >
+          >
           <Ionicons name="trash-outline" size={22} color={cores.vinho || "#650000"} />
           <Text style={[styles.textoLimpar, { color: cores.vinho || "#650000" }]}>Limpar Seleção</Text>
         </TouchableOpacity>
