@@ -1,3 +1,4 @@
+
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -128,7 +129,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     minHeight: 28,
-    paddingBottom: 20
+    paddingBottom: 20,
   },
 
   textoLimpar: {

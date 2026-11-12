@@ -1,24 +1,23 @@
+
 import React from "react";
-
 import { View, Text, TouchableOpacity } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "expo-router";
 
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { styles } from "./HeaderStyles";
 import { useTema } from "../tema/TemaContext";
 
 export default function Header({
-  navigation,
   titulo = "Dash Board",
 }) {
+  const router = useRouter();
   const { cores } = useTema();
-  const navigate = useNavigate();
 
   function voltar() {
-    if (navigation?.goBack) {
-      navigation.goBack();
+    if (router.canGoBack()) {
+      router.back();
     } else {
-      navigate("/dashboard");
+      router.replace("/dashboard");
     }
   }
 
@@ -27,6 +26,7 @@ export default function Header({
       <TouchableOpacity
         style={styles.botao}
         onPress={voltar}
+        activeOpacity={0.7}
       >
         <Ionicons
           name="arrow-back-outline"

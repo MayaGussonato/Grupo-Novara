@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   View,
@@ -9,6 +10,7 @@ import {
 } from "react-native";
 
 import Ionicons from "@react-native-vector-icons/ionicons";
+
 import { perfilStyles as styles } from "./PerfilStyles";
 import Header from "../header/Header";
 import Footer from "../footer/Footer";
@@ -26,7 +28,10 @@ export default function Perfil({ navigation }) {
   const { cores, modoEscuro, alternarTema } = useTema();
 
   function salvarAlteracoes() {
-    Alert.alert("Sucesso", "Alterações salvas com sucesso!");
+    Alert.alert(
+      "Sucesso",
+      "Alterações salvas com sucesso!"
+    );
   }
 
   const corTexto = cores.texto;
@@ -56,7 +61,6 @@ export default function Perfil({ navigation }) {
           </Text>
         </View>
 
-        {/* Alternar tema */}
         <TouchableOpacity
           style={[
             styles.botaoTema,
@@ -91,7 +95,6 @@ export default function Perfil({ navigation }) {
           />
         </TouchableOpacity>
 
-        {/* Abas */}
         <View style={styles.abas}>
           <TouchableOpacity
             style={styles.aba}
@@ -153,7 +156,6 @@ export default function Perfil({ navigation }) {
         >
           {aba === "Perfil" ? (
             <>
-              {/* Foto e informações */}
               <View style={styles.usuario}>
                 <View
                   style={[
@@ -191,7 +193,6 @@ export default function Perfil({ navigation }) {
                 </Text>
               </View>
 
-              {/* Campos */}
               <View style={styles.formulario}>
                 <View style={styles.campo}>
                   <Text

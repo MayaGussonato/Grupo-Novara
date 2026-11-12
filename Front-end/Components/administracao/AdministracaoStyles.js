@@ -1,6 +1,6 @@
+
 import { StyleSheet } from "react-native";
 
-// Estilos gerados a partir das cores do TemaContext.
 export const criarAdministracaoStyles = (cores, modoEscuro) =>
   StyleSheet.create({
     container: {

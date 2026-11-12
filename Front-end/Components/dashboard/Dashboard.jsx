@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   View,
@@ -74,18 +75,23 @@ export default function Dashboard({ navigation }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <Text style={[styles.titulo, { color: cores.texto }]}>DashBoard</Text>
+        <Text style={[styles.titulo, { color: cores.texto }]}>
+          DashBoard
+        </Text>
 
-        {/* Indicadores */}
         <View style={styles.gradeIndicadores}>
           {indicadores.map((item) => {
             const corIcone = modoEscuro ? item.corDark : item.corLight;
+
             return (
               <View
                 key={item.tipo}
                 style={[
                   styles.cardIndicador,
-                  { backgroundColor: cores.card, borderColor: cores.borda },
+                  {
+                    backgroundColor: cores.card,
+                    borderColor: cores.borda,
+                  },
                 ]}
               >
                 <View style={styles.linhaIndicador}>
@@ -103,12 +109,22 @@ export default function Dashboard({ navigation }) {
                     />
                   )}
 
-                  <Text style={[styles.valorIndicador, { color: cores.texto }]}>
+                  <Text
+                    style={[
+                      styles.valorIndicador,
+                      { color: cores.texto },
+                    ]}
+                  >
                     {item.titulo}
                   </Text>
                 </View>
 
-                <Text style={[styles.descricaoIndicador, { color: cores.textoSecundario }]}>
+                <Text
+                  style={[
+                    styles.descricaoIndicador,
+                    { color: cores.textoSecundario },
+                  ]}
+                >
                   {item.descricao}
                 </Text>
               </View>
@@ -116,17 +132,40 @@ export default function Dashboard({ navigation }) {
           })}
         </View>
 
-        {/* Gráfico */}
-        <View style={[styles.cardGrafico, { backgroundColor: cores.card, borderColor: cores.borda }]}>
+        <View
+          style={[
+            styles.cardGrafico,
+            {
+              backgroundColor: cores.card,
+              borderColor: cores.borda,
+            },
+          ]}
+        >
           <View style={styles.cabecalhoGrafico}>
-            <Text style={[styles.tituloGrafico, { color: cores.texto }]}>
+            <Text
+              style={[
+                styles.tituloGrafico,
+                { color: cores.texto },
+              ]}
+            >
               Documentos processados
             </Text>
 
-            <View style={[styles.seletorPeriodo, { borderColor: cores.borda }]}>
-              <Text style={[styles.textoPeriodo, { color: cores.textoSecundario }]}>
+            <View
+              style={[
+                styles.seletorPeriodo,
+                { borderColor: cores.borda },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.textoPeriodo,
+                  { color: cores.textoSecundario },
+                ]}
+              >
                 Últimos 6 meses
               </Text>
+
               <Ionicons
                 name="chevron-down"
                 size={10}
@@ -137,13 +176,17 @@ export default function Dashboard({ navigation }) {
 
           <View style={styles.grafico}>
             <View style={styles.eixoY}>
-              {["400", "300", "200", "100", "0"].map(
-                (valor) => (
-                  <Text key={valor} style={[styles.textoEixo, { color: cores.textoSecundario }]}>
-                    {valor}
-                  </Text>
-                )
-              )}
+              {["400", "300", "200", "100", "0"].map((valor) => (
+                <Text
+                  key={valor}
+                  style={[
+                    styles.textoEixo,
+                    { color: cores.textoSecundario },
+                  ]}
+                >
+                  {valor}
+                </Text>
+              ))}
             </View>
 
             <View style={styles.areaBarras}>
@@ -152,9 +195,11 @@ export default function Dashboard({ navigation }) {
                   key={linha}
                   style={[
                     styles.linhaGrade,
-                    { 
+                    {
                       bottom: `${linha * 25}%`,
-                      backgroundColor: modoEscuro ? "#2E3A38" : "#E9EFEE" 
+                      backgroundColor: modoEscuro
+                        ? "#2E3A38"
+                        : "#E9EFEE",
                     },
                   ]}
                 />
@@ -163,6 +208,7 @@ export default function Dashboard({ navigation }) {
               <View style={styles.barras}>
                 {meses.map((item, index) => {
                   let corBarra = "#8CCFC4";
+
                   if (index === meses.length - 1) {
                     corBarra = modoEscuro ? "#4AF272" : "#00645F";
                   } else if (index >= 3) {
@@ -186,7 +232,12 @@ export default function Dashboard({ navigation }) {
                         ]}
                       />
 
-                      <Text style={[styles.textoMes, { color: cores.textoSecundario }]}>
+                      <Text
+                        style={[
+                          styles.textoMes,
+                          { color: cores.textoSecundario },
+                        ]}
+                      >
                         {item.mes}
                       </Text>
                     </View>
@@ -197,8 +248,12 @@ export default function Dashboard({ navigation }) {
           </View>
         </View>
 
-        {/* Arquivos recentes */}
-        <Text style={[styles.tituloRecentes, { color: cores.texto }]}>
+        <Text
+          style={[
+            styles.tituloRecentes,
+            { color: cores.texto },
+          ]}
+        >
           Arquivos Recentes
         </Text>
 
@@ -208,7 +263,10 @@ export default function Dashboard({ navigation }) {
               key={arquivo.id}
               style={[
                 styles.cardArquivo,
-                { backgroundColor: cores.card, borderColor: cores.borda }
+                {
+                  backgroundColor: cores.card,
+                  borderColor: cores.borda,
+                },
               ]}
               activeOpacity={0.75}
               onPress={() =>
@@ -225,28 +283,51 @@ export default function Dashboard({ navigation }) {
               />
 
               <View style={styles.infoArquivo}>
-                <Text style={[styles.nomeArquivo, { color: cores.texto }]}>
+                <Text
+                  style={[
+                    styles.nomeArquivo,
+                    { color: cores.texto },
+                  ]}
+                >
                   {arquivo.nome}
                 </Text>
 
-                <Text style={[styles.tamanhoArquivo, { color: cores.textoSecundario }]}>
+                <Text
+                  style={[
+                    styles.tamanhoArquivo,
+                    { color: cores.textoSecundario },
+                  ]}
+                >
                   Pdf    {arquivo.tamanho}
                 </Text>
               </View>
 
-              <View style={[
-                styles.statusConcluido, 
-                { backgroundColor: modoEscuro ? "#1B3B22" : "#BDFFB8" }
-              ]}>
+              <View
+                style={[
+                  styles.statusConcluido,
+                  {
+                    backgroundColor: modoEscuro
+                      ? "#1B3B22"
+                      : "#BDFFB8",
+                  },
+                ]}
+              >
                 <Ionicons
                   name="checkmark-circle"
                   size={12}
                   color={modoEscuro ? "#4AF272" : "#17652D"}
                 />
-                <Text style={[
-                  styles.textoConcluido, 
-                  { color: modoEscuro ? "#4AF272" : "#17652D" }
-                ]}>
+
+                <Text
+                  style={[
+                    styles.textoConcluido,
+                    {
+                      color: modoEscuro
+                        ? "#4AF272"
+                        : "#17652D",
+                    },
+                  ]}
+                >
                   Concluído
                 </Text>
               </View>
@@ -254,6 +335,7 @@ export default function Dashboard({ navigation }) {
           ))}
         </View>
       </ScrollView>
+
       <Footer />
     </View>
   );

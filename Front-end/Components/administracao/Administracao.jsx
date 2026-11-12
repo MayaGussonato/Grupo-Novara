@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from "react";
 import {
   View,
@@ -6,7 +7,9 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+
 import Ionicons from "@react-native-vector-icons/ionicons";
+
 import { criarAdministracaoStyles } from "./AdministracaoStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
@@ -27,7 +30,6 @@ export default function Usuarios({ navigation }) {
 
   const { cores, modoEscuro } = useTema();
 
-  // Recria os estilos sempre que o tema mudar
   const styles = useMemo(
     () => criarAdministracaoStyles(cores, modoEscuro),
     [cores, modoEscuro]
@@ -54,7 +56,6 @@ export default function Usuarios({ navigation }) {
           Resultado do processamento gerado pela IA
         </Text>
 
-        {/* Abas */}
         <View style={styles.abas}>
           {["Resumo", "Perfil de Acesso"].map((aba) => (
             <TouchableOpacity
@@ -68,7 +69,8 @@ export default function Usuarios({ navigation }) {
               <Text
                 style={[
                   styles.textoAba,
-                  abaAtiva === aba && styles.textoAbaSelecionado,
+                  abaAtiva === aba &&
+                    styles.textoAbaSelecionado,
                 ]}
               >
                 {aba}
@@ -77,7 +79,6 @@ export default function Usuarios({ navigation }) {
           ))}
         </View>
 
-        {/* Pesquisa */}
         <View style={styles.pesquisaContainer}>
           <Ionicons
             name="search-outline"
@@ -108,7 +109,6 @@ export default function Usuarios({ navigation }) {
           )}
         </View>
 
-        {/* Lista */}
         <View style={styles.cardLista}>
           {usuariosFiltrados.length > 0 ? (
             usuariosFiltrados.map((usuario) => (
@@ -163,13 +163,14 @@ export default function Usuarios({ navigation }) {
           )}
         </View>
 
-        {/* Novo usuário */}
         <TouchableOpacity
           style={styles.botaoNovo}
           activeOpacity={0.8}
           onPress={() => navigation?.navigate?.("Cadastro")}
         >
-          <Text style={styles.textoBotaoNovo}>Novo Usuário</Text>
+          <Text style={styles.textoBotaoNovo}>
+            Novo Usuário
+          </Text>
         </TouchableOpacity>
       </ScrollView>
 

@@ -8,40 +8,41 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@react-native-vector-icons/ionicons";
+
 import { criarLoginStyles } from "./LoginStyles";
 import { useTema } from "../tema/TemaContext";
+import { useAuth } from "../../Services/AuthContext";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
-  const { cores, modoEscuro } = useTema();
 
-  // Recria os estilos sempre que o tema mudar
+  const { cores, modoEscuro } = useTema();
+  const { entrar: autenticar } = useAuth();
+
   const styles = useMemo(
     () => criarLoginStyles(cores, modoEscuro),
     [cores, modoEscuro]
   );
 
-  function entrar() {
+  async function entrar() {
     if (!email.trim() || !senha) {
-      Alert.alert("Atenção", "Preencha seu e-mail e sua senha.");
+      Alert.alert("Atenção", "Preencha e-mail e senha.");
       return;
     }
 
-    // Aqui você pode conectar a autenticação da sua API.
-    console.log("E-mail:", email);
-    console.log("Senha preenchida.");
-
-    // Redireciona o usuário para a Dashboard após a validação
-    // ATENÇÃO: Substitua 'Analise' pelo nome exato que você deu para a tela de Dashboard no seu arquivo de Rotas principal!
-    navigation?.navigate?.("Analise");
+    try {
+      await autenticar(email.trim(), senha);
+    } catch (erro) {
+      Alert.alert("Erro no login", erro.message);
+    }
   }
 
-  // Cores do degradê (de cima para baixo, na região do banner)
   const coresGradiente = modoEscuro
     ? ["#15423E", "#013535"]
     : ["#003232", "#053734"];
@@ -112,7 +113,11 @@ export default function Login({ navigation }) {
             onPress={() => setMostrarSenha(!mostrarSenha)}
           >
             <Ionicons
-              name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
+              name={
+                mostrarSenha
+                  ? "eye-off-outline"
+                  : "eye-outline"
+              }
               size={20}
               color={cores.textoSecundario}
             />
@@ -122,9 +127,13 @@ export default function Login({ navigation }) {
         {/* Recuperar senha */}
         <TouchableOpacity
           style={styles.esqueciSenha}
-          onPress={() => navigation?.navigate?.("RecuperarSenha")}
+          onPress={() =>
+            navigation?.navigate?.("RecuperarSenha")
+          }
         >
-          <Text style={styles.textoLink}>Esqueceu sua senha?</Text>
+          <Text style={styles.textoLink}>
+            Esqueceu sua senha?
+          </Text>
         </TouchableOpacity>
 
         {/* Entrar */}
@@ -133,13 +142,17 @@ export default function Login({ navigation }) {
           activeOpacity={0.8}
           onPress={entrar}
         >
-          <Text style={styles.textoBotaoEntrar}>Entrar</Text>
+          <Text style={styles.textoBotaoEntrar}>
+            Entrar
+          </Text>
         </TouchableOpacity>
 
         {/* Divisor */}
         <View style={styles.divisor}>
           <View style={styles.linha} />
+
           <Text style={styles.textoOu}>ou</Text>
+
           <View style={styles.linha} />
         </View>
 
@@ -159,7 +172,10 @@ export default function Login({ navigation }) {
             size={20}
             color={cores.textoSecundario}
           />
-          <Text style={styles.textoGoogle}>Entrar com Google</Text>
+
+          <Text style={styles.textoGoogle}>
+            Entrar com Google
+          </Text>
         </TouchableOpacity>
 
         {/* Criar conta */}
@@ -167,7 +183,9 @@ export default function Login({ navigation }) {
           style={styles.criarConta}
           onPress={() => navigation?.navigate?.("Cadastro")}
         >
-          <Text style={styles.textoCriarConta}>Crie uma conta</Text>
+          <Text style={styles.textoCriarConta}>
+            Crie uma conta
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </LinearGradient>

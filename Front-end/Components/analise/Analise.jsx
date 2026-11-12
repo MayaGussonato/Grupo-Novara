@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from "react";
 import {
   View,
@@ -5,8 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+
 import Ionicons from "@react-native-vector-icons/ionicons";
 import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons";
+
 import { criarAnaliseStyles } from "./AnaliseStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
@@ -19,7 +22,6 @@ export default function Analise({ route, navigation }) {
 
   const { cores, modoEscuro } = useTema();
 
-  // Recria os estilos sempre que o tema mudar
   const styles = useMemo(
     () => criarAnaliseStyles(cores, modoEscuro),
     [cores, modoEscuro]
@@ -78,7 +80,6 @@ export default function Analise({ route, navigation }) {
           Resultado do processamento gerado pela IA
         </Text>
 
-        {/* Documento processado */}
         <View style={styles.documento}>
           <MaterialCommunityIcons
             name="file-pdf-box"
@@ -90,6 +91,7 @@ export default function Analise({ route, navigation }) {
             <Text style={styles.nomeDocumento}>
               {nomeDocumento}
             </Text>
+
             <Text style={styles.detalheDocumento}>
               Pdf    2.4 MB
             </Text>
@@ -101,11 +103,13 @@ export default function Analise({ route, navigation }) {
               size={11}
               color={corSucesso}
             />
-            <Text style={styles.textoStatus}>Processado</Text>
+
+            <Text style={styles.textoStatus}>
+              Processado
+            </Text>
           </View>
         </View>
 
-        {/* Abas */}
         <View style={styles.abas}>
           {abas.map((aba) => (
             <TouchableOpacity
@@ -128,20 +132,19 @@ export default function Analise({ route, navigation }) {
           ))}
         </View>
 
-        {/* Conteúdo das abas */}
         {abaAtiva === "Resumo" && (
           <>
             <View style={styles.cardResumo}>
-              {/* Gráfico circular */}
               <View style={styles.areaGrafico}>
                 <View style={styles.grafico}>
                   <View style={styles.graficoInterno}>
-                    <Text style={styles.valorGrafico}>96,8%</Text>
+                    <Text style={styles.valorGrafico}>
+                      96,8%
+                    </Text>
                   </View>
                 </View>
               </View>
 
-              {/* Indicadores */}
               <View style={styles.listaIndicadores}>
                 {indicadores.map((item) => (
                   <View
@@ -166,8 +169,9 @@ export default function Analise({ route, navigation }) {
               </View>
             </View>
 
-            {/* Pré-visualização */}
-            <Text style={styles.tituloPrevia}>Pré Visualização</Text>
+            <Text style={styles.tituloPrevia}>
+              Pré Visualização
+            </Text>
 
             <TouchableOpacity
               style={styles.cardPrevia}
@@ -187,7 +191,9 @@ export default function Analise({ route, navigation }) {
                     <View style={styles.quadradoAmarelo} />
                   </View>
 
-                  <Text style={styles.textoMicrosoft}>Microsoft</Text>
+                  <Text style={styles.textoMicrosoft}>
+                    Microsoft
+                  </Text>
 
                   <Text style={styles.textoNfe}>NF-e</Text>
                 </View>
@@ -235,6 +241,7 @@ export default function Analise({ route, navigation }) {
                   size={17}
                   color={cores.primario}
                 />
+
                 <View style={styles.infoEvento}>
                   <Text style={styles.nomeCampo}>{titulo}</Text>
                   <Text style={styles.valorCampo}>{descricao}</Text>

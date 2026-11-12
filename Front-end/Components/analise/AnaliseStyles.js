@@ -1,6 +1,6 @@
+
 import { StyleSheet } from "react-native";
 
-// Estilos gerados a partir das cores do TemaContext.
 export const criarAnaliseStyles = (cores, modoEscuro) =>
   StyleSheet.create({
     container: {
@@ -177,7 +177,6 @@ export const criarAnaliseStyles = (cores, modoEscuro) =>
       elevation: 2,
     },
 
-    // A "folha" do documento continua branca nos dois temas
     paginaDocumento: {
       width: "76%",
       minHeight: 200,

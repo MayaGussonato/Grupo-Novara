@@ -6,6 +6,10 @@ import { styles as docStyles, docColors } from '../centralDeDocumentos/centralDe
 import { DocumentViewer } from '../analiseDeDocumentos/analiseDeDocumentos';
 import styles from './centralDeValidacaoStyle';
 
+import React, { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, Alert, } from "react-native";
+import { listarDocumentos } from "../../Services/documentoService";
+
 const COR = '#174847';
 const ZOOM_MIN = 50;
 const ZOOM_MAX = 300;
@@ -79,6 +83,79 @@ export default function CentralDeValidacao({
   const [zoom, setZoom] = useState(100);
   const [tela, setTela] = useState(false);
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
+  const [documentos, setDocumentos] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [statusDoc, setStatusDoc] = useState("");
+
+  async function carregarDocumentos() {
+    try {
+      setCarregando(true);
+
+      const resultado = await listarDocumentos({
+        pagina: 1,
+        tamanho: 20,
+        status,
+      });
+
+      setDocumentos(resultado);
+    } catch (erro) {
+      Alert.alert("Erro", erro.message);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarDocumentos();
+  }, [status]);
+
+  if (carregando) {
+    return <ActivityIndicator size="large" />;
+  }
+
+  return (
+    <View style={{ flex: 1, padding: 20 }}>
+      <Text>Central de documentos</Text>
+
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        <TouchableOpacity onPress={() => setStatus("")}>
+          <Text>Todos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => setStatus("Processando")}>
+          <Text>Processando</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => setStatus("Revisao")}>
+          <Text>Em revisão</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => setStatus("Aprovado")}>
+          <Text>Aprovados</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => setStatus("Erro")}>
+          <Text>Com erro</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={documentos}
+        keyExtractor={(item) => String(item.idDocumento)}
+        renderItem={({ item }) => (
+          <View style={{ padding: 12 }}>
+            <Text>{item.nomeArquivo}</Text>
+            <Text>{item.tipoDocumento}</Text>
+            <Text>Status: {item.statusDocumento}</Text>
+            <Text>
+              Confiança: {item.nivelConfianca ?? "Não disponível"}
+            </Text>
+          </View>
+        )}
+      />
+    </View>
+  );
+}
 
   const nome = base.nome;
   const tipo = base.tipo || 'Nota fiscal';
@@ -241,7 +318,7 @@ export default function CentralDeValidacao({
 
       <Modal visible={tela} transparent animationType="fade" onRequestClose={() => setTela(false)}>
         <Pressable style={styles.overlay} onPress={() => setTela(false)}>
-          <Pressable style={styles.telaCheia} onPress={() => {}}>
+          <Pressable style={styles.telaCheia} onPress={() => { }}>
             <View style={styles.telaCheiaCabecalho}>
               <Text style={styles.telaCheiaNome} numberOfLines={1}>{nome}</Text>
               <Pressable onPress={() => setTela(false)} accessibilityLabel="Fechar">
@@ -263,7 +340,7 @@ export default function CentralDeValidacao({
 
       <Modal visible={confirmarExclusao} transparent animationType="fade" onRequestClose={() => setConfirmarExclusao(false)}>
         <Pressable style={styles.overlay} onPress={() => setConfirmarExclusao(false)}>
-          <Pressable style={styles.confirmacao} onPress={() => {}}>
+          <Pressable style={styles.confirmacao} onPress={() => { }}>
             <Ionicons name="trash-outline" size={32} color="#6B1010" />
             <Text style={styles.confirmacaoTitulo}>Deletar documento?</Text>
             <Text style={styles.confirmacaoTexto}>{`${nome} será removido. Essa ação não pode ser desfeita.`}</Text>
@@ -280,4 +357,3 @@ export default function CentralDeValidacao({
       </Modal>
     </View>
   );
-}

@@ -260,26 +260,110 @@
 //     </PreferencesProvider>
 //   );
 // }
-import React from "react";
 
-import { BrowserRouter } from "react-router-dom";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { AuthProvider } from "./Services/AuthContext";
-import { TemaProvider } from "./Components/tema/TemaContext";
+import React, { useState } from "react";
+import { View, ActivityIndicator } from "react-native";
 
-import ReactRouter from "./ReactRouter";
+import Login from "./Components/login/Login";
+import Cadastro from "./Components/cadastro/Cadastro";
+import Dashboard from "./Components/dashboard/Dashboard";
+import Importacao from "./Components/importacao/Importacao";
+import Analise from "./Components/analise/Analise";
+import Validacao from "./Components/Validacao/validacao";
+import Dados from "./Components/dados/Dados";
+import Administracao from "./Components/administracao/Administracao";
+import Perfil from "./Components/perfil/Perfil";
+
+import {
+  AuthProvider,
+  useAuth,
+} from "./Services/AuthContext";
+
+import { cadastrarUsuario } from "./Services/usuarioService";
+
+function AppContent() {
+  const { usuario, carregando, entrar, sair } = useAuth();
+
+  const [tela, setTela] = useState("Login");
+
+  const navigation = {
+    navigate: (destino) => setTela(destino),
+    goBack: () => setTela("Dashboard"),
+  };
+
+  if (carregando) {
+    return <ActivityIndicator size="large" />;
+  }
+
+  if (!usuario) {
+    if (tela === "Cadastro") {
+      return (
+        <Cadastro
+          navigation={navigation}
+          onCadastrar={async (dados) => {
+            await cadastrarUsuario(dados);
+            setTela("Login");
+          }}
+        />
+      );
+    }
+
+    return (
+      <Login
+        navigation={navigation}
+        onLogin={async (email, senha) => {
+          await entrar(email, senha);
+          setTela("Dashboard");
+        }}
+      />
+    );
+  }
+
+  switch (tela) {
+    case "Importacao":
+      return <Importacao navigation={navigation} />;
+
+    case "Analise":
+      return <Analise navigation={navigation} />;
+
+    case "Validacao":
+      return <Validacao navigation={navigation} />;
+
+    case "Dados":
+      return <Dados navigation={navigation} />;
+
+    case "Administracao":
+      return (
+        <Administracao
+          navigation={navigation}
+        />
+      );
+
+    case "Perfil":
+      return (
+        <Perfil
+          navigation={navigation}
+          onLogout={sair}
+          usuario={usuario}
+        />
+      );
+
+    case "Dashboard":
+    default:
+      return (
+        <Dashboard
+          navigation={navigation}
+          usuario={usuario}
+        />
+      );
+  }
+}
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <TemaProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <ReactRouter />
-          </BrowserRouter>
-        </AuthProvider>
-      </TemaProvider>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

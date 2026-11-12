@@ -6,9 +6,7 @@ import React, {
   useState,
 } from "react";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-const TemaContext = createContext();
+const TemaContext = createContext(null);
 
 const temas = {
   claro: {
@@ -47,7 +45,17 @@ export function TemaProvider({ children }) {
   useEffect(() => {
     async function carregarTema() {
       try {
-        const temaSalvo = await AsyncStorage.getItem("modoEscuro");
+        let temaSalvo;
+
+        if (typeof document !== "undefined") {
+          temaSalvo = localStorage.getItem("modoEscuro");
+        } else {
+          const AsyncStorage = (
+            await import("@react-native-async-storage/async-storage")
+          ).default;
+
+          temaSalvo = await AsyncStorage.getItem("modoEscuro");
+        }
 
         setModoEscuro(temaSalvo === "true");
       } catch (error) {
@@ -66,10 +74,18 @@ export function TemaProvider({ children }) {
     setModoEscuro(novoTema);
 
     try {
-      await AsyncStorage.setItem(
-        "modoEscuro",
-        String(novoTema)
-      );
+      if (typeof document !== "undefined") {
+        localStorage.setItem("modoEscuro", String(novoTema));
+      } else {
+        const AsyncStorage = (
+          await import("@react-native-async-storage/async-storage")
+        ).default;
+
+        await AsyncStorage.setItem(
+          "modoEscuro",
+          String(novoTema)
+        );
+      }
     } catch (error) {
       console.log("Erro ao salvar tema:", error);
     }
@@ -92,5 +108,11 @@ export function TemaProvider({ children }) {
 }
 
 export function useTema() {
-  return useContext(TemaContext);
+  const contexto = useContext(TemaContext);
+
+  if (!contexto) {
+    throw new Error("useTema precisa estar dentro de TemaProvider.");
+  }
+
+  return contexto;
 }

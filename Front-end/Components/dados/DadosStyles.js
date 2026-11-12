@@ -1,6 +1,6 @@
+
 import { StyleSheet } from "react-native";
 
-// Estilos gerados a partir das cores do TemaContext.
 export const criarDadosStyles = (cores, modoEscuro) =>
   StyleSheet.create({
     container: {
@@ -108,7 +108,9 @@ export const criarDadosStyles = (cores, modoEscuro) =>
 
     botaoExportar: {
       height: 34,
-      backgroundColor: modoEscuro ? cores.secundario : cores.primario,
+      backgroundColor: modoEscuro
+        ? cores.secundario
+        : cores.primario,
       borderRadius: 4,
       alignItems: "center",
       justifyContent: "center",
