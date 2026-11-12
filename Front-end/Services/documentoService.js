@@ -48,10 +48,26 @@ export function processarDocumento(id) {
   });
 }
 
+/** Soft delete: o documento some da API, o histórico fica no banco. */
+export function excluirDocumento(id) {
+  return apiRequest(`/api/Documento/${id}`, {
+    method: "DELETE",
+  });
+}
+
 export function buscarExtracoes(idDocumento) {
   return apiRequest(`/api/Extracao/documento/${idDocumento}`);
 }
 
+export function buscarExtracao(idExtracao) {
+  return apiRequest(`/api/Extracao/${idExtracao}`);
+}
+
 export function buscarHistorico(idDocumento) {
   return apiRequest(`/api/Documento/${idDocumento}/historico`);
+}
+
+/** URL do arquivo para download/abertura (o token vai no header, então use apiRequest). */
+export async function baixarDocumento(id) {
+  return apiRequest(`/api/Documento/${id}/arquivo`);
 }

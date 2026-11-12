@@ -26,9 +26,22 @@ export function AuthProvider({ children }) {
 
         if (token) {
           const perfil = await buscarMeuPerfil();
-          setUsuario(perfil);
+
+          // O /me devolve o mesmo formato do login; normalizamos para o
+          // objeto usado pelas telas (idUsuario, nome, perfilAcesso...)
+          setUsuario({
+            idUsuario: perfil.idUsuario,
+            nome: perfil.nome,
+            email: perfil.email,
+            cargo: perfil.cargo,
+            perfilAcesso: perfil.perfilAcesso,
+            ativo: perfil.ativo,
+          });
         }
       } catch (erro) {
+        // Token vencido, usuário desativado ou API fora do ar:
+        // a sessão local deixa de valer e a tela de login aparece.
+        console.warn("Sessão não restaurada:", erro.message);
         await AsyncStorage.removeItem("@labflow/token");
         setUsuario(null);
       } finally {

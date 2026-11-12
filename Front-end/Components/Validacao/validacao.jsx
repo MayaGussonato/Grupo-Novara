@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 
 import {
@@ -20,59 +22,26 @@ import styles from "./validacaoStyle";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
 import { useTema } from "../tema/TemaContext";
-
-const documentosIniciais = [
-  {
-    id: "1",
-    nome: "Documento 01.pdf",
-    tamanho: "2,4 MB",
-    status: "Aprovados",
-    progresso: 100,
-  },
-  {
-    id: "2",
-    nome: "Documento 02.pdf",
-    tamanho: "1,8 MB",
-    status: "Revisando",
-    progresso: 65,
-  },
-  {
-    id: "3",
-    nome: "Documento 03.pdf",
-    tamanho: "3,1 MB",
-    status: "Erros",
-    progresso: 30,
-  },
-  {
-    id: "4",
-    nome: "Documento 04.pdf",
-    tamanho: "1,2 MB",
-    status: "Aprovados",
-    progresso: 100,
-  },
-  {
-    id: "5",
-    nome: "Documento 05.pdf",
-    tamanho: "4,6 MB",
-    status: "Revisando",
-    progresso: 80,
-  },
-  {
-    id: "6",
-    nome: "Documento 06.pdf",
-    tamanho: "2,0 MB",
-    status: "Erros",
-    progresso: 20,
-  },
-];
+import { listarDocumentos } from "../../Services/documentoService";
+import {
+  formatarTamanho,
+  formatarData,
+  statusParaInterface,
+} from "../../Services/formatadores";
 
 const filtros = ["Todos", "Revisando", "Aprovados", "Erros"];
 
-export default function Validacao() {
+export default function Validacao({ navigation }) {
   const [pesquisa, setPesquisa] = useState("");
   const [filtro, setFiltro] = useState("Todos");
   const [ordenacao, setOrdenacao] = useState("recentes");
   const [pagina, setPagina] = useState(1);
+
+  // Documentos vindos da API
+  const [documentos, setDocumentos] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
+  const [atualizando, setAtualizando] = useState(false);
 
   const { cores, modoEscuro } = useTema();
 
@@ -86,18 +55,57 @@ export default function Validacao() {
     Poppins_700Bold,
   });
 
+  // Busca os documentos do usuário logado (Revisor/Admin veem todos)
+  async function carregarDocumentos() {
+    try {
+      setErro(null);
+
+      const lista = await listarDocumentos({ tamanho: 100 });
+
+      const normalizados = (lista || []).map((doc) => ({
+        id: String(doc.idDocumento),
+        nome: doc.nomeArquivo,
+        tamanho: formatarTamanho(doc.tamanhoBytes),
+        formato: (doc.formato || "").toUpperCase(),
+        tipo: doc.tipoDocumento,
+        data: formatarData(doc.dataEnvio),
+        statusApi: doc.statusDocumento,
+        confianca: doc.nivelConfianca,
+        ...statusParaInterface(doc.statusDocumento),
+      }));
+
+      setDocumentos(normalizados);
+    } catch (falha) {
+      setErro(falha.message || "Não foi possível carregar os documentos.");
+      setDocumentos([]);
+    } finally {
+      setCarregando(false);
+      setAtualizando(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarDocumentos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function atualizar() {
+    setAtualizando(true);
+    carregarDocumentos();
+  }
+
   if (!fontesCarregadas) return null;
 
   const quantidadePorPagina = 4;
 
-  const listaFiltrada = documentosIniciais
+  const listaFiltrada = documentos
     .filter((doc) => {
       const nomeCorresponde = doc.nome
         .toLowerCase()
         .includes(pesquisa.toLowerCase());
 
       const statusCorresponde =
-        filtro === "Todos" || doc.status === filtro;
+        filtro === "Todos" || doc.rotulo === filtro;
 
       return nomeCorresponde && statusCorresponde;
     })
@@ -117,16 +125,8 @@ export default function Validacao() {
     pagina * quantidadePorPagina
   );
 
-  function corStatus(status) {
-    if (status === "Aprovados") return "#21865B";
-    if (status === "Revisando") return "#D99A22";
-    return "#D94A4A";
-  }
-
-  function descricaoStatus(status) {
-    if (status === "Aprovados") return "Documento validado";
-    if (status === "Revisando") return "Aguardando validação";
-    return "Necessita de correção";
+  function corStatus(item) {
+    return item.cor || "#398BFF";
   }
 
   return (
@@ -242,18 +242,39 @@ export default function Validacao() {
             { paddingBottom: 75 },
           ]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={atualizando}
+              onRefresh={atualizar}
+              tintColor={cores.primario}
+            />
+          }
           ListEmptyComponent={
-            <Text
-              style={[
-                styles.vazio,
-                { color: cores.textoSecundario },
-              ]}
-            >
-              Nenhum documento encontrado.
-            </Text>
+            carregando ? (
+              <ActivityIndicator
+                style={{ marginTop: 24 }}
+                color={cores.primario}
+              />
+            ) : (
+              <Text
+                style={[
+                  styles.vazio,
+                  { color: cores.textoSecundario },
+                ]}
+              >
+                {erro || "Nenhum documento encontrado."}
+              </Text>
+            )
           }
           renderItem={({ item }) => (
-            <View
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation?.navigate?.("Analise", {
+                  idDocumento: item.id,
+                  nomeDocumento: item.nome,
+                })
+              }
               style={[
                 styles.cardDocumento,
                 {
@@ -294,7 +315,7 @@ export default function Validacao() {
                       { color: cores.textoSecundario },
                     ]}
                   >
-                    PDF • {item.tamanho}
+                    {item.formato || "ARQUIVO"} • {item.tamanho}
                   </Text>
 
                   <Text
@@ -303,18 +324,18 @@ export default function Validacao() {
                       { color: cores.textoSecundario },
                     ]}
                   >
-                    {descricaoStatus(item.status)}
+                    {item.descricao}
                   </Text>
                 </View>
 
                 <View
                   style={[
                     styles.status,
-                    { backgroundColor: corStatus(item.status) },
+                    { backgroundColor: corStatus(item) },
                   ]}
                 >
                   <Text style={styles.textoStatus}>
-                    {item.status}
+                    {item.rotulo}
                   </Text>
                 </View>
               </View>
@@ -331,7 +352,7 @@ export default function Validacao() {
                     styles.progresso,
                     {
                       width: `${item.progresso}%`,
-                      backgroundColor: corStatus(item.status),
+                      backgroundColor: corStatus(item),
                     },
                   ]}
                 />
@@ -345,7 +366,7 @@ export default function Validacao() {
               >
                 {item.progresso}% concluído
               </Text>
-            </View>
+            </TouchableOpacity>
           )}
         />
 

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -12,41 +12,13 @@ import MaterialCommunityIcons from "@react-native-vector-icons/material-design-i
 import { dashboardStyles as styles } from "./DashboardStyles";
 import Footer from "../footer/Footer";
 import { useTema } from "../tema/TemaContext";
-
-const indicadores = [
-  {
-    titulo: "1324",
-    descricao: "Documentos processados",
-    icone: "document-text-outline",
-    corDark: "#4AF272",
-    corLight: "#169447",
-    tipo: "documentos",
-  },
-  {
-    titulo: "96,4%",
-    descricao: "Taxa de precisão",
-    icone: "analytics-outline",
-    corDark: "#4AF272",
-    corLight: "#169447",
-    tipo: "precisao",
-  },
-  {
-    titulo: "42h",
-    descricao: "Tempo economizado",
-    icone: "time-outline",
-    corDark: "#FFAE6B",
-    corLight: "#FF963D",
-    tipo: "tempo",
-  },
-  {
-    titulo: "23",
-    descricao: "Documentos aguardando revisão",
-    icone: "eye-outline",
-    corDark: "#6BB0FF",
-    corLight: "#398BFF",
-    tipo: "revisao",
-  },
-];
+import { listarDocumentos } from "../../Services/documentoService";
+import { listarValidacoesPendentes } from "../../Services/validacaoService";
+import {
+  formatarTamanho,
+  formatarConfianca,
+  statusParaInterface,
+} from "../../Services/formatadores";
 
 const meses = [
   { mes: "Abr", valor: 18 },
@@ -58,14 +30,137 @@ const meses = [
   { mes: "Out", valor: 63 },
 ];
 
-const arquivos = [
-  { id: "1", nome: "NF-18291.pdf", tamanho: "2.4 MB" },
-  { id: "2", nome: "NF-18291.pdf", tamanho: "2.4 MB" },
-  { id: "3", nome: "NF-18291.pdf", tamanho: "2.4 MB" },
-];
-
 export default function Dashboard({ navigation }) {
   const { cores, modoEscuro } = useTema();
+
+  const [documentos, setDocumentos] = useState([]);
+  const [pendentes, setPendentes] = useState(0);
+  const [carregando, setCarregando] = useState(true);
+
+  const carregar = useCallback(async () => {
+    try {
+      const lista = await listarDocumentos({ tamanho: 100 });
+
+      setDocumentos(Array.isArray(lista) ? lista : []);
+
+      // A fila de revisão só existe para Revisor/Administrador
+      try {
+        const fila = await listarValidacoesPendentes();
+        setPendentes(Array.isArray(fila) ? fila.length : 0);
+      } catch {
+        setPendentes(0);
+      }
+    } catch {
+      setDocumentos([]);
+      setPendentes(0);
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
+  // Indicadores calculados a partir dos documentos reais
+  const indicadores = useMemo(() => {
+    const total = documentos.length;
+
+    const comConfianca = documentos.filter(
+      (d) => d.nivelConfianca !== null && d.nivelConfianca !== undefined
+    );
+
+    const mediaConfianca =
+      comConfianca.length > 0
+        ? comConfianca.reduce(
+            (soma, d) => soma + Number(d.nivelConfianca),
+            0
+          ) / comConfianca.length
+        : null;
+
+    const aprovados = documentos.filter(
+      (d) => d.statusDocumento === "Aprovado"
+    ).length;
+
+    return [
+      {
+        titulo: String(total),
+        descricao: "Documentos processados",
+        icone: "document-text-outline",
+        corDark: "#4AF272",
+        corLight: "#169447",
+        tipo: "documentos",
+      },
+      {
+        titulo: formatarConfianca(mediaConfianca),
+        descricao: "Confiança média da IA",
+        icone: "analytics-outline",
+        corDark: "#4AF272",
+        corLight: "#169447",
+        tipo: "precisao",
+      },
+      {
+        titulo: String(aprovados),
+        descricao: "Documentos aprovados",
+        icone: "checkmark-done-outline",
+        corDark: "#FFAE6B",
+        corLight: "#FF963D",
+        tipo: "tempo",
+      },
+      {
+        titulo: String(pendentes),
+        descricao: "Aguardando revisão",
+        icone: "eye-outline",
+        corDark: "#6BB0FF",
+        corLight: "#398BFF",
+        tipo: "revisao",
+      },
+    ];
+  }, [documentos, pendentes]);
+
+  // Barras do gráfico: documentos por mês de envio (últimos 6 meses)
+  const meses = useMemo(() => {
+    const nomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const agora = new Date();
+    const baldes = [];
+
+    for (let i = 5; i >= 0; i -= 1) {
+      const data = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+      baldes.push({ mes: nomes[data.getMonth()], chave: `${data.getFullYear()}-${data.getMonth()}`, quantidade: 0 });
+    }
+
+    documentos.forEach((doc) => {
+      if (!doc.dataEnvio) return;
+      const data = new Date(doc.dataEnvio);
+      const chave = `${data.getFullYear()}-${data.getMonth()}`;
+      const balde = baldes.find((b) => b.chave === chave);
+      if (balde) balde.quantidade += 1;
+    });
+
+    const maior = Math.max(1, ...baldes.map((b) => b.quantidade));
+
+    return baldes.map((b) => ({
+      mes: b.mes,
+      valor: Math.round((b.quantidade / maior) * 100),
+    }));
+  }, [documentos]);
+
+  // Arquivos recentes: os 3 últimos enviados
+  const arquivos = useMemo(
+    () =>
+      documentos.slice(0, 3).map((doc) => {
+        const status = statusParaInterface(doc.statusDocumento);
+
+        return {
+          id: String(doc.idDocumento),
+          nome: doc.nomeArquivo,
+          formato: (doc.formato || "").toUpperCase(),
+          tamanho: formatarTamanho(doc.tamanhoBytes),
+          status,
+        };
+      }),
+    [documentos]
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: cores.background }]}>
@@ -258,6 +353,28 @@ export default function Dashboard({ navigation }) {
         </Text>
 
         <View style={styles.listaArquivos}>
+          {carregando && arquivos.length === 0 && (
+            <Text
+              style={[
+                styles.tamanhoArquivo,
+                { color: cores.textoSecundario, textAlign: "center" },
+              ]}
+            >
+              Carregando documentos...
+            </Text>
+          )}
+
+          {!carregando && arquivos.length === 0 && (
+            <Text
+              style={[
+                styles.tamanhoArquivo,
+                { color: cores.textoSecundario, textAlign: "center" },
+              ]}
+            >
+              Nenhum documento enviado ainda.
+            </Text>
+          )}
+
           {arquivos.map((arquivo) => (
             <TouchableOpacity
               key={arquivo.id}
@@ -270,10 +387,10 @@ export default function Dashboard({ navigation }) {
               ]}
               activeOpacity={0.75}
               onPress={() =>
-                navigation?.navigate?.(
-                  "ProcessamentoInteligente",
-                  { nomeDocumento: arquivo.nome }
-                )
+                navigation?.navigate?.("Analise", {
+                  idDocumento: arquivo.id,
+                  nomeDocumento: arquivo.nome,
+                })
               }
             >
               <MaterialCommunityIcons
@@ -298,37 +415,29 @@ export default function Dashboard({ navigation }) {
                     { color: cores.textoSecundario },
                   ]}
                 >
-                  Pdf    {arquivo.tamanho}
+                  {arquivo.formato}    {arquivo.tamanho}
                 </Text>
               </View>
 
               <View
                 style={[
                   styles.statusConcluido,
-                  {
-                    backgroundColor: modoEscuro
-                      ? "#1B3B22"
-                      : "#BDFFB8",
-                  },
+                  { backgroundColor: `${arquivo.status.cor}22` },
                 ]}
               >
                 <Ionicons
                   name="checkmark-circle"
                   size={12}
-                  color={modoEscuro ? "#4AF272" : "#17652D"}
+                  color={arquivo.status.cor}
                 />
 
                 <Text
                   style={[
                     styles.textoConcluido,
-                    {
-                      color: modoEscuro
-                        ? "#4AF272"
-                        : "#17652D",
-                    },
+                    { color: arquivo.status.cor },
                   ]}
                 >
-                  Concluído
+                  {arquivo.status.rotulo}
                 </Text>
               </View>
             </TouchableOpacity>

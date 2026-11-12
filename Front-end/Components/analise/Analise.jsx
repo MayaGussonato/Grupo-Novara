@@ -1,10 +1,11 @@
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 
 import Ionicons from "@react-native-vector-icons/ionicons";
@@ -14,6 +15,18 @@ import { criarAnaliseStyles } from "./AnaliseStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
 import { useTema } from "../tema/TemaContext";
+import {
+  buscarDocumento,
+  buscarExtracoes,
+  buscarHistorico,
+} from "../../Services/documentoService";
+import {
+  formatarData,
+  formatarDataHora,
+  formatarTamanho,
+  formatarConfianca,
+  statusParaInterface,
+} from "../../Services/formatadores";
 
 const abas = ["Resumo", "Dados Extraídos", "Histórico"];
 
@@ -30,42 +43,149 @@ export default function Analise({ route, navigation }) {
   const corSucesso = modoEscuro ? "#6FD98F" : "#17652D";
   const corAlerta = "#F2A23A";
 
+  const idDocumento = route?.params?.idDocumento;
+
+  const [documento, setDocumento] = useState(null);
+  const [extracao, setExtracao] = useState(null);
+  const [historico, setHistorico] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregar() {
+      if (!idDocumento) {
+        setCarregando(false);
+        return;
+      }
+
+      try {
+        setErro(null);
+
+        const doc = await buscarDocumento(idDocumento);
+
+        // A extração mais recente é a que aparece em "Dados Extraídos"
+        const extracoes = await buscarExtracoes(idDocumento);
+        const ultima = Array.isArray(extracoes) && extracoes.length > 0
+          ? extracoes[0]
+          : null;
+
+        let hist = [];
+
+        try {
+          hist = await buscarHistorico(idDocumento);
+        } catch {
+          hist = [];
+        }
+
+        if (ativo) {
+          setDocumento(doc);
+          setExtracao(ultima);
+          setHistorico(Array.isArray(hist) ? hist : []);
+        }
+      } catch (falha) {
+        if (ativo) {
+          setErro(falha.message || "Não foi possível carregar o documento.");
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
+        }
+      }
+    }
+
+    carregar();
+
+    return () => {
+      ativo = false;
+    };
+  }, [idDocumento]);
+
   const nomeDocumento =
-    route?.params?.nomeDocumento || "NF-18291.pdf";
+    documento?.nomeArquivo || route?.params?.nomeDocumento || "Documento";
+
+  const statusInfo = statusParaInterface(documento?.statusDocumento);
+
+  // JSON gravado em Extracao.Dados_Estruturados (vem como texto)
+  const dadosJson = useMemo(() => {
+    if (!extracao?.dadosEstruturados) {
+      return {};
+    }
+
+    try {
+      const bruto = extracao.dadosEstruturados;
+
+      return typeof bruto === "string" ? JSON.parse(bruto) : bruto;
+    } catch {
+      return {};
+    }
+  }, [extracao]);
+
+  // Converte o JSON da extração em pares campo/valor para a aba de dados
+  const dadosExtraidos = useMemo(() => {
+    const linhas = [];
+
+    Object.entries(dadosJson).forEach(([chave, valor]) => {
+      if (valor === null || valor === undefined) {
+        return;
+      }
+
+      if (typeof valor === "object" && "valor" in valor) {
+        if (valor.valor === null || valor.valor === undefined) {
+          return;
+        }
+
+        linhas.push([
+          chave.replace(/_/g, " "),
+          valor.valor_normalizado || valor.valor,
+        ]);
+
+        return;
+      }
+
+      if (typeof valor === "string" && chave !== "observacoes") {
+        linhas.push([chave.replace(/_/g, " "), valor]);
+      }
+    });
+
+    return linhas;
+  }, [dadosJson]);
+
+  const camposComValor = dadosExtraidos.length;
+  const camposConferidos = Object.values(dadosJson).filter(
+    (valor) =>
+      valor &&
+      typeof valor === "object" &&
+      valor.conferido === true
+  ).length;
 
   const indicadores = [
     {
       texto: "Campos Extraídos",
-      valor: "12",
+      valor: String(camposComValor),
       icone: "check-circle",
       cor: corSucesso,
     },
     {
-      texto: "Campos Validados",
-      valor: "10",
+      texto: "Campos Confirmados",
+      valor: String(camposConferidos),
       icone: "check-circle",
       cor: corSucesso,
     },
     {
-      texto: "Campos com Atenção",
-      valor: "2",
-      icone: "warning-outline",
-      cor: corAlerta,
+      texto: "Nível de Confiança",
+      valor: formatarConfianca(extracao?.nivelConfianca),
+      icone: "analytics-outline",
+      cor:
+        Number(extracao?.nivelConfianca) >= 90 ? corSucesso : corAlerta,
     },
     {
-      texto: "Tempo de processamento",
-      valor: "19s",
-      icone: "warning-outline",
-      cor: corAlerta,
+      texto: "Tecnologia",
+      valor: extracao?.tecnologia || "—",
+      icone: "hardware-chip-outline",
+      cor: cores.primario,
     },
-  ];
-
-  const dadosExtraidos = [
-    ["Empresa", "Microsoft"],
-    ["CNPJ", "12.345.678/0001-90"],
-    ["Data", "08/10/2026"],
-    ["Valor", "R$ 4.580,00"],
-    ["Número", "NF-18291"],
   ];
 
   return (
@@ -93,7 +213,13 @@ export default function Analise({ route, navigation }) {
             </Text>
 
             <Text style={styles.detalheDocumento}>
-              Pdf    2.4 MB
+              {(documento?.formato || "").toUpperCase()}
+              {documento?.tamanhoBytes
+                ? `    ${formatarTamanho(documento.tamanhoBytes)}`
+                : ""}
+              {documento?.dataEnvio
+                ? `    ${formatarData(documento.dataEnvio)}`
+                : ""}
             </Text>
           </View>
 
@@ -101,11 +227,11 @@ export default function Analise({ route, navigation }) {
             <Ionicons
               name="checkmark-circle"
               size={11}
-              color={corSucesso}
+              color={statusInfo.cor}
             />
 
             <Text style={styles.textoStatus}>
-              Processado
+              {statusInfo.rotulo}
             </Text>
           </View>
         </View>
@@ -139,7 +265,7 @@ export default function Analise({ route, navigation }) {
                 <View style={styles.grafico}>
                   <View style={styles.graficoInterno}>
                     <Text style={styles.valorGrafico}>
-                      96,8%
+                      {formatarConfianca(extracao?.nivelConfianca)}
                     </Text>
                   </View>
                 </View>
@@ -217,12 +343,24 @@ export default function Analise({ route, navigation }) {
               Informações Extraídas
             </Text>
 
-            {dadosExtraidos.map(([campo, valor]) => (
-              <View key={campo} style={styles.campoExtraido}>
-                <Text style={styles.nomeCampo}>{campo}</Text>
-                <Text style={styles.valorCampo}>{valor}</Text>
-              </View>
-            ))}
+            {carregando ? (
+              <ActivityIndicator
+                style={{ marginVertical: 18 }}
+                color={cores.primario}
+              />
+            ) : dadosExtraidos.length > 0 ? (
+              dadosExtraidos.map(([campo, valor]) => (
+                <View key={campo} style={styles.campoExtraido}>
+                  <Text style={styles.nomeCampo}>{campo}</Text>
+                  <Text style={styles.valorCampo}>{valor}</Text>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.valorCampo}>
+                {erro ||
+                  "Nenhuma extração encontrada. Processe o documento na tela de Validação."}
+              </Text>
+            )}
           </View>
         )}
 
@@ -230,24 +368,29 @@ export default function Analise({ route, navigation }) {
           <View style={styles.cardDados}>
             <Text style={styles.tituloSecao}>Histórico</Text>
 
-            {[
-              ["Documento recebido", "Arquivo enviado"],
-              ["Processamento por IA", "Concluído em 19s"],
-              ["Validação dos campos", "10 campos validados"],
-            ].map(([titulo, descricao]) => (
-              <View key={titulo} style={styles.evento}>
-                <Ionicons
-                  name="checkmark-circle"
-                  size={17}
-                  color={cores.primario}
-                />
+            {historico.length > 0 ? (
+              historico.map((evento) => (
+                <View key={evento.idHistorico} style={styles.evento}>
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={17}
+                    color={cores.primario}
+                  />
 
-                <View style={styles.infoEvento}>
-                  <Text style={styles.nomeCampo}>{titulo}</Text>
-                  <Text style={styles.valorCampo}>{descricao}</Text>
+                  <View style={styles.infoEvento}>
+                    <Text style={styles.nomeCampo}>{evento.acao}</Text>
+                    <Text style={styles.valorCampo}>
+                      {evento.detalhes ? `${evento.detalhes} • ` : ""}
+                      {formatarDataHora(evento.dataHora)}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            ))}
+              ))
+            ) : (
+              <Text style={styles.valorCampo}>
+                Nenhum evento registrado.
+              </Text>
+            )}
           </View>
         )}
 

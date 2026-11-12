@@ -280,16 +280,25 @@ import {
   useAuth,
 } from "./Services/AuthContext";
 
+import { TemaProvider } from "./Components/tema/TemaContext";
+
 import { cadastrarUsuario } from "./Services/usuarioService";
 
 function AppContent() {
   const { usuario, carregando, entrar, sair } = useAuth();
 
   const [tela, setTela] = useState("Login");
+  const [parametros, setParametros] = useState({});
 
   const navigation = {
-    navigate: (destino) => setTela(destino),
-    goBack: () => setTela("Dashboard"),
+    navigate: (destino, params = {}) => {
+      setParametros(params);
+      setTela(destino);
+    },
+    goBack: () => {
+      setParametros({});
+      setTela("Dashboard");
+    },
   };
 
   if (carregando) {
@@ -325,13 +334,23 @@ function AppContent() {
       return <Importacao navigation={navigation} />;
 
     case "Analise":
-      return <Analise navigation={navigation} />;
+      return (
+        <Analise
+          navigation={navigation}
+          route={{ params: parametros }}
+        />
+      );
 
     case "Validacao":
       return <Validacao navigation={navigation} />;
 
     case "Dados":
-      return <Dados navigation={navigation} />;
+      return (
+        <Dados
+          navigation={navigation}
+          route={{ params: parametros }}
+        />
+      );
 
     case "Administracao":
       return (
@@ -362,8 +381,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <TemaProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </TemaProvider>
   );
 }

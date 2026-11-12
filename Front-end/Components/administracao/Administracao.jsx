@@ -1,11 +1,13 @@
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 
 import Ionicons from "@react-native-vector-icons/ionicons";
@@ -14,19 +16,25 @@ import { criarAdministracaoStyles } from "./AdministracaoStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
 import { useTema } from "../tema/TemaContext";
+import { useAuth } from "../../Services/AuthContext";
+import {
+  listarUsuarios,
+  excluirUsuario,
+  alterarPerfilUsuario,
+} from "../../Services/usuarioService";
 
-const listaInicial = [
-  { id: "1", nome: "Mayara Gussonato", status: "Ativo" },
-  { id: "2", nome: "Felipe Silva", status: "Ativo" },
-  { id: "3", nome: "Henrique Nascimento", status: "Ativo" },
-  { id: "4", nome: "Tridigo Ribeiro", status: "Inativo" },
-  { id: "5", nome: "Luis Oliva", status: "Ativo" },
-];
+const perfisDisponiveis = ["Administrador", "Revisor", "Funcionario"];
 
 export default function Usuarios({ navigation }) {
   const [pesquisa, setPesquisa] = useState("");
   const [abaAtiva, setAbaAtiva] = useState("Resumo");
-  const [usuarios] = useState(listaInicial);
+
+  const [usuarios, setUsuarios] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
+
+  const { usuario: usuarioLogado } = useAuth();
+  const ehAdministrador = usuarioLogado?.perfilAcesso === "Administrador";
 
   const { cores, modoEscuro } = useTema();
 
@@ -35,13 +43,77 @@ export default function Usuarios({ navigation }) {
     [cores, modoEscuro]
   );
 
+  // Carrega os usuários reais da API (somente Administrador tem acesso)
+  const carregarUsuarios = useCallback(async () => {
+    try {
+      setErro(null);
+
+      const lista = await listarUsuarios();
+
+      setUsuarios(lista || []);
+    } catch (falha) {
+      setErro(falha.message || "Não foi possível carregar os usuários.");
+      setUsuarios([]);
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    carregarUsuarios();
+  }, [carregarUsuarios]);
+
   const usuariosFiltrados = useMemo(() => {
-    return usuarios.filter((usuario) =>
-      usuario.nome
-        .toLowerCase()
-        .includes(pesquisa.trim().toLowerCase())
+    const termo = pesquisa.trim().toLowerCase();
+
+    return usuarios.filter((usuario) => {
+      if (abaAtiva === "Perfil de Acesso") {
+        return (
+          (usuario.perfilAcesso || "").toLowerCase().includes(termo) ||
+          usuario.nome.toLowerCase().includes(termo)
+        );
+      }
+
+      return usuario.nome.toLowerCase().includes(termo);
+    });
+  }, [usuarios, pesquisa, abaAtiva]);
+
+  async function alterarPerfil(usuario) {
+    const proximoPerfil =
+      perfisDisponiveis[
+        (perfisDisponiveis.indexOf(usuario.perfilAcesso) + 1) %
+          perfisDisponiveis.length
+      ];
+
+    try {
+      await alterarPerfilUsuario(usuario.idUsuario, proximoPerfil);
+      await carregarUsuarios();
+    } catch (falha) {
+      Alert.alert("Perfil de acesso", falha.message);
+    }
+  }
+
+  function confirmarExclusao(usuario) {
+    Alert.alert(
+      "Excluir usuário",
+      `Deseja excluir "${usuario.nome}"? O acesso é removido, mas o histórico dele continua no banco.`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await excluirUsuario(usuario.idUsuario);
+              await carregarUsuarios();
+            } catch (falha) {
+              Alert.alert("Excluir usuário", falha.message);
+            }
+          },
+        },
+      ]
     );
-  }, [usuarios, pesquisa]);
+  }
 
   return (
     <View style={styles.container}>
@@ -110,55 +182,101 @@ export default function Usuarios({ navigation }) {
         </View>
 
         <View style={styles.cardLista}>
-          {usuariosFiltrados.length > 0 ? (
-            usuariosFiltrados.map((usuario) => (
-              <TouchableOpacity
-                key={usuario.id}
-                style={styles.cardUsuario}
-                activeOpacity={0.7}
-                onPress={() =>
-                  navigation?.navigate?.("EditarUsuario", {
-                    usuario,
-                  })
-                }
-              >
-                <Ionicons
-                  name="person-outline"
-                  size={19}
-                  color={cores.vinho}
-                />
+          {carregando ? (
+            <ActivityIndicator
+              style={{ marginVertical: 20 }}
+              color={cores.primario}
+            />
+          ) : usuariosFiltrados.length > 0 ? (
+            usuariosFiltrados.map((usuario) => {
+              const ativo = usuario.ativo === true;
 
-                <Text
-                  style={styles.nomeUsuario}
-                  numberOfLines={1}
-                >
-                  {usuario.nome}
-                </Text>
+              return (
+                <TouchableOpacity
+                  key={usuario.idUsuario}
+                  style={styles.cardUsuario}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    if (!ehAdministrador) {
+                      return;
+                    }
 
-                <View
-                  style={[
-                    styles.status,
-                    usuario.status === "Ativo"
-                      ? styles.statusAtivo
-                      : styles.statusInativo,
-                  ]}
+                    Alert.alert(
+                      usuario.nome,
+                      `${usuario.email}\nPerfil: ${usuario.perfilAcesso}\nStatus: ${
+                        ativo ? "Ativo" : "Inativo"
+                      }`,
+                      [
+                        {
+                          text: "Alterar perfil",
+                          onPress: () => alterarPerfil(usuario),
+                        },
+                        ...(ativo
+                          ? [
+                              {
+                                text: "Excluir",
+                                style: "destructive",
+                                onPress: () => confirmarExclusao(usuario),
+                              },
+                            ]
+                          : []),
+                        { text: "Fechar", style: "cancel" },
+                      ]
+                    );
+                  }}
                 >
-                  <Text
+                  <Ionicons
+                    name="person-outline"
+                    size={19}
+                    color={cores.vinho}
+                  />
+
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={styles.nomeUsuario}
+                      numberOfLines={1}
+                    >
+                      {usuario.nome}
+                    </Text>
+
+                    {abaAtiva === "Perfil de Acesso" && (
+                      <Text
+                        style={{
+                          color: cores.textoSecundario,
+                          fontSize: 11,
+                        }}
+                        numberOfLines={1}
+                      >
+                        {usuario.perfilAcesso} • {usuario.email}
+                      </Text>
+                    )}
+                  </View>
+
+                  <View
                     style={[
-                      styles.textoStatus,
-                      usuario.status === "Ativo"
-                        ? styles.textoAtivo
-                        : styles.textoInativo,
+                      styles.status,
+                      ativo
+                        ? styles.statusAtivo
+                        : styles.statusInativo,
                     ]}
                   >
-                    {usuario.status}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))
+                    <Text
+                      style={[
+                        styles.textoStatus,
+                        ativo
+                          ? styles.textoAtivo
+                          : styles.textoInativo,
+                      ]}
+                    >
+                      {ativo ? "Ativo" : "Inativo"}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })
           ) : (
             <Text style={styles.semResultados}>
-              Nenhum usuário encontrado.
+              {erro || "Nenhum usuário encontrado."}
             </Text>
           )}
         </View>

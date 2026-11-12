@@ -1,11 +1,12 @@
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 
 import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons";
@@ -14,14 +15,10 @@ import { criarDadosStyles } from "./DadosStyles";
 import Header from "../header/Header";
 import Footer from "../footer/Footer";
 import { useTema } from "../tema/TemaContext";
-
-const dados = [
-  { campo: "Documento", valor: "NF-18291" },
-  { campo: "CNPJ", valor: "12.345.678/0001-90" },
-  { campo: "Data", valor: "12/12/2026" },
-  { campo: "Valor", valor: "4.580,00" },
-  { campo: "Fornecedor", valor: "Empresa ABC" },
-];
+import {
+  buscarDocumento,
+  buscarExtracoes,
+} from "../../Services/documentoService";
 
 const formatos = [
   { nome: "JSON", icone: "code-json" },
@@ -30,8 +27,14 @@ const formatos = [
   { nome: "Excel", icone: "file-excel" },
 ];
 
-export default function Dados() {
+export default function Dados({ route }) {
   const [formatoSelecionado, setFormatoSelecionado] = useState("JSON");
+
+  const idDocumento = route?.params?.idDocumento;
+
+  const [dados, setDados] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
 
   const { cores, modoEscuro } = useTema();
 
@@ -40,10 +43,89 @@ export default function Dados() {
     [cores, modoEscuro]
   );
 
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregar() {
+      if (!idDocumento) {
+        setCarregando(false);
+        return;
+      }
+
+      try {
+        setErro(null);
+
+        const documento = await buscarDocumento(idDocumento);
+        const extracoes = await buscarExtracoes(idDocumento);
+
+        const ultima =
+          Array.isArray(extracoes) && extracoes.length > 0
+            ? extracoes[0]
+            : null;
+
+        let json = {};
+
+        if (ultima?.dadosEstruturados) {
+          json =
+            typeof ultima.dadosEstruturados === "string"
+              ? JSON.parse(ultima.dadosEstruturados)
+              : ultima.dadosEstruturados;
+        }
+
+        const linhas = [];
+
+        Object.entries(json).forEach(([chave, valor]) => {
+          if (valor === null || valor === undefined) {
+            return;
+          }
+
+          if (typeof valor === "object" && "valor" in valor) {
+            if (valor.valor === null || valor.valor === undefined) {
+              return;
+            }
+
+            linhas.push({
+              campo: chave.replace(/_/g, " "),
+              valor: valor.valor_normalizado || valor.valor,
+            });
+
+            return;
+          }
+
+          if (typeof valor === "string") {
+            linhas.push({ campo: chave.replace(/_/g, " "), valor });
+          }
+        });
+
+        if (ativo) {
+          setDados(
+            linhas.length > 0
+              ? linhas
+              : [{ campo: "Documento", valor: documento?.nomeArquivo || "—" }]
+          );
+        }
+      } catch (falha) {
+        if (ativo) {
+          setErro(falha.message || "Não foi possível carregar os dados.");
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
+        }
+      }
+    }
+
+    carregar();
+
+    return () => {
+      ativo = false;
+    };
+  }, [idDocumento]);
+
   function exportar() {
     Alert.alert(
       "Exportação",
-      `Formato selecionado: ${formatoSelecionado}. Para gerar o arquivo, conecte a função de exportação.`
+      `Formato selecionado: ${formatoSelecionado}. A exportação de arquivo será habilitada na próxima etapa.`
     );
   }
 
@@ -56,17 +138,28 @@ export default function Dados() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.cardDados}>
-          {dados.map((item) => (
-            <View key={item.campo} style={styles.linhaDado}>
-              <Text style={styles.nomeCampo}>
-                {item.campo}
-              </Text>
+          {carregando ? (
+            <ActivityIndicator
+              style={{ marginVertical: 20 }}
+              color={cores.primario}
+            />
+          ) : dados.length > 0 ? (
+            dados.map((item) => (
+              <View key={item.campo} style={styles.linhaDado}>
+                <Text style={styles.nomeCampo}>
+                  {item.campo}
+                </Text>
 
-              <Text style={styles.valorCampo}>
-                {item.valor}
-              </Text>
-            </View>
-          ))}
+                <Text style={styles.valorCampo}>
+                  {item.valor}
+                </Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.valorCampo}>
+              {erro || "Nenhum dado extraído para este documento."}
+            </Text>
+          )}
         </View>
 
         <Text style={styles.tituloExportar}>

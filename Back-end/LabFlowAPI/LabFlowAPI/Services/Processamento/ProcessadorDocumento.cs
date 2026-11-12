@@ -180,8 +180,19 @@ public class ProcessadorDocumento : IProcessadorDocumento
             where v.Resultado == "Aprovado"
                   && !d.Excluido
                   && e.TextoExtraido != null
-                  && e.DadosEstruturados != null
-            select new { e.TextoExtraido, e.DadosEstruturados, d.TipoDocumento, v.IdValidacao };
+                  // Aceita o exemplo se houver correção humana OU a extração original
+                  && (v.DadosCorrigidos != null || e.DadosEstruturados != null)
+            select new
+            {
+                e.TextoExtraido,
+
+                // A correção do revisor tem prioridade: sem isso a IA aprenderia
+                // com o próprio erro (o JSON original que foi corrigido).
+                JsonAprovado = v.DadosCorrigidos ?? e.DadosEstruturados,
+
+                d.TipoDocumento,
+                v.IdValidacao
+            };
 
         if (!string.IsNullOrWhiteSpace(tipoDocumento))
         {
@@ -198,7 +209,7 @@ public class ProcessadorDocumento : IProcessadorDocumento
             {
                 // O prompt não precisa do texto inteiro: um recorte já dá o padrão
                 TextoDocumento = Truncar(x.TextoExtraido!, 1500),
-                JsonAprovado = x.DadosEstruturados!
+                JsonAprovado = x.JsonAprovado!
             })
             .ToList();
     }
