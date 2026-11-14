@@ -190,15 +190,18 @@ export default function Analise({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <Header />
-
+      <View>
+      <Header
+        titulo="Analise de Documentos"
+      />
+      <Text style={styles.subtitulo}>
+        Resultado do processamento gerado pela IA
+      </Text>
+      </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <Text style={styles.subtitulo}>
-          Resultado do processamento gerado pela IA
-        </Text>
 
         <View style={styles.documento}>
           <MaterialCommunityIcons

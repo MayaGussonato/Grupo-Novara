@@ -33,12 +33,12 @@ import Perfil from "./Components/perfil/Perfil";
 const rotasPorNome = {
   Login: "/login",
   Cadastro: "/cadastro",
-  Dashboard: "/dashboard",
+  Dashboard: "/Dashboard",
   Validacao: "/validacao",
   Documento: "/validacao",
   Documentos: "/validacao",
   Importacao: "/importacao",
-  Importar: "/importacao",
+  Importar: "/integracao",
   Analise: "/analise",
   Dados: "/dados",
   Integracoes: "/integracoes",
@@ -46,7 +46,6 @@ const rotasPorNome = {
   Administracao: "/administracao",
   Usuarios: "/administracao",
   Perfil: "/perfil",
-  Opcoes: "/perfil",
   RecuperarSenha: "/recuperar-senha",
 };
 
@@ -83,7 +82,7 @@ function RotaPublica() {
   if (carregando) return <Carregando />;
 
   if (usuario) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/Dashboard" replace />;
   }
 
   return <Outlet />;
@@ -104,7 +103,7 @@ function Tela({ component: Component }) {
 
     goBack: () => navigate(-1),
 
-    openDrawer: () => navigate("/dashboard"),
+    openDrawer: () => navigate("/Dashboard"),
   };
 
   const route = {
@@ -166,11 +165,11 @@ export default function ReactRouter() {
       <Route element={<RotaPrivada />}>
         <Route
           path="/"
-          element={<Navigate to="/dashboard" replace />}
+          element={<Navigate to="/Dashboard" replace />}
         />
 
         <Route
-          path="/dashboard"
+          path="/Dashboard"
           element={<Tela component={Dashboard} />}
         />
 

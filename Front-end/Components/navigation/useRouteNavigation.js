@@ -1,22 +1,24 @@
 import { useMemo } from "react";
-import { useRouter } from "expo-router";
+import { useRouter, usePathname } from "expo-router";
 
 const rotas = {
   Login: "/login",
   Cadastro: "/cadastro",
-  Dashboard: "/dashboard",
+  Dashboard: "/Dashboard",
+  Documento: "/atendimento",
+  Integrar: "/integracoes",
   Importacao: "/importacao",
   Analise: "/analise",
   Validacao: "/validacao",
   Dados: "/dados",
   Administracao: "/administracao",
   Perfil: "/perfil",
-
   ProcessamentoInteligente: "/analise",
 };
 
 export default function useRouteNavigation() {
   const router = useRouter();
+  const pathname = usePathname();
 
   return useMemo(() => {
     function obterDestino(destino) {
@@ -25,28 +27,28 @@ export default function useRouteNavigation() {
 
     return {
       navigate(destino, params) {
-        const pathname = obterDestino(destino);
+        const pathnameDestino = obterDestino(destino);
 
         if (params) {
           router.push({
-            pathname,
+            pathname: pathnameDestino,
             params,
           });
         } else {
-          router.push(pathname);
+          router.push(pathnameDestino);
         }
       },
 
       replace(destino, params) {
-        const pathname = obterDestino(destino);
+        const pathnameDestino = obterDestino(destino);
 
         if (params) {
           router.replace({
-            pathname,
+            pathname: pathnameDestino,
             params,
           });
         } else {
-          router.replace(pathname);
+          router.replace(pathnameDestino);
         }
       },
 
@@ -57,6 +59,11 @@ export default function useRouteNavigation() {
           router.replace("/dashboard");
         }
       },
+
+      isActive(destino) {
+        return pathname.toLowerCase() ===
+          obterDestino(destino).toLowerCase();
+      },
     };
-  }, [router]);
+  }, [router, pathname]);
 }
