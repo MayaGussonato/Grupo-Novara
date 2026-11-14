@@ -275,7 +275,10 @@ export default function Footer() {
               onPress={() => navegarPara("perfil")}
               activeOpacity={0.7}
               style={{
-                paddingVertical: 20,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingVertical: 16,
                 paddingHorizontal: 12,
                 borderTopWidth: 1,
                 borderTopColor: cores.secundario,
@@ -294,6 +297,15 @@ export default function Footer() {
               >
                 Perfil
               </Text>
+
+              <Image
+                source={require("../../assets/Perfil.png")}
+                style={{
+                  width: 30,
+                  height: 30,
+                  resizeMode: "contain",
+                }}
+              />
             </TouchableOpacity>
           </Animated.View>
         </View>

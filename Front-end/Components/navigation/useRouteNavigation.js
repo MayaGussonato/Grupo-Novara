@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "expo-router";
 const rotas = {
   Login: "/login",
   Cadastro: "/cadastro",
-  Dashboard: "/Dashboard",
+  Dashboard: "/dashboard",
   Documento: "/atendimento",
   Integrar: "/integracoes",
   Importacao: "/importacao",
