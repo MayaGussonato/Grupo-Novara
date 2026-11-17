@@ -11,6 +11,7 @@ Nome VARCHAR(250) NOT NULL,
 Email VARCHAR(250) NOT NULL UNIQUE,
 Senha VARCHAR(255) NOT NULL,                -- hash BCrypt
 Cargo VARCHAR(80),
+Telefone VARCHAR(20),                       -- DDD + numero, so digitos
 Perfil_Acesso VARCHAR(30) NOT NULL DEFAULT 'Funcionario',
 Provedor_Login VARCHAR(30) NOT NULL DEFAULT 'Local',
 Ativo BIT NOT NULL DEFAULT 1,

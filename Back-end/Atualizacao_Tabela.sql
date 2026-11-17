@@ -65,3 +65,8 @@ BEGIN
     ON Documento(Excluido) INCLUDE (IdUsuario, Status_Arquivo);
 END;
 GO
+
+-- Telefone do usuario (DDD + numero, so digitos). Opcional.
+IF COL_LENGTH('dbo.Usuario', 'Telefone') IS NULL
+    ALTER TABLE Usuario ADD Telefone VARCHAR(20) NULL;
+GO

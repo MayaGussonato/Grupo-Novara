@@ -31,6 +31,11 @@ public partial class Usuario
     [Unicode(false)]
     public string? Cargo { get; set; }
 
+    /// <summary>Telefone com DDD, só dígitos (10 ou 11). Opcional.</summary>
+    [StringLength(20)]
+    [Unicode(false)]
+    public string? Telefone { get; set; }
+
     [Column("Perfil_Acesso")]
     [StringLength(30)]
     [Unicode(false)]

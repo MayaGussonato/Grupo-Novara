@@ -19,6 +19,10 @@ public class RegistroDTO
 
     [StringLength(80)]
     public string? Cargo { get; set; }
+
+    [StringLength(20)]
+    [RegularExpression(@"^\d{10,11}$", ErrorMessage = "O telefone deve ter DDD + número (10 ou 11 dígitos).")]
+    public string? Telefone { get; set; }
 }
 
 public class LoginDTO
@@ -54,6 +58,8 @@ public class UsuarioResponseDTO
     public string Email { get; set; } = null!;
 
     public string? Cargo { get; set; }
+
+    public string? Telefone { get; set; }
 
     public string PerfilAcesso { get; set; } = null!;
 

@@ -43,6 +43,7 @@ public class UsuarioController : ControllerBase
                 Nome = dto.Nome!.Trim(),
                 Email = email,
                 Cargo = dto.Cargo?.Trim(),
+                Telefone = string.IsNullOrWhiteSpace(dto.Telefone) ? null : dto.Telefone.Trim(),
                 ProvedorLogin = "Local",
                 PerfilAcesso = Perfis.Funcionario,
                 Ativo = true,
@@ -182,6 +183,7 @@ public class UsuarioController : ControllerBase
         Nome = u.Nome,
         Email = u.Email,
         Cargo = u.Cargo,
+        Telefone = u.Telefone,
         PerfilAcesso = u.PerfilAcesso,
         Ativo = u.Ativo == true
     };
