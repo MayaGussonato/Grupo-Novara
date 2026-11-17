@@ -40,7 +40,7 @@ const icones = [
 ];
 
 const outrasTelas = [
-  { nome: "Importação", destino: "importacao" },
+  { nome: "Importação", destino: "Importacao" },
   { nome: "Análise", destino: "Analise" },
   { nome: "Validação", destino: "Validacao" },
   { nome: "Dados", destino: "Dados" },
@@ -231,8 +231,8 @@ export default function Footer() {
                 const ativo =
                   pathname.toLowerCase() ===
                   (
-                    item.destino === "importacao"
-                      ? "/importacao"
+                    item.destino === "Importacao"
+                      ? "/Importacao"
                       : `/${item.destino.toLowerCase()}`
                   ).toLowerCase();
 
@@ -272,7 +272,7 @@ export default function Footer() {
 
             {/* PERFIL FIXADO EMBAIXO */}
             <TouchableOpacity
-              onPress={() => navegarPara("perfil")}
+              onPress={() => navegarPara("Perfil")}
               activeOpacity={0.7}
               style={{
                 flexDirection: "row",
@@ -288,7 +288,7 @@ export default function Footer() {
               <Text
                 style={{
                   color:
-                    pathname.toLowerCase() === "/perfil"
+                    pathname.toLowerCase() === "/Perfil"
                       ? cores.primario
                       : cores.texto,
                   fontSize: 17,

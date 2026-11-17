@@ -7,7 +7,7 @@ import { styles } from './MenuGlobalStyle';
 const logoImage = require('../../assets/Logo (branca).png');
 
 const MENU_TOP = [
-  { key: 'dashboard', label: 'Dashboard', icon: { lib: 'ion', name: 'grid-outline' } },
+  { key: 'Dashboard', label: 'Dashboard', icon: { lib: 'ion', name: 'grid-outline' } },
   { key: 'documentos', label: 'Documentos', icon: { lib: 'ion', name: 'document-text-outline' } },
   { key: 'atendimentos', label: 'Atendimentos', icon: { lib: 'ion', name: 'headset-outline' } },
   { key: 'integracoes', label: 'Integrações', icon: { lib: 'mci', name: 'power-plug-outline' } },
@@ -45,7 +45,7 @@ function MenuItem({ item, active, onNavigate }) {
   );
 }
 
-export default function MenuGlobal({ activeMenu = 'dashboard', onNavigate }) {
+export default function MenuGlobal({ activeMenu = 'Dashboard', onNavigate }) {
   return (
     <View style={styles.sidebar}>
       <View>

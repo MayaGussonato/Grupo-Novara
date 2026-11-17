@@ -4,15 +4,15 @@ import { useRouter, usePathname } from "expo-router";
 const rotas = {
   Login: "/login",
   Cadastro: "/cadastro",
-  Dashboard: "/dashboard",
+  Dashboard: "/Dashboard",
   Documento: "/atendimento",
   Integrar: "/integracoes",
-  Importacao: "/importacao",
+  Importacao: "/Importacao",
   Analise: "/analise",
   Validacao: "/validacao",
   Dados: "/dados",
   Administracao: "/administracao",
-  Perfil: "/perfil",
+  Perfil: "/Perfil",
   ProcessamentoInteligente: "/analise",
 };
 
@@ -56,7 +56,7 @@ export default function useRouteNavigation() {
         if (router.canGoBack()) {
           router.back();
         } else {
-          router.replace("/dashboard");
+          router.replace("/Dashboard");
         }
       },
 

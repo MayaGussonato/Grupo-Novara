@@ -1,91 +1,116 @@
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
-import Ionicons from '@react-native-vector-icons/ionicons'
+
+import Ionicons from "@react-native-vector-icons/ionicons";
+
 import { atendimentoStyles as styles } from "./AtendimentoStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
 import { useTema } from "../tema/TemaContext";
 
-const atendimentosIniciais = [
-  {
-    id: "1",
-    numero: "ATD-2026-0048",
-    descricao: "Erro no processamento do laudo",
-    prioridade: "Alta",
-    status: "Aberto",
-    data: "20/10/2026 11:13",
-  },
-  {
-    id: "2",
-    numero: "ATD-2026-0047",
-    descricao: "Erro no processamento do laudo",
-    prioridade: "Alta",
-    status: "Aberto",
-    data: "20/10/2026 11:13",
-  },
-  {
-    id: "3",
-    numero: "ATD-2026-0046",
-    descricao: "Erro no processamento do laudo",
-    prioridade: "Alta",
-    status: "Em andamento",
-    data: "20/10/2026 11:13",
-  },
-  {
-    id: "4",
-    numero: "ATD-2026-0045",
-    descricao: "Erro no processamento do laudo",
-    prioridade: "Alta",
-    status: "Aberto",
-    data: "20/10/2026 11:13",
-  },
-  {
-    id: "5",
-    numero: "ATD-2026-0044",
-    descricao: "Falha na leitura do documento",
-    prioridade: "Média",
-    status: "Em andamento",
-    data: "20/10/2026 10:45",
-  },
-];
+import { listarDocumentos } from "../../Services/documentoService";
+import {
+  formatarDataHora,
+  statusParaInterface,
+} from "../../Services/formatadores";
 
 export default function Atendimento({ navigation }) {
   const [filtro, setFiltro] = useState("Todos");
+  const [documentos, setDocumentos] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
+
   const { cores, modoEscuro } = useTema();
 
-  const atendimentosFiltrados = atendimentosIniciais.filter(
-    (atendimento) => {
-      if (filtro === "Todos") return true;
-      if (filtro === "Abertos") return atendimento.status === "Aberto";
-      if (filtro === "Em andamento") return atendimento.status === "Em andamento";
-      return true;
-    }
-  );
+  async function carregarDocumentos() {
+    try {
+      setCarregando(true);
+      setErro(null);
 
-  const filtros = ["Todos", "Abertos", "Em andamento"];
+      const resposta = await listarDocumentos({
+        pagina: 1,
+        tamanho: 100,
+      });
+
+      const lista = Array.isArray(resposta)
+        ? resposta
+        : resposta?.documentos ||
+          resposta?.dados ||
+          resposta?.items ||
+          [];
+
+      setDocumentos(lista);
+    } catch (falha) {
+      setErro(
+        falha.message || "Não foi possível carregar os documentos."
+      );
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarDocumentos();
+  }, []);
+
+  const filtros = [
+    "Todos",
+    "Processando",
+    "Revisando",
+    "Aprovados",
+    "Erros",
+  ];
+
+  const documentosFiltrados = documentos.filter((documento) => {
+    if (filtro === "Todos") return true;
+
+    const status = statusParaInterface(
+      documento.statusDocumento
+    ).rotulo;
+
+    return status === filtro;
+  });
+
+  function abrirAnalise(documento) {
+    navigation?.navigate?.("Analise", {
+      idDocumento: documento.idDocumento,
+      nomeDocumento: documento.nomeArquivo,
+    });
+  }
 
   return (
-    <View style={[styles.container, { backgroundColor: cores.background }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: cores.background },
+      ]}
+    >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
         <Header titulo="Central de Atendimentos" />
-        
-        {/* Título descritivo */}
-        <Text style={[styles.titulo, { color: cores.textoSecundario }]}>
-          Acompanhe os atendimentos{"\n"}relacionados aos documentos
+
+        <Text
+          style={[
+            styles.titulo,
+            { color: cores.textoSecundario },
+          ]}
+        >
+          Consulte Seus Documentos E Acesse Suas Análises
         </Text>
 
-        {/* Filtros */}
         <View style={styles.filtros}>
           {filtros.map((item) => {
             const isAtivo = filtro === item;
+
             return (
               <TouchableOpacity
                 key={item}
@@ -97,91 +122,183 @@ export default function Atendimento({ navigation }) {
                   style={[
                     styles.textoFiltro,
                     { color: cores.texto },
-                    isAtivo && [styles.filtroAtivo, { color: cores.vinho || "#650000" }],
+                    isAtivo && [
+                      styles.filtroAtivo,
+                      { color: cores.vinho || "#650000" },
+                    ],
                   ]}
                 >
                   {item}
                 </Text>
 
                 {isAtivo && (
-                  <View style={[styles.linhaAtiva, { backgroundColor: cores.vinho || "#650000" }]} />
+                  <View
+                    style={[
+                      styles.linhaAtiva,
+                      {
+                        backgroundColor:
+                          cores.vinho || "#650000",
+                      },
+                    ]}
+                  />
                 )}
               </TouchableOpacity>
             );
           })}
         </View>
 
-        {/* Lista de atendimentos */}
         <View style={styles.lista}>
-          {atendimentosFiltrados.length > 0 ? (
-            atendimentosFiltrados.map((atendimento) => {
-              const isAberto = atendimento.status === "Aberto";
-              
-              // Ajuste de cores das etiquetas com base no modo escuro
-              const backgroundStatus = isAberto
-                ? (modoEscuro ? "#1A2C38" : "#E3F1F8")
-                : (modoEscuro ? "#3D1E1E" : "#F8C5C5");
-                
-              const corTextoStatus = isAberto
-                ? (modoEscuro ? "#6BA8D6" : "#42627B")
-                : (modoEscuro ? "#E67373" : "#A13E3E");
+          {carregando ? (
+            <ActivityIndicator
+              size="large"
+              color={cores.primario}
+              style={{ marginTop: 30 }}
+            />
+          ) : erro ? (
+            <View style={{ alignItems: "center", marginTop: 25 }}>
+              <Text
+                style={[
+                  styles.semResultados,
+                  { color: cores.textoSecundario },
+                ]}
+              >
+                {erro}
+              </Text>
+
+              <TouchableOpacity
+                onPress={carregarDocumentos}
+                style={{
+                  marginTop: 15,
+                  padding: 10,
+                }}
+              >
+                <Text style={{ color: cores.primario }}>
+                  Tentar Novamente
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : documentosFiltrados.length > 0 ? (
+            documentosFiltrados.map((documento) => {
+              const statusInfo = statusParaInterface(
+                documento.statusDocumento
+              );
+
+              const corStatus =
+                statusInfo.cor;
+
+              const backgroundStatus = modoEscuro
+                ? "#263A38"
+                : "#E3F1F0";
 
               return (
                 <TouchableOpacity
-                  key={atendimento.id}
-                  style={[styles.card, { backgroundColor: cores.card, borderColor: cores.borda }]}
+                  key={documento.idDocumento}
+                  style={[
+                    styles.card,
+                    {
+                      backgroundColor: cores.card,
+                      borderColor: cores.borda,
+                    },
+                  ]}
                   activeOpacity={0.8}
-                  onPress={() =>
-                    navigation?.navigate?.("DetalhesAtendimento", { atendimento })
-                  }
+                  onPress={() => abrirAnalise(documento)}
                 >
                   <View style={styles.informacoes}>
-                    <Text style={[styles.numero, { color: cores.texto }]}>
-                      {atendimento.numero}
+                    <Text
+                      style={[
+                        styles.numero,
+                        { color: cores.texto },
+                      ]}
+                    >
+                      {documento.nomeArquivo || "Documento Sem Nome"}
                     </Text>
 
-                    <Text style={[styles.descricao, { color: cores.textoSecundario }]}>
-                      {atendimento.descricao}
+                    <Text
+                      style={[
+                        styles.descricao,
+                        { color: cores.textoSecundario },
+                      ]}
+                    >
+                      {documento.formato
+                        ? documento.formato.toUpperCase()
+                        : "Arquivo"}{" "}
+                      {documento.nivelConfianca != null
+                        ? `• Confiança: ${documento.nivelConfianca}%`
+                        : ""}
                     </Text>
                   </View>
 
-                  {/* Etiquetas */}
                   <View style={styles.etiquetas}>
-                    <View style={styles.prioridade}>
-                      <Text style={styles.textoPrioridade}>
-                        {atendimento.prioridade}
-                      </Text>
-                    </View>
-
-                    <View style={[styles.status, { backgroundColor: backgroundStatus }]}>
-                      <Text style={[styles.textoStatus, { color: corTextoStatus }]}>
-                        {atendimento.status}
+                    <View
+                      style={[
+                        styles.status,
+                        {
+                          backgroundColor: backgroundStatus,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.textoStatus,
+                          { color: corStatus },
+                        ]}
+                      >
+                        {statusInfo.rotulo}
                       </Text>
                     </View>
                   </View>
 
-                  {/* Data e seta */}
                   <View style={styles.rodapeCard}>
-                    <Text style={[styles.data, { color: cores.textoSecundario }]}>
-                      {atendimento.data}
+                    <Text
+                      style={[
+                        styles.data,
+                        { color: cores.textoSecundario },
+                      ]}
+                    >
+                      {formatarDataHora(documento.dataEnvio)}
                     </Text>
 
-                    <Ionicons
-                      name="chevron-forward"
-                      size={21}
-                      color={cores.textoSecundario}
-                    />
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 5,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: cores.primario,
+                          fontSize: 10,
+                        }}
+                      >
+                        Ver Análise
+                      </Text>
+
+                      <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color={cores.primario}
+                      />
+                    </View>
                   </View>
                 </TouchableOpacity>
               );
             })
           ) : (
-            <Text style={[styles.semResultados, { color: cores.textoSecundario }]}>
-              Nenhum atendimento encontrado.
+            <Text
+              style={[
+                styles.semResultados,
+                { color: cores.textoSecundario },
+              ]}
+            >
+              {documentos.length === 0
+                ? "Nenhum documento enviado ainda."
+                : "Nenhum documento encontrado nesse filtro."}
             </Text>
           )}
         </View>
       </ScrollView>
+
       <Footer />
     </View>
   );

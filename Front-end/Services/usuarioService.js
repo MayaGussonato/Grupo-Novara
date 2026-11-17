@@ -11,6 +11,13 @@ export function cadastrarUsuario(dados) {
   });
 }
 
+export function atualizarMeuTelefone(telefone) {
+  return apiRequest("/api/Usuario/me/telefone", {
+    method: "PUT",
+    body: JSON.stringify({ telefone }),
+  });
+}
+
 export function fazerLogin(email, senha) {
   return apiRequest("/api/Usuario/login", {
     method: "POST",

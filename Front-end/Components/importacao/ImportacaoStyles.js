@@ -37,21 +37,22 @@ export const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  botaoSelecionar: {
-    width: "78%",
-    minHeight: 32,
-    borderRadius: 4,
-    marginTop: 20,
-    paddingHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-
+botaoSelecionar: {
+  width: "100%",
+  minHeight: 42,
+  borderRadius: 4,
+  marginTop: 20,
+  paddingHorizontal: 12,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+},
   textoBotaoSelecionar: {
     color: "#FFFFFF",
     fontSize: 14,
+    fontWeight: "500",
+    flexShrink: 0,
   },
 
   listaDocumentos: {

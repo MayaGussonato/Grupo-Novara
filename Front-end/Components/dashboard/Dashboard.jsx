@@ -1,34 +1,35 @@
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+
 import { StatusBar } from "expo-status-bar";
+import { useFocusEffect } from "expo-router";
+
 import Ionicons from "@react-native-vector-icons/ionicons";
 import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons";
+
 import { dashboardStyles as styles } from "./DashboardStyles";
 import Footer from "../footer/Footer";
 import { useTema } from "../tema/TemaContext";
+
 import { listarDocumentos } from "../../Services/documentoService";
 import { listarValidacoesPendentes } from "../../Services/validacaoService";
+
 import {
   formatarTamanho,
   formatarConfianca,
   statusParaInterface,
 } from "../../Services/formatadores";
-
-const meses = [
-  { mes: "Abr", valor: 18 },
-  { mes: "Mai", valor: 25 },
-  { mes: "Jun", valor: 33 },
-  { mes: "Jul", valor: 45 },
-  { mes: "Ago", valor: 43 },
-  { mes: "Set", valor: 52 },
-  { mes: "Out", valor: 63 },
-];
 
 export default function Dashboard({ navigation }) {
   const { cores, modoEscuro } = useTema();
@@ -36,56 +37,92 @@ export default function Dashboard({ navigation }) {
   const [documentos, setDocumentos] = useState([]);
   const [pendentes, setPendentes] = useState(0);
   const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
 
-  const carregar = useCallback(async () => {
-    try {
-      const lista = await listarDocumentos({ tamanho: 100 });
+  // Carrega os dados sempre que o Dashboard recebe foco
+  useFocusEffect(
+    useCallback(() => {
+      let ativo = true;
 
-      setDocumentos(Array.isArray(lista) ? lista : []);
+      async function carregar() {
+        try {
+          setCarregando(true);
+          setErro("");
 
-      // A fila de revisão só existe para Revisor/Administrador
-      try {
-        const fila = await listarValidacoesPendentes();
-        setPendentes(Array.isArray(fila) ? fila.length : 0);
-      } catch {
-        setPendentes(0);
+          const lista = await listarDocumentos({
+            pagina: 1,
+            tamanho: 100,
+          });
+
+          if (!ativo) return;
+
+          setDocumentos(
+            Array.isArray(lista) ? lista : []
+          );
+
+          // A fila de revisão é exclusiva de Revisor/Administrador
+          try {
+            const fila = await listarValidacoesPendentes();
+
+            if (ativo) {
+              setPendentes(
+                Array.isArray(fila) ? fila.length : 0
+              );
+            }
+          } catch {
+            if (ativo) {
+              setPendentes(0);
+            }
+          }
+        } catch (erroApi) {
+          if (ativo) {
+            setErro(
+              erroApi.message ||
+              "Não foi possível carregar os dados."
+            );
+          }
+        } finally {
+          if (ativo) {
+            setCarregando(false);
+          }
+        }
       }
-    } catch {
-      setDocumentos([]);
-      setPendentes(0);
-    } finally {
-      setCarregando(false);
-    }
-  }, []);
 
-  useEffect(() => {
-    carregar();
-  }, [carregar]);
+      carregar();
 
-  // Indicadores calculados a partir dos documentos reais
+      return () => {
+        ativo = false;
+      };
+    }, [])
+  );
+
+  // Indicadores calculados com os documentos da API
   const indicadores = useMemo(() => {
     const total = documentos.length;
 
     const comConfianca = documentos.filter(
-      (d) => d.nivelConfianca !== null && d.nivelConfianca !== undefined
+      (doc) =>
+        doc.nivelConfianca !== null &&
+        doc.nivelConfianca !== undefined
     );
 
     const mediaConfianca =
       comConfianca.length > 0
         ? comConfianca.reduce(
-            (soma, d) => soma + Number(d.nivelConfianca),
+            (soma, doc) =>
+              soma + Number(doc.nivelConfianca),
             0
           ) / comConfianca.length
         : null;
 
     const aprovados = documentos.filter(
-      (d) => d.statusDocumento === "Aprovado"
+      (doc) => doc.statusDocumento === "Aprovado"
     ).length;
 
     return [
       {
         titulo: String(total),
-        descricao: "Documentos processados",
+        descricao: "Documentos enviados",
         icone: "document-text-outline",
         corDark: "#4AF272",
         corLight: "#169447",
@@ -105,7 +142,7 @@ export default function Dashboard({ navigation }) {
         icone: "checkmark-done-outline",
         corDark: "#FFAE6B",
         corLight: "#FF963D",
-        tipo: "tempo",
+        tipo: "aprovados",
       },
       {
         titulo: String(pendentes),
@@ -118,65 +155,122 @@ export default function Dashboard({ navigation }) {
     ];
   }, [documentos, pendentes]);
 
-  // Barras do gráfico: documentos por mês de envio (últimos 6 meses)
+  // Documentos enviados nos últimos seis meses
   const meses = useMemo(() => {
-    const nomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const nomes = [
+      "Jan", "Fev", "Mar", "Abr",
+      "Mai", "Jun", "Jul", "Ago",
+      "Set", "Out", "Nov", "Dez",
+    ];
+
     const agora = new Date();
     const baldes = [];
 
     for (let i = 5; i >= 0; i -= 1) {
-      const data = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
-      baldes.push({ mes: nomes[data.getMonth()], chave: `${data.getFullYear()}-${data.getMonth()}`, quantidade: 0 });
+      const data = new Date(
+        agora.getFullYear(),
+        agora.getMonth() - i,
+        1
+      );
+
+      baldes.push({
+        mes: nomes[data.getMonth()],
+        chave: `${data.getFullYear()}-${data.getMonth()}`,
+        quantidade: 0,
+      });
     }
 
     documentos.forEach((doc) => {
       if (!doc.dataEnvio) return;
+
       const data = new Date(doc.dataEnvio);
-      const chave = `${data.getFullYear()}-${data.getMonth()}`;
-      const balde = baldes.find((b) => b.chave === chave);
-      if (balde) balde.quantidade += 1;
+
+      if (Number.isNaN(data.getTime())) return;
+
+      const chave =
+        `${data.getFullYear()}-${data.getMonth()}`;
+
+      const balde = baldes.find(
+        (item) => item.chave === chave
+      );
+
+      if (balde) {
+        balde.quantidade += 1;
+      }
     });
 
-    const maior = Math.max(1, ...baldes.map((b) => b.quantidade));
+    const maior = Math.max(
+      1,
+      ...baldes.map((item) => item.quantidade)
+    );
 
-    return baldes.map((b) => ({
-      mes: b.mes,
-      valor: Math.round((b.quantidade / maior) * 100),
+    return baldes.map((item) => ({
+      mes: item.mes,
+      quantidade: item.quantidade,
+      valor: (item.quantidade / maior) * 100,
     }));
   }, [documentos]);
 
-  // Arquivos recentes: os 3 últimos enviados
-  const arquivos = useMemo(
-    () =>
-      documentos.slice(0, 3).map((doc) => {
-        const status = statusParaInterface(doc.statusDocumento);
-
-        return {
-          id: String(doc.idDocumento),
-          nome: doc.nomeArquivo,
-          formato: (doc.formato || "").toUpperCase(),
-          tamanho: formatarTamanho(doc.tamanhoBytes),
-          status,
-        };
-      }),
-    [documentos]
+  const escalaGrafico = Math.max(
+    1,
+    ...meses.map((item) => item.quantidade)
   );
 
+  // Últimos três documentos enviados
+  const arquivos = useMemo(() => {
+    return documentos.slice(0, 3).map((doc) => {
+      const status = statusParaInterface(
+        doc.statusDocumento
+      );
+
+      return {
+        id: String(doc.idDocumento),
+        nome: doc.nomeArquivo,
+        formato: (doc.formato || "").toUpperCase(),
+        tamanho: formatarTamanho(doc.tamanhoBytes),
+        status,
+      };
+    });
+  }, [documentos]);
+
+  function abrirDocumento(arquivo) {
+    navigation?.navigate?.("Analise", {
+      idDocumento: arquivo.id,
+      nomeDocumento: arquivo.nome,
+    });
+  }
+
   return (
-    <View style={[styles.container, { backgroundColor: cores.background }]}>
-      <StatusBar style={modoEscuro ? "light" : "dark"} />
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: cores.background },
+      ]}
+    >
+      <StatusBar
+        style={modoEscuro ? "light" : "dark"}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <Text style={[styles.titulo, { color: cores.texto }]}>
-          DashBoard
+        {/* Título */}
+        <Text
+          style={[
+            styles.titulo,
+            { color: cores.texto },
+          ]}
+        >
+          Dashboard
         </Text>
 
+        {/* Indicadores */}
         <View style={styles.gradeIndicadores}>
           {indicadores.map((item) => {
-            const corIcone = modoEscuro ? item.corDark : item.corLight;
+            const corIcone = modoEscuro
+              ? item.corDark
+              : item.corLight;
 
             return (
               <View
@@ -227,6 +321,7 @@ export default function Dashboard({ navigation }) {
           })}
         </View>
 
+        {/* Gráfico */}
         <View
           style={[
             styles.cardGrafico,
@@ -243,7 +338,7 @@ export default function Dashboard({ navigation }) {
                 { color: cores.texto },
               ]}
             >
-              Documentos processados
+              Documentos enviados
             </Text>
 
             <View
@@ -271,15 +366,17 @@ export default function Dashboard({ navigation }) {
 
           <View style={styles.grafico}>
             <View style={styles.eixoY}>
-              {["400", "300", "200", "100", "0"].map((valor) => (
+              {[4, 3, 2, 1, 0].map((divisao) => (
                 <Text
-                  key={valor}
+                  key={divisao}
                   style={[
                     styles.textoEixo,
                     { color: cores.textoSecundario },
                   ]}
                 >
-                  {valor}
+                  {Math.round(
+                    escalaGrafico * divisao / 4
+                  )}
                 </Text>
               ))}
             </View>
@@ -302,19 +399,23 @@ export default function Dashboard({ navigation }) {
 
               <View style={styles.barras}>
                 {meses.map((item, index) => {
-                  let corBarra = "#8CCFC4";
+                  let corBarra;
 
                   if (index === meses.length - 1) {
-                    corBarra = modoEscuro ? "#4AF272" : "#00645F";
+                    corBarra = modoEscuro
+                      ? "#4AF272"
+                      : "#00645F";
                   } else if (index >= 3) {
                     corBarra = "#299D91";
                   } else {
-                    corBarra = modoEscuro ? "#1B4741" : "#8CCFC4";
+                    corBarra = modoEscuro
+                      ? "#1B4741"
+                      : "#8CCFC4";
                   }
 
                   return (
                     <View
-                      key={item.mes}
+                      key={`${item.mes}-${index}`}
                       style={styles.colunaBarra}
                     >
                       <View
@@ -343,6 +444,7 @@ export default function Dashboard({ navigation }) {
           </View>
         </View>
 
+        {/* Arquivos recentes */}
         <Text
           style={[
             styles.tituloRecentes,
@@ -353,27 +455,49 @@ export default function Dashboard({ navigation }) {
         </Text>
 
         <View style={styles.listaArquivos}>
-          {carregando && arquivos.length === 0 && (
+          {carregando && (
             <Text
               style={[
                 styles.tamanhoArquivo,
-                { color: cores.textoSecundario, textAlign: "center" },
+                {
+                  color: cores.textoSecundario,
+                  textAlign: "center",
+                },
               ]}
             >
               Carregando documentos...
             </Text>
           )}
 
-          {!carregando && arquivos.length === 0 && (
+          {!carregando && erro !== "" && (
             <Text
               style={[
                 styles.tamanhoArquivo,
-                { color: cores.textoSecundario, textAlign: "center" },
+                {
+                  color: cores.textoSecundario,
+                  textAlign: "center",
+                },
               ]}
             >
-              Nenhum documento enviado ainda.
+              {erro}
             </Text>
           )}
+
+          {!carregando &&
+            erro === "" &&
+            arquivos.length === 0 && (
+              <Text
+                style={[
+                  styles.tamanhoArquivo,
+                  {
+                    color: cores.textoSecundario,
+                    textAlign: "center",
+                  },
+                ]}
+              >
+                Nenhum documento enviado ainda.
+              </Text>
+            )}
 
           {arquivos.map((arquivo) => (
             <TouchableOpacity
@@ -386,12 +510,7 @@ export default function Dashboard({ navigation }) {
                 },
               ]}
               activeOpacity={0.75}
-              onPress={() =>
-                navigation?.navigate?.("Analise", {
-                  idDocumento: arquivo.id,
-                  nomeDocumento: arquivo.nome,
-                })
-              }
+              onPress={() => abrirDocumento(arquivo)}
             >
               <MaterialCommunityIcons
                 name="file-pdf-box"
@@ -405,6 +524,7 @@ export default function Dashboard({ navigation }) {
                     styles.nomeArquivo,
                     { color: cores.texto },
                   ]}
+                  numberOfLines={1}
                 >
                   {arquivo.nome}
                 </Text>
@@ -415,18 +535,27 @@ export default function Dashboard({ navigation }) {
                     { color: cores.textoSecundario },
                   ]}
                 >
-                  {arquivo.formato}    {arquivo.tamanho}
+                  {arquivo.formato} {arquivo.tamanho}
                 </Text>
               </View>
 
               <View
                 style={[
                   styles.statusConcluido,
-                  { backgroundColor: `${arquivo.status.cor}22` },
+                  {
+                    backgroundColor:
+                      `${arquivo.status.cor}22`,
+                  },
                 ]}
               >
                 <Ionicons
-                  name="checkmark-circle"
+                  name={
+                    arquivo.status.rotulo === "Aprovados"
+                      ? "checkmark-circle"
+                      : arquivo.status.rotulo === "Erros"
+                      ? "alert-circle"
+                      : "time-outline"
+                  }
                   size={12}
                   color={arquivo.status.cor}
                 />

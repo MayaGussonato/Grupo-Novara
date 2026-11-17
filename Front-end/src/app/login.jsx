@@ -11,7 +11,7 @@ export default function LoginScreen() {
   const navigation = useRouteNavigation();
 
   if (usuario) {
-    return <Redirect href="/dashboard" />;
+    return <Redirect href="/Dashboard" />;
   }
 
   return <Login navigation={navigation} />;

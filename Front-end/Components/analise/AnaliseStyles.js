@@ -15,9 +15,14 @@ export const criarAnaliseStyles = (cores, modoEscuro) =>
     },
 
     subtitulo: {
+      width: "100%",
+      textAlign: "center",
+      alignSelf: "center",
       fontSize: 13,
       color: cores.textoSecundario,
+      marginTop: 8,
       marginBottom: 32,
+      paddingHorizontal: 15,
     },
 
     documento: {

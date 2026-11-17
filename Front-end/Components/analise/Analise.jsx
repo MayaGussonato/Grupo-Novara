@@ -161,18 +161,18 @@ export default function Analise({ route, navigation }) {
   ).length;
 
   const indicadores = [
-    {
-      texto: "Campos Extraídos",
-      valor: String(camposComValor),
-      icone: "check-circle",
-      cor: corSucesso,
-    },
-    {
-      texto: "Campos Confirmados",
-      valor: String(camposConferidos),
-      icone: "check-circle",
-      cor: corSucesso,
-    },
+  {
+    texto: "Campos Extraídos",
+    valor: String(camposComValor),
+    icone: "checkmark-circle-outline",
+    cor: corSucesso,
+  },
+  {
+    texto: "Campos Confirmados",
+    valor: String(camposConferidos),
+    icone: "checkmark-circle-outline",
+    cor: corSucesso,
+  },
     {
       texto: "Nível de Confiança",
       valor: formatarConfianca(extracao?.nivelConfianca),
@@ -191,12 +191,11 @@ export default function Analise({ route, navigation }) {
   return (
     <View style={styles.container}>
       <View>
-      <Header
-        titulo="Analise de Documentos"
-      />
-      <Text style={styles.subtitulo}>
-        Resultado do processamento gerado pela IA
-      </Text>
+        <Header titulo="Analise de Documentos" />
+
+        <Text style={styles.subtitulo}>
+          Resultado do processamento gerado pela IA
+        </Text>
       </View>
       <ScrollView
         showsVerticalScrollIndicator={false}

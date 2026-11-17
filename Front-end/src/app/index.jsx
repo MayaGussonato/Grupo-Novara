@@ -34,7 +34,7 @@ export default function Index() {
 
   return (
     <Redirect
-      href={usuario ? "/dashboard" : "/login"}
+      href={usuario ? "/Dashboard" : "/login"}
     />
   );
 }

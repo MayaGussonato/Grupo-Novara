@@ -23,41 +23,103 @@ import {
   processarDocumento,
 } from "../../Services/documentoService";
 
+// Formata automaticamente o tamanho do arquivo.
+function formatarTamanhoArquivo(bytes) {
+  if (bytes == null || !Number.isFinite(Number(bytes))) {
+    return "Tamanho indisponível";
+  }
+
+  const tamanho = Number(bytes);
+
+  if (tamanho < 1024) {
+    return `${tamanho} B`;
+  }
+
+  if (tamanho < 1024 * 1024) {
+    return `${(tamanho / 1024).toFixed(2).replace(".", ",")} KB`;
+  }
+
+  if (tamanho < 1024 * 1024 * 1024) {
+    return `${(tamanho / (1024 * 1024)).toFixed(2).replace(".", ",")} MB`;
+  }
+
+  return `${(tamanho / (1024 * 1024 * 1024)).toFixed(2).replace(".", ",")} GB`;
+}
+
 export default function Importacao({ navigation }) {
   const [documentos, setDocumentos] = useState([]);
   const [processando, setProcessando] = useState(false);
 
   const { cores, modoEscuro } = useTema();
 
+  // Selecionar arquivos do dispositivo.
   async function selecionarArquivos() {
     try {
       const resultado = await DocumentPicker.getDocumentAsync({
-        type: ["application/pdf"],
+        type: "*/*",
         multiple: true,
         copyToCacheDirectory: true,
       });
 
       if (resultado.canceled) return;
 
-      const novosDocumentos = resultado.assets.map((arquivo) => ({
-        id: `${arquivo.uri}-${arquivo.name}`,
-        nome: arquivo.name,
-        tamanho: arquivo.size
-          ? `${(arquivo.size / (1024 * 1024)).toFixed(1)} MB`
-          : "Tamanho indisponível",
-        uri: arquivo.uri,
-        arquivo,
-        status: "Selecionado",
-      }));
+      const formatosPermitidos = [
+        "pdf",
+        "png",
+        "jpg",
+        "jpeg",
+        "tif",
+        "tiff",
+        "docx",
+        "xlsx",
+        "txt",
+      ];
 
-      setDocumentos((atuais) => {
-        const combinados = [...atuais, ...novosDocumentos];
+      const arquivosValidos = [];
+      const arquivosInvalidos = [];
 
-        return combinados.filter(
-          (doc, index, lista) =>
-            lista.findIndex((item) => item.uri === doc.uri) === index
-        );
+      resultado.assets.forEach((arquivo) => {
+        const extensao = arquivo.name
+          .split(".")
+          .pop()
+          .toLowerCase();
+
+        if (formatosPermitidos.includes(extensao)) {
+          arquivosValidos.push({
+            id: `${arquivo.uri}-${arquivo.name}`,
+            nome: arquivo.name,
+            tipo: extensao.toUpperCase(),
+            tamanho: formatarTamanhoArquivo(arquivo.size),
+            uri: arquivo.uri,
+            arquivo,
+            status: "Selecionado",
+            idDocumento: null,
+          });
+        } else {
+          arquivosInvalidos.push(arquivo.name);
+        }
       });
+
+      if (arquivosValidos.length > 0) {
+        setDocumentos((atuais) => {
+          const combinados = [...atuais, ...arquivosValidos];
+
+          return combinados.filter(
+            (doc, index, lista) =>
+              lista.findIndex(
+                (item) => item.uri === doc.uri
+              ) === index
+          );
+        });
+      }
+
+      if (arquivosInvalidos.length > 0) {
+        Alert.alert(
+          "Formato não permitido",
+          "Alguns arquivos não foram adicionados.\n\n" +
+            "Formatos aceitos: PDF, PNG, JPG, JPEG, TIFF, DOCX, XLSX e TXT."
+        );
+      }
     } catch (erro) {
       Alert.alert(
         "Erro",
@@ -66,9 +128,13 @@ export default function Importacao({ navigation }) {
     }
   }
 
+  // Enviar e processar os documentos.
   async function processarDocumentos() {
     if (documentos.length === 0) {
-      Alert.alert("Atenção", "Selecione algum documento.");
+      Alert.alert(
+        "Atenção",
+        "Selecione algum documento."
+      );
       return;
     }
 
@@ -76,50 +142,163 @@ export default function Importacao({ navigation }) {
 
     setProcessando(true);
 
+    let enviados = 0;
+    let processados = 0;
+
+    const falhas = [];
+
     try {
       for (const documento of documentos) {
-        const cadastro = await enviarDocumento(
-          documento.arquivo,
-          ""
-        );
-
-        if (!cadastro?.idDocumento) {
-          throw new Error(
-            "O servidor não retornou o identificador do documento."
-          );
+        // Não processa novamente documentos já concluídos.
+        if (documento.status === "Processado") {
+          continue;
         }
 
-        const resultado = await processarDocumento(
-          cadastro.idDocumento
-        );
+        let idDocumento = documento.idDocumento;
 
-        console.log("Resultado do processamento:", resultado);
+        try {
+          // 1. Enviar o arquivo para a API.
+          // Se já possuir ID, não envia novamente.
+          if (!idDocumento) {
+            setDocumentos((atuais) =>
+              atuais.map((item) =>
+                item.id === documento.id
+                  ? {
+                      ...item,
+                      status: "Enviando...",
+                    }
+                  : item
+              )
+            );
+
+            const cadastro = await enviarDocumento(
+              documento.arquivo,
+              ""
+            );
+
+            idDocumento =
+              cadastro?.idDocumento ??
+              cadastro?.IdDocumento;
+
+            if (!idDocumento) {
+              throw new Error(
+                "A API não retornou o identificador do documento."
+              );
+            }
+
+            enviados++;
+
+            // Guarda o ID retornado pela API.
+            setDocumentos((atuais) =>
+              atuais.map((item) =>
+                item.id === documento.id
+                  ? {
+                      ...item,
+                      idDocumento,
+                      status: "Salvo",
+                    }
+                  : item
+              )
+            );
+          }
+
+          // 2. Solicitar o processamento.
+          setDocumentos((atuais) =>
+            atuais.map((item) =>
+              item.id === documento.id
+                ? {
+                    ...item,
+                    status: "Processando...",
+                  }
+                : item
+            )
+          );
+
+          const resultado = await processarDocumento(
+            idDocumento
+          );
+
+          console.log(
+            "Resultado do processamento:",
+            resultado
+          );
+
+          processados++;
+
+          // 3. Atualizar o status na tela.
+          setDocumentos((atuais) =>
+            atuais.map((item) =>
+              item.id === documento.id
+                ? {
+                    ...item,
+                    idDocumento,
+                    status: "Processado",
+                  }
+                : item
+            )
+          );
+        } catch (erro) {
+          console.error(
+            `Erro no documento ${documento.nome}:`,
+            erro
+          );
+
+          falhas.push(
+            `${documento.nome}: ${erro.message || "Erro desconhecido"}`
+          );
+
+          // Se o upload já aconteceu, preserva o ID.
+          setDocumentos((atuais) =>
+            atuais.map((item) =>
+              item.id === documento.id
+                ? {
+                    ...item,
+                    idDocumento,
+                    status: idDocumento
+                      ? "Salvo na API"
+                      : "Falha no envio",
+                  }
+                : item
+            )
+          );
+        }
+      }
+
+      let mensagem =
+        `${enviados} arquivo(s) novo(s) salvo(s) na API.\n` +
+        `${processados} documento(s) processado(s).`;
+
+      if (falhas.length > 0) {
+        mensagem +=
+          "\n\nProblemas encontrados:\n" +
+          falhas.join("\n");
       }
 
       Alert.alert(
-        "Sucesso",
-        "Os documentos foram enviados e processados."
-      );
-
-      setDocumentos([]);
-    } catch (erro) {
-      Alert.alert(
-        "Erro",
-        erro.message || "Não foi possível processar os documentos."
+        falhas.length > 0
+          ? "Processamento concluído com avisos"
+          : "Sucesso",
+        mensagem
       );
     } finally {
       setProcessando(false);
     }
   }
 
-  function limparSelecao() {
+  // Remover um arquivo da seleção.
+  function removerDocumento(id) {
     if (processando) return;
-    setDocumentos([]);
+
+    setDocumentos((atuais) =>
+      atuais.filter((item) => item.id !== id)
+    );
   }
 
-  function formatarNome(nome) {
-    if (nome.length <= 25) return nome;
-    return `${nome.slice(0, 22)}...`;
+  // Limpar a seleção.
+  function limparSelecao() {
+    if (processando) return;
+
+    setDocumentos([]);
   }
 
   return (
@@ -131,13 +310,14 @@ export default function Importacao({ navigation }) {
     >
       <Header
         navigation={navigation}
-        titulo="Importação de documentos"
+        titulo="Importação De Documentos"
       />
 
       <ScrollView
         contentContainerStyle={styles.conteudo}
         showsVerticalScrollIndicator={false}
       >
+        {/* Área de seleção */}
         <View
           style={[
             styles.areaSelecao,
@@ -162,7 +342,7 @@ export default function Importacao({ navigation }) {
               { color: cores.texto },
             ]}
           >
-            Arraste seus documentos pra cá
+            Arraste Seus Documentos Para Cá
           </Text>
 
           <Text
@@ -171,7 +351,7 @@ export default function Importacao({ navigation }) {
               { color: cores.textoSecundario },
             ]}
           >
-            ou selecione arquivos do dispositivo
+            Ou Selecione Arquivos Do Dispositivo
           </Text>
 
           <TouchableOpacity
@@ -193,11 +373,12 @@ export default function Importacao({ navigation }) {
             />
 
             <Text style={styles.textoBotaoSelecionar}>
-              selecionar arquivos
+              Selecionar Arquivos
             </Text>
           </TouchableOpacity>
         </View>
 
+        {/* Lista de documentos */}
         <View style={styles.listaDocumentos}>
           {documentos.map((documento) => (
             <View
@@ -211,7 +392,7 @@ export default function Importacao({ navigation }) {
               ]}
             >
               <MaterialCommunityIcons
-                name="file-pdf-box"
+                name="file-document-outline"
                 size={27}
                 color={cores.vinho || "#650000"}
               />
@@ -223,7 +404,7 @@ export default function Importacao({ navigation }) {
                     { color: cores.texto },
                   ]}
                 >
-                  {formatarNome(documento.nome)}
+                  {documento.nome}
                 </Text>
 
                 <Text
@@ -232,10 +413,11 @@ export default function Importacao({ navigation }) {
                     { color: cores.textoSecundario },
                   ]}
                 >
-                  PDF    {documento.tamanho}
+                  {documento.tipo}    {documento.tamanho}
                 </Text>
               </View>
 
+              {/* Status */}
               <View
                 style={[
                   styles.status,
@@ -247,33 +429,45 @@ export default function Importacao({ navigation }) {
                 ]}
               >
                 <Ionicons
-                  name="checkmark-circle"
+                  name={
+                    documento.status === "Processado"
+                      ? "checkmark-circle"
+                      : documento.status === "Processando..."
+                      ? "sync-circle"
+                      : documento.status === "Falha no envio"
+                      ? "alert-circle"
+                      : "checkmark-circle"
+                  }
                   size={11}
-                  color={modoEscuro ? "#4AF272" : "#216B31"}
+                  color={
+                    documento.status === "Falha no envio"
+                      ? "#C0392B"
+                      : modoEscuro
+                      ? "#4AF272"
+                      : "#216B31"
+                  }
                 />
 
                 <Text
                   style={[
                     styles.textoStatus,
                     {
-                      color: modoEscuro
-                        ? "#4AF272"
-                        : "#216B31",
+                      color:
+                        documento.status === "Falha no envio"
+                          ? "#C0392B"
+                          : modoEscuro
+                          ? "#4AF272"
+                          : "#216B31",
                     },
                   ]}
                 >
-                  Selecionado
+                  {documento.status}
                 </Text>
               </View>
 
+              {/* Remover documento */}
               <TouchableOpacity
-                onPress={() =>
-                  setDocumentos((atuais) =>
-                    atuais.filter(
-                      (item) => item.id !== documento.id
-                    )
-                  )
-                }
+                onPress={() => removerDocumento(documento.id)}
                 accessibilityLabel={`Remover ${documento.nome}`}
                 style={styles.botaoRemover}
                 disabled={processando}
@@ -289,6 +483,7 @@ export default function Importacao({ navigation }) {
         </View>
       </ScrollView>
 
+      {/* Ações inferiores */}
       <View
         style={[
           styles.acoes,
@@ -299,7 +494,8 @@ export default function Importacao({ navigation }) {
           style={[
             styles.botaoProcessar,
             {
-              backgroundColor: cores.primario || "#287F7D",
+              backgroundColor:
+                cores.primario || "#287F7D",
               opacity: processando ? 0.6 : 1,
             },
           ]}

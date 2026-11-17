@@ -11,7 +11,7 @@ import {
 import Svg, { Circle, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 
-import MenuGlobal from '../../../components/MenuGlobal/MenuGlobal';
+import MenuGlobal from '../../../Components/MenuGlobal/MenuGlobal';
 import { styles, docColors } from './dashboardStyle';
 
 const PERIODS = [
@@ -467,7 +467,7 @@ function ActivityRow({ activity, onOpen }) {
 }
 
 export default function Dashboard({
-  activeMenu = 'dashboard',
+  activeMenu = 'Dashboard',
   onNavigate,
   userName = 'Mayara',
   activities = RECENT_ACTIVITY,
