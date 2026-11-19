@@ -19,21 +19,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<LlamaService>(client =>
 {
-	var ollamaUrl = builder.Configuration["IA:Ollama:BaseUrl"]
-		?? "http://localhost:11434/";
+    var ollamaUrl = builder.Configuration["IA:Ollama:BaseUrl"]
+        ?? "http://localhost:11434/";
 
-	client.BaseAddress = new Uri(ollamaUrl);
-	client.Timeout = TimeSpan.FromMinutes(3);
+    client.BaseAddress = new Uri(ollamaUrl);
+    client.Timeout = TimeSpan.FromMinutes(3);
 });
 
 builder.Services.AddHttpClient<GroqService>(client =>
 {
-	var groqUrl = builder.Configuration["IA:Groq:BaseUrl"]
-		?? "https://api.groq.com/openai/v1/";
+    var groqUrl = builder.Configuration["IA:Groq:BaseUrl"]
+        ?? "https://api.groq.com/openai/v1/";
 
-	client.BaseAddress = new Uri(groqUrl);
-	client.Timeout = TimeSpan.FromMinutes(3);
-}); 
+    client.BaseAddress = new Uri(groqUrl);
+    client.Timeout = TimeSpan.FromMinutes(3);
+});
 
 builder.Services.AddScoped<ILanguageModelService, LhamaIAChatService>();
 
@@ -48,6 +48,29 @@ builder.Services.AddHttpClient<ILhamaIa, LhamaIaService>(client =>
 builder.Services.AddScoped<ILeitorDocumento, LeitorDocumento>();
 builder.Services.AddScoped<IConferenciaExtracao, ConferenciaExtracaoService>();
 builder.Services.AddScoped<IProcessadorDocumento, ProcessadorDocumento>();
+
+// ---------- Conversão de documentos (DOCX / XLSX / TIFF -> PDF) ----------
+// Licença do Syncfusion: a chave vem de user-secrets ou variável de ambiente
+// (Syncfusion__LicenseKey), nunca do appsettings.json, que vai para o Git.
+var syncfusionKey = builder.Configuration["Syncfusion:LicenseKey"];
+
+if (!string.IsNullOrWhiteSpace(syncfusionKey))
+{
+    Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncfusionKey);
+}
+else
+{
+    // Sem chave a API sobe normalmente, mas os PDFs saem com marca de avaliação
+    Console.WriteLine("AVISO: Syncfusion:LicenseKey não configurada. PDFs convertidos terão marca de avaliação.");
+}
+
+// Limites do ImageMagick: protege o servidor contra TIFFs enormes ou maliciosos
+ImageMagick.ResourceLimits.Memory = 512UL * 1024 * 1024; // 512 MB
+ImageMagick.ResourceLimits.Width = 20_000;               // pixels
+ImageMagick.ResourceLimits.Height = 20_000;              // pixels
+ImageMagick.ResourceLimits.Time = 60;                    // segundos por operação
+
+builder.Services.AddScoped<IConversorDocumentos, ConversorDocumentos>();
 
 // ---------- Banco de dados ----------
 // A connection string fica no appsettings.json (ConnectionStrings:LabFlow) e não no código.

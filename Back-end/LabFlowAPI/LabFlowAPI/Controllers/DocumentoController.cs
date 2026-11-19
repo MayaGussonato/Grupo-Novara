@@ -32,6 +32,8 @@ public class DocumentoController : ControllerBase
             [".txt"] = "txt"
         };
 
+    private static readonly string[] FormatosConversiveis = 
+        {"docx", "xlsx", "tiff" };
     private static readonly string[] StatusValidos =
         { "Processando", "Aprovado", "Revisao", "Erro" };
 
@@ -40,16 +42,20 @@ public class DocumentoController : ControllerBase
     private readonly IProcessadorDocumento _processador;
     private readonly IWebHostEnvironment _environment;
 
+    private readonly IConversorDocumentos _conversor;
+
     public DocumentoController(
-        IDocumentoRepository documentoRepository,
-        IHistoricoRepository historicoRepository,
-        IProcessadorDocumento processador,
-        IWebHostEnvironment environment)
+          IDocumentoRepository documentoRepository,
+          IHistoricoRepository historicoRepository,
+          IProcessadorDocumento processador,
+          IWebHostEnvironment environment,
+          IConversorDocumentos conversor)          
     {
         _documentoRepository = documentoRepository;
         _historicoRepository = historicoRepository;
         _processador = processador;
         _environment = environment;
+        _conversor = conversor;                  
     }
 
     // POST: api/Documento  (upload)
@@ -234,6 +240,58 @@ public class DocumentoController : ControllerBase
             .TryGetContentType(documento.NomeArquivo, out var tipoConteudo);
 
         return PhysicalFile(caminho, tipoConteudo ?? "application/octet-stream", documento.NomeArquivo);
+    }
+
+    [HttpGet("{id:int}/pdf")]
+    public IActionResult BaixarComoPdf(int id)
+    {
+        var documento = _documentoRepository.BuscarPorId(id);
+
+        if (documento == null)
+        {
+            return NotFound("Documento não encontrado.");
+        }
+
+        if (!PodeAcessar(documento.IdUsuario))
+        {
+            return Forbid();
+        }
+
+        var caminho = CaminhoFisico(documento.CaminhoArquivo);
+
+        if (caminho == null)
+        {
+            return NotFound("Arquivo físico não encontrado.");
+        }
+
+        // Já é PDF: devolve o original, sem converter
+        if (documento.Formato == "pdf")
+        {
+            return PhysicalFile(caminho, "application/pdf");
+        }
+
+        if (!FormatosConversiveis.Contains(documento.Formato))
+        {
+            return BadRequest($"Conversão para PDF não disponível para o formato {documento.Formato}.");
+        }
+
+        try
+        {
+            using var entrada = System.IO.File.OpenRead(caminho);
+            var pdf = _conversor.ConverterParaPdf(entrada, Path.GetExtension(caminho));
+
+            // Sem nome de arquivo, o navegador exibe o PDF na própria aba (bom para pré-visualização).
+            // Para forçar download, use: File(pdf, "application/pdf", nomePdf)
+            return File(pdf, "application/pdf");
+        }
+        catch (NotSupportedException erro)
+        {
+            return BadRequest(erro.Message);
+        }
+        catch (Exception)
+        {
+            return UnprocessableEntity("Não foi possível converter o arquivo (corrompido ou inválido?).");
+        }
     }
 
     // GET: api/Documento/{id}/historico
