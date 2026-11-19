@@ -16,6 +16,7 @@ import { usePathname } from "expo-router";
 import styles from "./FooterStyle";
 import { useTema } from "../tema/TemaContext";
 import useRouteNavigation from "../navigation/useRouteNavigation";
+import { useAuth } from "../../Services/AuthContext";
 
 const icones = [
   {
@@ -51,7 +52,15 @@ export default function Footer() {
   const { cores } = useTema();
   const navigation = useRouteNavigation();
   const pathname = usePathname();
+  const { usuario } = useAuth();
 
+  const ehAdministrador =
+    usuario?.perfilAcesso === "Administrador";
+
+  const telasDisponiveis = outrasTelas.filter(
+    (item) =>
+      item.destino !== "Administracao" || ehAdministrador
+  );
   const [menuAberto, setMenuAberto] = useState(false);
 
   const deslocamento = useRef(new Animated.Value(300)).current;
@@ -106,7 +115,7 @@ export default function Footer() {
         {icones.map((icone) => {
           const ativo = icone.destino
             ? pathname.toLowerCase() ===
-              rotas[icone.nome].toLowerCase()
+            rotas[icone.nome].toLowerCase()
             : false;
 
           return (
@@ -227,7 +236,7 @@ export default function Footer() {
               style={{ flex: 1 }}
               showsVerticalScrollIndicator={false}
             >
-              {outrasTelas.map((item) => {
+              {telasDisponiveis.map((item) => {
                 const ativo =
                   pathname.toLowerCase() ===
                   (

@@ -115,25 +115,32 @@ export const criarAnaliseStyles = (cores, modoEscuro) =>
 
     areaGrafico: {
       alignItems: "center",
-      marginBottom: 43,
+      marginBottom: 35,
     },
 
     grafico: {
       width: 130,
       height: 130,
-      borderRadius: 65,
-      borderWidth: 18,
-      borderColor: cores.primario,
-      borderTopColor: modoEscuro ? cores.secundario : "#76BDB5",
       alignItems: "center",
       justifyContent: "center",
-      transform: [{ rotate: "0deg" }],
     },
 
     graficoInterno: {
-      flex: 1,
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       alignItems: "center",
       justifyContent: "center",
+      paddingHorizontal: 15,
+    },
+
+    graficoSemDados: {
+      fontSize: 12,
+      textAlign: "center",
+      color: cores.textoSecundario,
+      fontWeight: "400",
     },
 
     valorGrafico: {

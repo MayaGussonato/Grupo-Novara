@@ -20,6 +20,9 @@ import Footer from "../footer/Footer";
 import { useTema } from "../tema/TemaContext";
 import { useAuth } from "../../Services/AuthContext";
 
+import { useIdioma } from "../idioma/IdiomaContext";
+import SeletorIdioma from "../idioma/SeletorIdioma";
+
 import {
   buscarMeuPerfil,
   atualizarMeuTelefone,
@@ -64,8 +67,8 @@ export default function Perfil({ navigation }) {
     alternarTema,
   } = useTema();
 
-  // Obtém a função de sair diretamente do contexto de autenticação.
   const { sair } = useAuth();
+  const { t } = useIdioma();
 
   // Busca os dados reais do usuário na API.
   async function carregarPerfil() {
@@ -101,9 +104,8 @@ export default function Perfil({ navigation }) {
 
     } catch (erro) {
       Alert.alert(
-        "Erro",
-        erro.message ||
-        "Não foi possível carregar seu perfil."
+        t("erro"),
+        erro.message || "Não foi possível carregar seu perfil."
       );
     } finally {
       setCarregando(false);
@@ -147,13 +149,13 @@ export default function Perfil({ navigation }) {
       setTelefone(formatarTelefone(telefoneSalvo));
 
       Alert.alert(
-        "Sucesso",
+        t("sucesso"),
         "Seu telefone foi atualizado no cadastro!"
       );
 
     } catch (erro) {
       Alert.alert(
-        "Erro ao salvar",
+        t("erro"),
         erro.message ||
         "Não foi possível atualizar seu telefone."
       );
@@ -162,29 +164,30 @@ export default function Perfil({ navigation }) {
     }
   }
 
-  // Encerra a sessão. No navegador, usa a confirmação nativa do browser;
-  // no celular, mantém o Alert do React Native.
+  // Encerra a sessão.
   async function executarLogout() {
     if (deslogando) return;
 
     if (typeof sair !== "function") {
       const mensagem =
         "A função sair não está disponível no AuthContext. Confira o Provider de autenticação.";
+
       console.error(mensagem);
 
       if (Platform.OS === "web") {
         window.alert(mensagem);
       } else {
-        Alert.alert("Erro ao deslogar", mensagem);
+        Alert.alert(t("erro"), mensagem);
       }
+
       return;
     }
 
     try {
       setDeslogando(true);
+
       await sair();
-      // O AuthContext limpa o token e define usuario como null.
-      // O App.jsx então apresenta a tela de Login.
+
     } catch (erro) {
       console.error("Erro ao deslogar:", erro);
 
@@ -194,8 +197,9 @@ export default function Perfil({ navigation }) {
       if (Platform.OS === "web") {
         window.alert(mensagem);
       } else {
-        Alert.alert("Erro ao deslogar", mensagem);
+        Alert.alert(t("erro"), mensagem);
       }
+
       setDeslogando(false);
     }
   }
@@ -205,22 +209,26 @@ export default function Perfil({ navigation }) {
 
     if (Platform.OS === "web") {
       const confirmou = window.confirm(
-        "Tem certeza de que deseja sair da sua conta?"
+        t("confirmarSaida")
       );
 
       if (confirmou) {
         executarLogout();
       }
+
       return;
     }
 
     Alert.alert(
-      "Deslogar",
-      "Tem certeza de que deseja sair da sua conta?",
+      t("deslogar"),
+      t("confirmarSaida"),
       [
-        { text: "Cancelar", style: "cancel" },
         {
-          text: "Deslogar",
+          text: t("cancelar"),
+          style: "cancel",
+        },
+        {
+          text: t("deslogar"),
           style: "destructive",
           onPress: executarLogout,
         },
@@ -244,7 +252,7 @@ export default function Perfil({ navigation }) {
       >
         <Header
           navigation={navigation}
-          titulo="Meu Perfil"
+          titulo={t("meuPerfil")}
         />
 
         <View style={styles.sim}>
@@ -254,7 +262,7 @@ export default function Perfil({ navigation }) {
               { color: corSecundaria },
             ]}
           >
-            Gerencie suas informações e preferências
+            {t("gerenciePerfil")}
           </Text>
         </View>
 
@@ -282,7 +290,7 @@ export default function Perfil({ navigation }) {
                 { color: corTexto },
               ]}
             >
-              Modo escuro
+              {t("modoEscuro")}
             </Text>
           </View>
 
@@ -297,6 +305,31 @@ export default function Perfil({ navigation }) {
           />
         </TouchableOpacity>
 
+        {/* Preferências de idioma */}
+        <View
+          style={{
+            backgroundColor: cores.card,
+            borderColor: cores.borda,
+            borderWidth: 1,
+            borderRadius: 8,
+            padding: 13,
+            marginBottom: 15,
+          }}
+        >
+          <Text
+            style={{
+              color: corTexto,
+              fontSize: 14,
+              fontWeight: "600",
+              marginBottom: 12,
+            }}
+          >
+            {t("preferencias")}
+          </Text>
+
+          <SeletorIdioma />
+        </View>
+
         {/* Abas */}
         <View style={styles.abas}>
           <TouchableOpacity
@@ -310,7 +343,7 @@ export default function Perfil({ navigation }) {
                 aba === "Perfil" && styles.abaAtiva,
               ]}
             >
-              Perfil
+              {t("perfil")}
             </Text>
 
             {aba === "Perfil" && (
@@ -334,7 +367,7 @@ export default function Perfil({ navigation }) {
                 aba === "Segurança" && styles.abaAtiva,
               ]}
             >
-              Segurança
+              {t("seguranca")}
             </Text>
 
             {aba === "Segurança" && (
@@ -425,7 +458,7 @@ export default function Perfil({ navigation }) {
                       { color: corTexto },
                     ]}
                   >
-                    Nome completo
+                    {t("nomeCompleto")}
                   </Text>
 
                   <TextInput
@@ -449,7 +482,7 @@ export default function Perfil({ navigation }) {
                       { color: corTexto },
                     ]}
                   >
-                    E-mail
+                    {t("email")}
                   </Text>
 
                   <TextInput
@@ -474,7 +507,7 @@ export default function Perfil({ navigation }) {
                       { color: corTexto },
                     ]}
                   >
-                    Cargo
+                    {t("cargo")}
                   </Text>
 
                   <TextInput
@@ -499,7 +532,7 @@ export default function Perfil({ navigation }) {
                       { color: corTexto },
                     ]}
                   >
-                    Telefone
+                    {t("telefone")}
                   </Text>
 
                   <TextInput
@@ -540,7 +573,7 @@ export default function Perfil({ navigation }) {
                   <ActivityIndicator color="#FFFFFF" />
                 ) : (
                   <Text style={styles.textoBotao}>
-                    Salvar alterações
+                    {t("salvarAlteracoes")}
                   </Text>
                 )}
               </TouchableOpacity>
@@ -554,7 +587,7 @@ export default function Perfil({ navigation }) {
                   { color: corTexto },
                 ]}
               >
-                Segurança da conta
+                {t("seguranca")}
               </Text>
 
               <Text
@@ -640,7 +673,7 @@ export default function Perfil({ navigation }) {
           )}
         </View>
 
-        {/* Botão de deslogar - preserva as demais funções do perfil */}
+        {/* Botão de deslogar */}
         <TouchableOpacity
           onPress={confirmarDeslogar}
           disabled={deslogando}
@@ -667,10 +700,11 @@ export default function Perfil({ navigation }) {
                 fontWeight: "600",
               }}
             >
-              Deslogar
+              {t("deslogar")}
             </Text>
           )}
         </TouchableOpacity>
+
       </ScrollView>
 
       <Footer />

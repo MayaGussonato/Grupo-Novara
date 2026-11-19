@@ -7,9 +7,9 @@ export const perfilStyles = StyleSheet.create({
   },
 
   conteudo: {
-    paddingHorizontal: 14,
-    paddingTop: 20,
-    paddingBottom: 30,
+    padding: 14,
+    paddingTop: 6,
+    paddingBottom: 100,
   },
 
   header: {

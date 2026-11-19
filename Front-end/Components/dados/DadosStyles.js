@@ -27,6 +27,7 @@ export const criarDadosStyles = (cores, modoEscuro) =>
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.12,
       shadowRadius: 4,
+      alignItems: "center",
     },
 
     linhaDado: {
@@ -51,6 +52,7 @@ export const criarDadosStyles = (cores, modoEscuro) =>
     },
 
     valorCampo: {
+      justifyContent: "center",
       fontSize: 11,
       color: cores.texto,
       textAlign: "right",

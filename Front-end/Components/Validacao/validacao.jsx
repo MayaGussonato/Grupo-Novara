@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   View,
@@ -31,13 +32,55 @@ import {
 
 const filtros = ["Todos", "Revisando", "Aprovados", "Erros"];
 
+const filtrosPeriodo = [
+  { valor: "mes", texto: "Último mês" },
+  { valor: "antigos", texto: "Mais antigos" },
+  { valor: "todos", texto: "Todos os períodos" },
+];
+
+function extrairLista(resposta) {
+  if (Array.isArray(resposta)) return resposta;
+
+  return (
+    resposta?.documentos ||
+    resposta?.dados ||
+    resposta?.items ||
+    resposta?.itens ||
+    resposta?.result ||
+    []
+  );
+}
+
+function subtrairUmMes(data) {
+  const resultado = new Date(data);
+  const diaOriginal = resultado.getDate();
+
+  resultado.setDate(1);
+  resultado.setMonth(resultado.getMonth() - 1);
+
+  const ultimoDiaMes = new Date(
+    resultado.getFullYear(),
+    resultado.getMonth() + 1,
+    0
+  ).getDate();
+
+  resultado.setDate(Math.min(diaOriginal, ultimoDiaMes));
+
+  return resultado;
+}
+
 export default function Validacao({ navigation }) {
   const [pesquisa, setPesquisa] = useState("");
   const [filtro, setFiltro] = useState("Todos");
+
+  // A tela começa mostrando os documentos do último mês.
+  const [periodo, setPeriodo] = useState("mes");
+
+  // Ordenação por data ou nome.
   const [ordenacao, setOrdenacao] = useState("recentes");
+
   const [pagina, setPagina] = useState(1);
 
-  // Documentos vindos da API
   const [documentos, setDocumentos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
@@ -45,8 +88,9 @@ export default function Validacao({ navigation }) {
 
   const { cores, modoEscuro } = useTema();
 
-  // Cor de destaque com bom contraste para texto branco nos dois temas
-  const corDestaque = modoEscuro ? cores.secundario : cores.primario;
+  const corDestaque = modoEscuro
+    ? cores.secundario
+    : cores.primario;
 
   const [fontesCarregadas] = useFonts({
     Poppins_400Regular,
@@ -55,20 +99,25 @@ export default function Validacao({ navigation }) {
     Poppins_700Bold,
   });
 
-  // Busca os documentos do usuário logado (Revisor/Admin veem todos)
   async function carregarDocumentos() {
     try {
       setErro(null);
 
-      const lista = await listarDocumentos({ tamanho: 100 });
+      const resposta = await listarDocumentos({
+        pagina: 1,
+        tamanho: 100,
+      });
 
-      const normalizados = (lista || []).map((doc) => ({
+      const lista = extrairLista(resposta);
+
+      const normalizados = lista.map((doc) => ({
         id: String(doc.idDocumento),
-        nome: doc.nomeArquivo,
+        nome: doc.nomeArquivo || "Documento sem nome",
         tamanho: formatarTamanho(doc.tamanhoBytes),
         formato: (doc.formato || "").toUpperCase(),
         tipo: doc.tipoDocumento,
         data: formatarData(doc.dataEnvio),
+        dataOriginal: doc.dataEnvio,
         statusApi: doc.statusDocumento,
         confianca: doc.nivelConfianca,
         ...statusParaInterface(doc.statusDocumento),
@@ -76,7 +125,9 @@ export default function Validacao({ navigation }) {
 
       setDocumentos(normalizados);
     } catch (falha) {
-      setErro(falha.message || "Não foi possível carregar os documentos.");
+      setErro(
+        falha.message || "Não foi possível carregar os documentos."
+      );
       setDocumentos([]);
     } finally {
       setCarregando(false);
@@ -86,7 +137,6 @@ export default function Validacao({ navigation }) {
 
   useEffect(() => {
     carregarDocumentos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function atualizar() {
@@ -98,6 +148,10 @@ export default function Validacao({ navigation }) {
 
   const quantidadePorPagina = 4;
 
+  // Define a data limite de um mês atrás.
+  const hoje = new Date();
+  const dataLimite = subtrairUmMes(hoje);
+
   const listaFiltrada = documentos
     .filter((doc) => {
       const nomeCorresponde = doc.nome
@@ -107,13 +161,46 @@ export default function Validacao({ navigation }) {
       const statusCorresponde =
         filtro === "Todos" || doc.rotulo === filtro;
 
-      return nomeCorresponde && statusCorresponde;
+      const dataDocumento = doc.dataOriginal
+        ? new Date(doc.dataOriginal)
+        : null;
+
+      const dataValida =
+        dataDocumento &&
+        !Number.isNaN(dataDocumento.getTime());
+
+      let periodoCorresponde = true;
+
+      if (periodo === "mes") {
+        periodoCorresponde =
+          dataValida && dataDocumento >= dataLimite;
+      }
+
+      if (periodo === "antigos") {
+        periodoCorresponde =
+          dataValida && dataDocumento < dataLimite;
+      }
+
+      return (
+        nomeCorresponde &&
+        statusCorresponde &&
+        periodoCorresponde
+      );
     })
-    .sort((a, b) =>
-      ordenacao === "nome"
-        ? a.nome.localeCompare(b.nome)
-        : Number(b.id) - Number(a.id)
-    );
+    .sort((a, b) => {
+      if (ordenacao === "nome") {
+        return a.nome.localeCompare(b.nome);
+      }
+
+      const dataA = new Date(a.dataOriginal || 0).getTime();
+      const dataB = new Date(b.dataOriginal || 0).getTime();
+
+      if (ordenacao === "antigos") {
+        return dataA - dataB;
+      }
+
+      return dataB - dataA;
+    });
 
   const totalPaginas = Math.max(
     1,
@@ -125,8 +212,30 @@ export default function Validacao({ navigation }) {
     pagina * quantidadePorPagina
   );
 
+  function alterarPeriodo(novoPeriodo) {
+    setPeriodo(novoPeriodo);
+    setPagina(1);
+  }
+
+  function alterarOrdenacao() {
+    setOrdenacao((atual) => {
+      if (atual === "recentes") return "antigos";
+      if (atual === "antigos") return "nome";
+      return "recentes";
+    });
+
+    setPagina(1);
+  }
+
   function corStatus(item) {
     return item.cor || "#398BFF";
+  }
+
+  function abrirDocumento(item) {
+    navigation?.navigate?.("Analise", {
+      idDocumento: item.id,
+      nomeDocumento: item.nome,
+    });
   }
 
   return (
@@ -167,7 +276,7 @@ export default function Validacao({ navigation }) {
           }}
         />
 
-        {/* Filtros */}
+        {/* Filtros de status */}
         <View style={styles.filtros}>
           {filtros.map((item) => (
             <TouchableOpacity
@@ -200,7 +309,9 @@ export default function Validacao({ navigation }) {
           ))}
         </View>
 
-        {/* Ordenação */}
+        {/* Filtro de período */}
+
+        {/* Quantidade e ordenação */}
         <View style={styles.linhaOrdenacao}>
           <Text
             style={[
@@ -211,28 +322,27 @@ export default function Validacao({ navigation }) {
             {listaFiltrada.length} documento(s)
           </Text>
 
-          <TouchableOpacity
-            onPress={() => {
-              setOrdenacao((atual) =>
-                atual === "recentes" ? "nome" : "recentes"
-              );
-              setPagina(1);
-            }}
-          >
+          <TouchableOpacity onPress={alterarOrdenacao}>
             <Text
               style={[
                 styles.ordenacao,
-                { color: cores.primario },
+                {
+                  backgroundColor: cores.input,
+                  borderColor: cores.borda,
+                  color: cores.texto,
+                },
               ]}
             >
               {ordenacao === "recentes"
                 ? "Mais recentes ↓"
-                : "Nome A-Z ↑"}
+                : ordenacao === "antigos"
+                  ? "Mais antigos ↑"
+                  : "Nome A-Z"}
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Lista de documentos */}
+        {/* Lista */}
         <FlatList
           data={documentosPagina}
           keyExtractor={(item) => item.id}
@@ -262,19 +372,19 @@ export default function Validacao({ navigation }) {
                   { color: cores.textoSecundario },
                 ]}
               >
-                {erro || "Nenhum documento encontrado."}
+                {erro ||
+                  (periodo === "mes"
+                    ? "Nenhum documento enviado no último mês."
+                    : periodo === "antigos"
+                      ? "Nenhum documento antigo encontrado."
+                      : "Nenhum documento encontrado.")}
               </Text>
             )
           }
           renderItem={({ item }) => (
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() =>
-                navigation?.navigate?.("Analise", {
-                  idDocumento: item.id,
-                  nomeDocumento: item.nome,
-                })
-              }
+              onPress={() => abrirDocumento(item)}
               style={[
                 styles.cardDocumento,
                 {
@@ -316,6 +426,15 @@ export default function Validacao({ navigation }) {
                     ]}
                   >
                     {item.formato || "ARQUIVO"} • {item.tamanho}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.descricaoDocumento,
+                      { color: cores.textoSecundario },
+                    ]}
+                  >
+                    {item.data}
                   </Text>
 
                   <Text

@@ -274,6 +274,7 @@ import Validacao from "./Components/Validacao/validacao";
 import Dados from "./Components/dados/Dados";
 import Administracao from "./Components/administracao/Administracao";
 import Perfil from "./Components/perfil/Perfil";
+import { IdiomaProvider } from "./Components/idioma/IdiomaContext";
 
 import {
   AuthProvider,
@@ -353,10 +354,13 @@ function AppContent() {
       );
 
     case "Administracao":
+      if (usuario?.perfilAcesso !== "Administrador") {
+        setTela("Dashboard");
+        return null;
+      }
+
       return (
-        <Administracao
-          navigation={navigation}
-        />
+        <Administracao navigation={navigation} />
       );
 
     case "Perfil":
@@ -381,10 +385,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <TemaProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </TemaProvider>
+    <IdiomaProvider>
+      <TemaProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </TemaProvider>
+    </IdiomaProvider>
   );
 }
