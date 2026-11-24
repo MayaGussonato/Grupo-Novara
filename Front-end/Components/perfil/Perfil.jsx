@@ -507,7 +507,7 @@ export default function Perfil({ navigation }) {
                       { color: corTexto },
                     ]}
                   >
-                    {t("cargo")}
+                    Cargo
                   </Text>
 
                   <TextInput

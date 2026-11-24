@@ -54,13 +54,26 @@ export default function Footer() {
   const pathname = usePathname();
   const { usuario } = useAuth();
 
-  const ehAdministrador =
-    usuario?.perfilAcesso === "Administrador";
+  console.log("USUÁRIO COMPLETO:", JSON.stringify(usuario, null, 2));
+  console.log("PERFIL DE ACESSO:", usuario?.perfilAcesso);
+  console.log("CARGO:", usuario?.cargo);
 
+  // Verifica o perfil sem depender de maiúsculas ou espaços.
+  // Não utiliza o cargo para conceder acesso administrativo.
+  const cargo = String(usuario?.cargo || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+
+  const ehAdministrador = cargo === "administrador";
+
+  // Mostra Administração somente para administradores.
   const telasDisponiveis = outrasTelas.filter(
     (item) =>
       item.destino !== "Administracao" || ehAdministrador
   );
+
   const [menuAberto, setMenuAberto] = useState(false);
 
   const deslocamento = useRef(new Animated.Value(300)).current;
@@ -192,9 +205,7 @@ export default function Footer() {
               padding: 20,
               borderLeftWidth: 1,
               borderColor: cores.secundario,
-              transform: [
-                { translateX: deslocamento },
-              ],
+              transform: [{ translateX: deslocamento }],
             }}
           >
             {/* CABEÇALHO */}
@@ -237,13 +248,14 @@ export default function Footer() {
               showsVerticalScrollIndicator={false}
             >
               {telasDisponiveis.map((item) => {
+                const rotaItem =
+                  item.destino === "Importacao"
+                    ? "/Importacao"
+                    : `/${item.destino.toLowerCase()}`;
+
                 const ativo =
                   pathname.toLowerCase() ===
-                  (
-                    item.destino === "Importacao"
-                      ? "/Importacao"
-                      : `/${item.destino.toLowerCase()}`
-                  ).toLowerCase();
+                  rotaItem.toLowerCase();
 
                 return (
                   <TouchableOpacity
@@ -297,7 +309,7 @@ export default function Footer() {
               <Text
                 style={{
                   color:
-                    pathname.toLowerCase() === "/Perfil"
+                    pathname.toLowerCase() === "/perfil"
                       ? cores.primario
                       : cores.texto,
                   fontSize: 17,

@@ -144,7 +144,7 @@ export const criarAnaliseStyles = (cores, modoEscuro) =>
     },
 
     valorGrafico: {
-      fontSize: 19,
+      fontSize: 15,
       fontWeight: "600",
       color: cores.texto,
     },

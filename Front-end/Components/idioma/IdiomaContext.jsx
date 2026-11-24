@@ -43,7 +43,7 @@ const traducoes = {
     perfil: "Perfil",
     seguranca: "Segurança",
     nomeCompleto: "Nome completo",
-    cargo: "Função",
+    cargo: "Cargo",
     telefone: "Telefone",
     salvarAlteracoes: "Salvar alterações",
     deslogar: "Deslogar",
