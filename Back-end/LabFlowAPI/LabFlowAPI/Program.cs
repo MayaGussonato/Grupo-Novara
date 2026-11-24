@@ -85,6 +85,7 @@ builder.Services.AddScoped<IDocumentoRepository, DocumentoRepository>();
 builder.Services.AddScoped<IExtracaoRepository, ExtracaoRepository>();
 builder.Services.AddScoped<IValidacaoRepository, ValidacaoRepository>();
 builder.Services.AddScoped<IHistoricoRepository, HistoricoRepository>();
+builder.Services.AddScoped<IAtendimentoRepository, AtendimentoRepository>();
 
 // ---------- Autenticação JWT ----------
 var jwtKey = builder.Configuration["Jwt:Key"]

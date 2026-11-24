@@ -64,4 +64,45 @@ BEGIN
     CREATE INDEX IX_Documento_Excluido
     ON Documento(Excluido) INCLUDE (IdUsuario, Status_Arquivo);
 END;
+Go
+
+
+
+/* add nova tabela de atendimento */
+DROP TABLE IF EXISTS Atendimento;
 GO
+
+CREATE TABLE Atendimento (
+    IdAtendimento     INT IDENTITY(1,1) NOT NULL,
+    IdUsuario         INT            NOT NULL,   -- quem abriu
+    IdResponsavel     INT            NULL,       -- quem cuida do atendimento
+    IdDocumento       INT            NULL,       -- documento relacionado (opcional)
+    Titulo            NVARCHAR(150)  NOT NULL,
+    Descricao         NVARCHAR(4000) NOT NULL,
+    Categoria         VARCHAR(30)    NOT NULL,
+    Email             VARCHAR(254)   NOT NULL,   -- e-mail do funcionário (já cadastrado em Usuario)
+    Prioridade        VARCHAR(10)    NOT NULL CONSTRAINT DF_Atendimento_Prioridade DEFAULT 'Media',
+    StatusAtendimento VARCHAR(20)    NOT NULL CONSTRAINT DF_Atendimento_Status DEFAULT 'Aberto',
+    DataAbertura      DATETIME2      NOT NULL CONSTRAINT DF_Atendimento_DataAbertura DEFAULT SYSDATETIME(),
+    DataAtualizacao   DATETIME2      NULL,
+    DataFechamento    DATETIME2      NULL,
+
+    CONSTRAINT PK_Atendimento PRIMARY KEY (IdAtendimento),
+    CONSTRAINT FK_Atendimento_Usuario     FOREIGN KEY (IdUsuario)     REFERENCES Usuario(IdUsuario),
+    CONSTRAINT FK_Atendimento_Responsavel FOREIGN KEY (IdResponsavel) REFERENCES Usuario(IdUsuario),
+    CONSTRAINT FK_Atendimento_Documento   FOREIGN KEY (IdDocumento)   REFERENCES Documento(IdDocumento),
+
+    CONSTRAINT CK_Atendimento_Categoria  CHECK (Categoria IN ('DuvidasDocumentos','FalhasValidacao','AcessoLogin','Plataforma')),
+    CONSTRAINT CK_Atendimento_Prioridade CHECK (Prioridade IN ('Baixa','Media','Alta')),
+    CONSTRAINT CK_Atendimento_Status     CHECK (StatusAtendimento IN ('Aberto','EmAndamento','Resolvido','Fechado'))
+);
+GO
+
+ALTER TABLE Atendimento ADD Protocolo AS
+    ('ATD-' + CAST(YEAR(DataAbertura) AS VARCHAR(4)) + '-' + RIGHT('00000' + CAST(IdAtendimento AS VARCHAR(10)), 5))
+    PERSISTED;
+GO
+
+CREATE UNIQUE INDEX UX_Atendimento_Protocolo ON Atendimento(Protocolo);
+CREATE INDEX IX_Atendimento_Usuario_Status ON Atendimento(IdUsuario, StatusAtendimento);
+CREATE INDEX IX_Atendimento_Documento ON Atendimento(IdDocumento);
