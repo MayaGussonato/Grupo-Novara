@@ -1,7 +1,6 @@
-// Funções de formatação usadas nas listagens.
-// Mantidas separadas para não repetir lógica dentro dos componentes.
 
-/** 1752739 -> "1,7 MB" */
+// Funções de formatação usadas nas listagens.
+
 export function formatarTamanho(bytes) {
   if (bytes === null || bytes === undefined) {
     return "—";
@@ -27,32 +26,22 @@ export function formatarTamanho(bytes) {
   return `${valor.toFixed(casas).replace(".", ",")} ${unidades[indice]}`;
 }
 
-/** "2026-10-29T14:09:10" -> "29/10/2026" */
 export function formatarData(dataIso) {
-  if (!dataIso) {
-    return "—";
-  }
+  if (!dataIso) return "—";
 
   const data = new Date(dataIso);
 
-  if (Number.isNaN(data.getTime())) {
-    return "—";
-  }
+  if (Number.isNaN(data.getTime())) return "—";
 
   return data.toLocaleDateString("pt-BR");
 }
 
-/** "2026-10-29T14:09:10" -> "29/10/2026 14:09" */
 export function formatarDataHora(dataIso) {
-  if (!dataIso) {
-    return "—";
-  }
+  if (!dataIso) return "—";
 
   const data = new Date(dataIso);
 
-  if (Number.isNaN(data.getTime())) {
-    return "—";
-  }
+  if (Number.isNaN(data.getTime())) return "—";
 
   return `${data.toLocaleDateString("pt-BR")} ${data.toLocaleTimeString("pt-BR", {
     hour: "2-digit",
@@ -60,7 +49,6 @@ export function formatarDataHora(dataIso) {
   })}`;
 }
 
-/** 72.5 -> "72,5%" */
 export function formatarConfianca(valor) {
   if (valor === null || valor === undefined) {
     return "—";
@@ -69,68 +57,87 @@ export function formatarConfianca(valor) {
   return `${Number(valor).toFixed(1).replace(".", ",")}%`;
 }
 
-/**
- * Status do banco (Status_Arquivo) -> texto e cor usados na interface.
- * A tela de validação usa "Revisando"; a API devolve "Revisao".
- */
 export function statusParaInterface(statusApi) {
-  switch (statusApi) {
-    case "Aprovado":
+  const status = String(statusApi ?? "")
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  switch (status) {
+    case "aprovado":
+    case "aprovados":
       return {
         rotulo: "Aprovados",
         descricao: "Documento validado",
         cor: "#21865B",
+        fundo: "#E1F3E9",
         progresso: 100,
       };
 
-    case "Revisao":
+    case "revisao":
+    case "revisando":
+    case "em revisao":
       return {
         rotulo: "Revisando",
         descricao: "Aguardando validação",
-        cor: "#D99A22",
+        cor: "#0B4F8A",
+        fundo: "#E2EDF7",
         progresso: 65,
       };
 
-    case "Erro":
+    case "erro":
+    case "erros":
       return {
         rotulo: "Erros",
         descricao: "Necessita de correção",
         cor: "#D94A4A",
+        fundo: "#FCE8E8",
         progresso: 30,
       };
 
-    case "Processando":
-    default:
+    case "processando":
+    case "processando...":
       return {
         rotulo: "Processando",
-        descricao: "Em processamento",
-        cor: "#398BFF",
+        descricao: "Documento em processamento pela IA",
+        cor: "#A85D00",
+        fundo: "#FFF0D9",
         progresso: 15,
+      };
+
+    default:
+      return {
+        rotulo: "Status desconhecido",
+        descricao: "Não foi possível identificar o status do documento",
+        cor: "#64748B",
+        fundo: "#E8EDF2",
+        progresso: 0,
       };
   }
 }
 
-/** Filtro da tela ("Revisando") -> status da API ("Revisao"). */
 export function filtroParaStatus(filtro) {
   switch (filtro) {
     case "Revisando":
       return "Revisao";
+
     case "Aprovados":
       return "Aprovado";
+
     case "Erros":
       return "Erro";
+
     case "Processando":
       return "Processando";
+
     default:
       return null;
   }
 }
 
-/** "Nota Fiscal" -> "Nota Fiscal"; null -> "—" */
 export function formatarTipo(tipo) {
-  if (!tipo) {
-    return "—";
-  }
+  if (!tipo) return "—";
 
   return tipo;
 }
