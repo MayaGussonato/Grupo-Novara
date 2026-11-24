@@ -191,7 +191,7 @@ public class LhamaIaService : ILhamaIa
             Sua tarefa: preencher o JSON do schema com as informações do documento.
 
             REGRAS OBRIGATÓRIAS:
-            1. NUNCA invente informação. Se o dado não está escrito no documento, use null.
+            http://localhost:11434/v1. NUNCA invente informação. Se o dado não está escrito no documento, use null.
             2. NUNCA calcule, deduza ou complete um valor que não esteja literal.
             3. Para cada campo preenchido, copie em "trecho_origem" o pedaço EXATO do texto
                de onde você leu o valor. Se não houver trecho literal, o campo deve ser null.
