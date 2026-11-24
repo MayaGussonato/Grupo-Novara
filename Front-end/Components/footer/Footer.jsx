@@ -54,10 +54,6 @@ export default function Footer() {
   const pathname = usePathname();
   const { usuario } = useAuth();
 
-  console.log("USUÁRIO COMPLETO:", JSON.stringify(usuario, null, 2));
-  console.log("PERFIL DE ACESSO:", usuario?.perfilAcesso);
-  console.log("CARGO:", usuario?.cargo);
-
   // Verifica o perfil sem depender de maiúsculas ou espaços.
   // Não utiliza o cargo para conceder acesso administrativo.
   const cargo = String(usuario?.cargo || "")

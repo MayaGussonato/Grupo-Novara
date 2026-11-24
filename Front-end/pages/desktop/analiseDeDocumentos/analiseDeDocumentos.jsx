@@ -12,7 +12,7 @@ import {
 import Svg, { Circle, SvgXml } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 
-import MenuGlobal from '../../../components/MenuGlobal/MenuGlobal';
+import MenuGlobal from '../../../Components/MenuGlobal/MenuGlobal';
 import {
   styles,
   docColors,

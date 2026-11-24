@@ -4,7 +4,7 @@ import Svg, { Circle } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../login/LoginStyle';
 import { styles, docColors } from './centralDeDocumentosStyle';
-import MenuGlobal from '../../../components/MenuGlobal/MenuGlobal';
+import MenuGlobal from '../../../Components/MenuGlobal/MenuGlobal';
 const PAGE_SIZE = 16;
 const TOTAL_DOCUMENTS = 48;
 const BASE_DOCUMENTS = [

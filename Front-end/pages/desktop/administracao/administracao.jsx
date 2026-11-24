@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import MenuGlobal from '../../../components/MenuGlobal/MenuGlobal';
+import MenuGlobal from '../../../Components/MenuGlobal/MenuGlobal';
 import { styles, adminColors } from './administracaoStyle';
 
 const Swal = Platform.OS === 'web' ? require('sweetalert2').default : null;
