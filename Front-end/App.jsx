@@ -1,291 +1,300 @@
-// import React, { useRef, useState } from 'react';
-// import { View, Text, ActivityIndicator } from 'react-native';
-// import { StatusBar } from 'expo-status-bar';
-// import {
-//   useFonts,
-//   Poppins_300Light,
-//   Poppins_400Regular,
-//   Poppins_500Medium,
-//   Poppins_600SemiBold,
-// } from '@expo-google-fonts/poppins';
-// import { PreferencesProvider, usePreferences } from './context/PreferencesContext';
-// import MenuGlobal from './components/MenuGlobal/MenuGlobal';
-// import Login from './pages/desktop/login/Login'; 
-// import Dashboard from './pages/desktop/dashboard/dashboard';
-// import CentralDeDocumentos from './pages/desktop/centralDeDocumentos/centralDeDocumentos';
-// import CentralDeAtendimentos from './pages/desktop/centralDeAtendimentos/centralDeAtendimentos';
-// import AnaliseDeDocumentos from './pages/desktop/analiseDeDocumentos/analiseDeDocumentos';
-// import ImportarDocumentos from './pages/desktop/importarDocumentos/importarDocumentos';
-// import CentralDeValidacao from './pages/desktop/centralDeValidacao/centralDeValidacao';
-// import Integracoes from './pages/desktop/integracoes/integracoes';
-// import Administracao from './pages/desktop/administracao/administracao';
-// import CadastroUsuario from './pages/desktop/cadastroUsuario/cadastroUsuario';
-// import MeuPerfil from './pages/desktop/meuPerfil/meuPerfil';
-// import { usuariosIniciais } from './pages/desktop/administracao/usuariosMock';
 
-// function EmBreve({ title, activeMenu, onNavigate }) {
-//   const { colors, t } = usePreferences();
-//   return (
-//     <View style={{ flex: 1, flexDirection: 'row', backgroundColor: colors.bg }}>
-//       <MenuGlobal activeMenu={activeMenu} onNavigate={onNavigate} />
-//       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-//         <Text style={{ fontFamily: 'Poppins_400Regular', fontSize: 26, color: colors.text }}>{title}</Text>
-//         <Text style={{ fontFamily: 'Poppins_300Light', fontSize: 15, color: colors.text }}>
-//           {t('emBreve.subtitulo')}
-//         </Text>
-//       </View>
-//     </View>
-//   );
-// }
+import React, { useState, useRef } from "react";
+import {
+  View,
+  ActivityIndicator,
+  useWindowDimensions,
+} from "react-native";
 
-// function AppContent() {
-//   const { colors } = usePreferences();
-//   const [fontsLoaded] = useFonts({
-//     Poppins_300Light,
-//     Poppins_400Regular,
-//     Poppins_500Medium,
-//     Poppins_600SemiBold,
-//   });
-//   const [activeMenu, setActiveMenu] = useState('dashboard');
-//   const [analysisDoc, setAnalysisDoc] = useState(null);
-//   const [validationDoc, setValidationDoc] = useState(null);
-//   const [docOverrides, setDocOverrides] = useState({});
-//   const [usuarios, setUsuarios] = useState(usuariosIniciais);
-//   const [editingUser, setEditingUser] = useState(null);
-//   const docsVisited = useRef(false);
+import { StatusBar } from "expo-status-bar";
 
-//   if (!fontsLoaded) {
-//     return (
-//       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg }}>
-//         <ActivityIndicator size="large" color={colors.accent} />
-//       </View>
-//     );
-//   }
+// MOBILE E TABLET
+import LoginMobile from "./Components/login/Login";
+import CadastroMobile from "./Components/cadastro/Cadastro";
+import DashboardMobile from "./Components/dashboard/Dashboard";
+import ImportacaoMobile from "./Components/importacao/Importacao";
+import AnaliseMobile from "./Components/analise/Analise";
+import ValidacaoMobile from "./Components/Validacao/validacao";
+import DadosMobile from "./Components/dados/Dados";
+import AdministracaoMobile from "./Components/administracao/Administracao";
+import PerfilMobile from "./Components/perfil/Perfil";
 
-//   if (
-//     activeMenu === 'documentos' ||
-//     activeMenu === 'analise' ||
-//     activeMenu === 'importar' ||
-//     activeMenu === 'validacao'
-//   ) {
-//     docsVisited.current = true;
-//   }
+// DESKTOP
+import { PreferencesProvider, usePreferences } from "./context/PreferencesContext";
 
-//   function handleNavigate(key) {
-//     setActiveMenu(key);
-//   }
-//   function handleAddAtendimento() {
-//     console.log('Adicionar atendimento');
-//   }
-//   function handleOpenAtendimento(atendimento) {
-//     console.log('Abrir atendimento:', atendimento);
-//   }
-//   function handleAddDocument() {
-//     setActiveMenu('importar');
-//   }
-//   function handleImport(arquivos, tipo) {
-//     console.log('Importar documentos:', tipo, arquivos);
-//     setActiveMenu('documentos');
-//   }
-//   function handleOpenValidation(doc) {
-//     setValidationDoc(doc);
-//     setActiveMenu('validacao');
-//   }
-//   function handleSaveValidation(doc, changes) {
-//     if (doc) {
-//       setDocOverrides((prev) => ({ ...prev, [doc.id]: { ...(prev[doc.id] || {}), ...changes } }));
-//     }
-//     setValidationDoc(null);
-//     setActiveMenu('documentos');
-//   }
-//   function handleDeleteValidation(doc) {
-//     console.log('Deletar documento:', doc);
-//     setValidationDoc(null);
-//     setActiveMenu('documentos');
-//   }
-//   function handleOpenAnalysis(doc) {
-//     setAnalysisDoc(doc);
-//     setActiveMenu('analise');
-//   }
-//   function handleSaveAnalysis(doc, changes) {
-//     setDocOverrides((prev) => ({ ...prev, [doc.id]: { ...(prev[doc.id] || {}), ...changes } }));
-//     setAnalysisDoc(null);
-//     setActiveMenu('documentos');
-//   }
+import LoginDesktop from "./pages/desktop/login/Login";
+import DashboardDesktop from "./pages/desktop/dashboard/dashboard";
+import CentralDeDocumentosDesktop from "./pages/desktop/centralDeDocumentos/centralDeDocumentos";
+import CentralDeAtendimentosDesktop from "./pages/desktop/centralDeAtendimentos/centralDeAtendimentos";
+import AnaliseDesktop from "./pages/desktop/analiseDeDocumentos/analiseDeDocumentos";
+import ImportacaoDesktop from "./pages/desktop/importarDocumentos/importarDocumentos";
+import ValidacaoDesktop from "./pages/desktop/centralDeValidacao/centralDeValidacao";
+import IntegracoesDesktop from "./pages/desktop/integracoes/integracoes";
+import AdministracaoDesktop from "./pages/desktop/administracao/administracao";
+import CadastroDesktop from "./pages/desktop/cadastroUsuario/cadastroUsuario";
+import PerfilDesktop from "./pages/desktop/meuPerfil/meuPerfil";
 
-//   function handleAddUser() {
-//     setEditingUser(null);
-//     setActiveMenu('cadastroUsuario');
-//   }
-//   function handleEditUser(usuario) {
-//     setEditingUser(usuario);
-//     setActiveMenu('cadastroUsuario');
-//   }
-//   function handleSaveUser(dados) {
-//     if (editingUser) {
-//       setUsuarios((prev) =>
-//         prev.map((u) => (u.id === editingUser.id ? { ...u, ...dados } : u))
-//       );
-//     } else {
-//       setUsuarios((prev) => [{ id: Date.now(), ativo: true, ...dados }, ...prev]);
-//     }
-//     setEditingUser(null);
-//     setActiveMenu('administracao');
-//   }
-//   function handleCancelUser() {
-//     setEditingUser(null);
-//     setActiveMenu('administracao');
-//   }
-//   function handleDeleteUser(id) {
-//     setUsuarios((prev) => prev.filter((u) => u.id !== id));
-//   }
-
-//   // Sair da conta: limpa o estado da sessão e volta para o login
-//   function handleLogout() {
-//     docsVisited.current = false;
-//     setAnalysisDoc(null);
-//     setValidationDoc(null);
-//     setEditingUser(null);
-//     setActiveMenu('login');
-//   }
-//   function handleLogin() {
-//     setActiveMenu('dashboard');
-//   }
-
-//   function renderScreen() {
-//     const common = { activeMenu, onNavigate: handleNavigate };
-
-//     switch (activeMenu) {
-//       case 'login':
-//         return <Login onLogin={handleLogin} />;
-//       case 'validacao':
-//         return (
-//           <CentralDeValidacao
-//             key={validationDoc ? validationDoc.id : 'sem-documento'}
-//             activeMenu="documentos"
-//             onNavigate={handleNavigate}
-//             doc={validationDoc}
-//             onBack={() => handleNavigate('documentos')}
-//             onSave={handleSaveValidation}
-//             onDelete={handleDeleteValidation}
-//           />
-//         );
-//       case 'importar':
-//         return (
-//           <ImportarDocumentos
-//             activeMenu="documentos"
-//             onNavigate={handleNavigate}
-//             onBack={() => handleNavigate('documentos')}
-//             onImport={handleImport}
-//           />
-//         );
-//       case 'analise':
-//         return (
-//           <AnaliseDeDocumentos
-//             key={analysisDoc ? analysisDoc.id : 'sem-documento'}
-//             activeMenu="documentos"
-//             onNavigate={handleNavigate}
-//             doc={analysisDoc}
-//             onBack={() => handleNavigate('documentos')}
-//             onSaveAnalysis={handleSaveAnalysis}
-//           />
-//         );
-//       case 'atendimentos':
-//         return (
-//           <CentralDeAtendimentos
-//             {...common}
-//             onAddAtendimento={handleAddAtendimento}
-//             onOpenAtendimento={handleOpenAtendimento}
-//           />
-//         );
-//       case 'integracoes':
-//         return <Integracoes {...common} />;
-//       case 'administracao':
-//         return (
-//           <Administracao
-//             {...common}
-//             usuarios={usuarios}
-//             onAddUser={handleAddUser}
-//             onEditUser={handleEditUser}
-//             onDeleteUser={handleDeleteUser}
-//           />
-//         );
-//       case 'cadastroUsuario':
-//         return (
-//           <CadastroUsuario
-//             key={editingUser ? editingUser.id : 'novo-usuario'}
-//             usuario={editingUser}
-//             onSubmit={handleSaveUser}
-//             onCancel={handleCancelUser}
-//           />
-//         );
-//       case 'perfil':
-//         return <MeuPerfil {...common} onLogout={handleLogout} />;
-//       case 'dashboard':
-//       default:
-//         return (
-//           <Dashboard
-//             {...common}
-//             onSeeAllActivities={() => handleNavigate('documentos')}
-//             onOpenProfile={() => handleNavigate('perfil')}
-//           />
-//         );
-//     }
-//   }
-
-//   return (
-//     <>
-//       <StatusBar style={colors.statusBar} />
-//       {docsVisited.current && (
-//         <View style={{ flex: 1, display: activeMenu === 'documentos' ? 'flex' : 'none' }}>
-//           <CentralDeDocumentos
-//             activeMenu="documentos"
-//             onNavigate={handleNavigate}
-//             onAddDocument={handleAddDocument}
-//             onOpenValidation={handleOpenValidation}
-//             onOpenAnalysis={handleOpenAnalysis}
-//             overrides={docOverrides}
-//           />
-//         </View>
-//       )}
-//       {activeMenu !== 'documentos' && renderScreen()}
-//     </>
-//   );
-// }
-
-// export default function App() {
-//   return (
-//     <PreferencesProvider>
-//       <AppContent />
-//     </PreferencesProvider>
-//   );
-// }
-
-
-import React, { useState } from "react";
-import { View, ActivityIndicator } from "react-native";
-
-import Login from "./Components/login/Login";
-import Cadastro from "./Components/cadastro/Cadastro";
-import Dashboard from "./Components/dashboard/Dashboard";
-import Importacao from "./Components/importacao/Importacao";
-import Analise from "./Components/analise/Analise";
-import Validacao from "./Components/Validacao/validacao";
-import Dados from "./Components/dados/Dados";
-import Administracao from "./Components/administracao/Administracao";
-import Perfil from "./Components/perfil/Perfil";
+// CONTEXTOS E SERVIÇOS
 import { IdiomaProvider } from "./Components/idioma/IdiomaContext";
+import { TemaProvider } from "./Components/tema/TemaContext";
 
 import {
   AuthProvider,
   useAuth,
 } from "./Services/AuthContext";
 
-import { TemaProvider } from "./Components/tema/TemaContext";
-
 import { cadastrarUsuario } from "./Services/usuarioService";
 
-function AppContent() {
+// ==========================================
+// APLICAÇÃO DESKTOP
+// ==========================================
+
+function AppDesktop() {
+  const { usuario, carregando, entrar, sair } = useAuth();
+  const { colors } = usePreferences();
+
+  const [tela, setTela] = useState("dashboard");
+  const [analysisDoc, setAnalysisDoc] = useState(null);
+  const [validationDoc, setValidationDoc] = useState(null);
+  const [docOverrides, setDocOverrides] = useState({});
+  const [usuarios, setUsuarios] = useState([]);
+  const [editingUser, setEditingUser] = useState(null);
+
+  const docsVisited = useRef(false);
+
+  function navigate(key) {
+    setTela(key);
+  }
+
+  function handleLogout() {
+    docsVisited.current = false;
+    setAnalysisDoc(null);
+    setValidationDoc(null);
+    setEditingUser(null);
+    sair();
+    setTela("login");
+  }
+
+  function handleSaveValidation(doc, changes) {
+    if (doc) {
+      setDocOverrides((prev) => ({
+        ...prev,
+        [doc.id]: {
+          ...(prev[doc.id] || {}),
+          ...changes,
+        },
+      }));
+    }
+
+    setValidationDoc(null);
+    setTela("documentos");
+  }
+
+  function handleSaveAnalysis(doc, changes) {
+    if (doc) {
+      setDocOverrides((prev) => ({
+        ...prev,
+        [doc.id]: {
+          ...(prev[doc.id] || {}),
+          ...changes,
+        },
+      }));
+    }
+
+    setAnalysisDoc(null);
+    setTela("documentos");
+  }
+
+  function handleAddUser() {
+    setEditingUser(null);
+    setTela("cadastroUsuario");
+  }
+
+  function handleEditUser(usuario) {
+    setEditingUser(usuario);
+    setTela("cadastroUsuario");
+  }
+
+  function handleSaveUser(dados) {
+    if (editingUser) {
+      setUsuarios((prev) =>
+        prev.map((u) =>
+          u.id === editingUser.id
+            ? { ...u, ...dados }
+            : u
+        )
+      );
+    } else {
+      setUsuarios((prev) => [
+        { id: Date.now(), ativo: true, ...dados },
+        ...prev,
+      ]);
+    }
+
+    setEditingUser(null);
+    setTela("administracao");
+  }
+
+  function handleCancelUser() {
+    setEditingUser(null);
+    setTela("administracao");
+  }
+
+  if (carregando) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={colors.accent} />
+      </View>
+    );
+  }
+
+  if (!usuario) {
+    return (
+      <LoginDesktop
+        onLogin={async (email, senha) => {
+          await entrar(email, senha);
+          setTela("dashboard");
+        }}
+      />
+    );
+  }
+
+  const common = {
+    activeMenu: tela,
+    onNavigate: navigate,
+  };
+
+  if (
+    tela === "documentos" ||
+    tela === "analise" ||
+    tela === "importar" ||
+    tela === "validacao"
+  ) {
+    docsVisited.current = true;
+  }
+
+  function renderScreen() {
+    switch (tela) {
+      case "importar":
+        return (
+          <ImportacaoDesktop
+            activeMenu="documentos"
+            onNavigate={navigate}
+            onBack={() => navigate("documentos")}
+            onImport={() => navigate("documentos")}
+          />
+        );
+
+      case "analise":
+        return (
+          <AnaliseDesktop
+            doc={analysisDoc}
+            activeMenu="documentos"
+            onNavigate={navigate}
+            onBack={() => navigate("documentos")}
+            onSaveAnalysis={handleSaveAnalysis}
+          />
+        );
+
+      case "validacao":
+        return (
+          <ValidacaoDesktop
+            doc={validationDoc}
+            activeMenu="documentos"
+            onNavigate={navigate}
+            onBack={() => navigate("documentos")}
+            onSave={handleSaveValidation}
+            onDelete={() => navigate("documentos")}
+          />
+        );
+
+      case "atendimentos":
+        return (
+          <CentralDeAtendimentosDesktop
+            {...common}
+            onAddAtendimento={() => {}}
+            onOpenAtendimento={() => {}}
+          />
+        );
+
+      case "integracoes":
+        return <IntegracoesDesktop {...common} />;
+
+      case "administracao":
+        return (
+          <AdministracaoDesktop
+            {...common}
+            usuarios={usuarios}
+            onAddUser={handleAddUser}
+            onEditUser={handleEditUser}
+            onDeleteUser={(id) =>
+              setUsuarios((prev) =>
+                prev.filter((u) => u.id !== id)
+              )
+            }
+          />
+        );
+
+      case "cadastroUsuario":
+        return (
+          <CadastroDesktop
+            usuario={editingUser}
+            onSubmit={handleSaveUser}
+            onCancel={handleCancelUser}
+          />
+        );
+
+      case "perfil":
+        return (
+          <PerfilDesktop
+            {...common}
+            onLogout={handleLogout}
+          />
+        );
+
+      case "documentos":
+        return (
+          <CentralDeDocumentosDesktop
+            activeMenu="documentos"
+            onNavigate={navigate}
+            onAddDocument={() => navigate("importar")}
+            onOpenAnalysis={(doc) => {
+              setAnalysisDoc(doc);
+              navigate("analise");
+            }}
+            onOpenValidation={(doc) => {
+              setValidationDoc(doc);
+              navigate("validacao");
+            }}
+            overrides={docOverrides}
+          />
+        );
+
+      case "dashboard":
+      default:
+        return (
+          <DashboardDesktop
+            {...common}
+            onSeeAllActivities={() => navigate("documentos")}
+            onOpenProfile={() => navigate("perfil")}
+          />
+        );
+    }
+  }
+
+  return (
+    <>
+      <StatusBar style={colors.statusBar} />
+      {renderScreen()}
+    </>
+  );
+}
+
+// ==========================================
+// APLICAÇÃO MOBILE E TABLET
+// ==========================================
+
+function AppMobile() {
   const { usuario, carregando, entrar, sair } = useAuth();
 
   const [tela, setTela] = useState("Login");
@@ -296,6 +305,7 @@ function AppContent() {
       setParametros(params);
       setTela(destino);
     },
+
     goBack: () => {
       setParametros({});
       setTela("Dashboard");
@@ -309,7 +319,7 @@ function AppContent() {
   if (!usuario) {
     if (tela === "Cadastro") {
       return (
-        <Cadastro
+        <CadastroMobile
           navigation={navigation}
           onCadastrar={async (dados) => {
             await cadastrarUsuario(dados);
@@ -320,7 +330,7 @@ function AppContent() {
     }
 
     return (
-      <Login
+      <LoginMobile
         navigation={navigation}
         onLogin={async (email, senha) => {
           await entrar(email, senha);
@@ -332,40 +342,41 @@ function AppContent() {
 
   switch (tela) {
     case "Importacao":
-      return <Importacao navigation={navigation} />;
+      return <ImportacaoMobile navigation={navigation} />;
 
     case "Analise":
       return (
-        <Analise
+        <AnaliseMobile
           navigation={navigation}
           route={{ params: parametros }}
         />
       );
 
     case "Validacao":
-      return <Validacao navigation={navigation} />;
+      return <ValidacaoMobile navigation={navigation} />;
 
     case "Dados":
       return (
-        <Dados
+        <DadosMobile
           navigation={navigation}
           route={{ params: parametros }}
         />
       );
 
     case "Administracao":
-      if (usuario?.perfilAcesso !== "Administrador") {
+      if (
+        usuario?.perfilAcesso?.trim().toLowerCase() !==
+        "administrador"
+      ) {
         setTela("Dashboard");
         return null;
       }
 
-      return (
-        <Administracao navigation={navigation} />
-      );
+      return <AdministracaoMobile navigation={navigation} />;
 
     case "Perfil":
       return (
-        <Perfil
+        <PerfilMobile
           navigation={navigation}
           onLogout={sair}
           usuario={usuario}
@@ -375,7 +386,7 @@ function AppContent() {
     case "Dashboard":
     default:
       return (
-        <Dashboard
+        <DashboardMobile
           navigation={navigation}
           usuario={usuario}
         />
@@ -383,12 +394,32 @@ function AppContent() {
   }
 }
 
+// ==========================================
+// DETECÇÃO AUTOMÁTICA DA TELA
+// ==========================================
+
+function AppResponsive() {
+  const { width } = useWindowDimensions();
+
+  const ehDesktop = width >= 1024;
+
+  return (
+    <PreferencesProvider>
+      {ehDesktop ? <AppDesktop /> : <AppMobile />}
+    </PreferencesProvider>
+  );
+}
+
+// ==========================================
+// PROVEDORES GLOBAIS
+// ==========================================
+
 export default function App() {
   return (
     <IdiomaProvider>
       <TemaProvider>
         <AuthProvider>
-          <AppContent />
+          <AppResponsive />
         </AuthProvider>
       </TemaProvider>
     </IdiomaProvider>

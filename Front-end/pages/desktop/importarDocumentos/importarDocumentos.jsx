@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import MenuGlobal from '../../../components/MenuGlobal/MenuGlobal';
+import MenuGlobal from '../../../Components/MenuGlobal/MenuGlobal';
 import { styles as docStyles, docColors } from '../centralDeDocumentos/centralDeDocumentosStyle';
 import styles from './importarDocumentosStyle';
 

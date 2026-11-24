@@ -3,8 +3,8 @@ import React from "react";
 import {
   View,
   ActivityIndicator,
+  useWindowDimensions,
 } from "react-native";
-
 import { Redirect } from "expo-router";
 
 import { useAuth } from "../../Services/AuthContext";
@@ -13,6 +13,9 @@ import { useTema } from "../../Components/tema/TemaContext";
 export default function Index() {
   const { usuario, carregando } = useAuth();
   const { cores } = useTema();
+  const { width } = useWindowDimensions();
+
+  const ehDesktop = width >= 1024;
 
   if (carregando) {
     return (
@@ -30,6 +33,10 @@ export default function Index() {
         />
       </View>
     );
+  }
+
+  if (ehDesktop) {
+    return <Redirect href="/desktop" />;
   }
 
   return (

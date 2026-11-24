@@ -1,66 +1,160 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, Modal } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import MenuGlobal from '../../../components/MenuGlobal/MenuGlobal';
-import { styles as docStyles, docColors } from '../centralDeDocumentos/centralDeDocumentosStyle';
-import { DocumentViewer } from '../analiseDeDocumentos/analiseDeDocumentos';
-import styles from './centralDeValidacaoStyle';
 
-import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, Alert, } from "react-native";
-import { listarDocumentos } from "../../Services/documentoService";
+import React, { useState, useMemo } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  TextInput,
+  Modal,
+} from "react-native";
 
-const COR = '#174847';
+import MenuGlobal from "../../../Components/MenuGlobal/MenuGlobal";
+
+import {
+  styles as docStyles,
+  docColors,
+} from "../centralDeDocumentos/centralDeDocumentosStyle";
+
+import { DocumentViewer } from "../analiseDeDocumentos/analiseDeDocumentos";
+
+import styles from "./centralDeValidacaoStyle";
+
+const COR = "#174847";
+
 const ZOOM_MIN = 50;
 const ZOOM_MAX = 300;
 const ZOOM_STEP = 25;
 
 const SAMPLE_DOC = {
   id: 0,
-  nome: 'NF-18291.pdf',
-  tipo: 'Nota Fiscal',
-  status: 'Revisão',
+  nome: "NF-18291.pdf",
+  tipo: "Nota Fiscal",
+  status: "Revisão",
   confianca: 85,
-  data: '15/10/2026',
+  data: "15/10/2026",
 };
 
 const CAMPOS = [
-  { key: 'empresa', label: 'Empresa', icon: 'business-outline', confianca: 100 },
-  { key: 'cnpj', label: 'CNPJ', icon: 'scan-outline', confianca: 72 },
-  { key: 'data', label: 'Data de entrada', icon: 'calendar-outline', confianca: 100 },
-  { key: 'modelo', label: 'Modelo de Documento', icon: 'document-text-outline', confianca: 99 },
-  { key: 'numero', label: 'Número do Contrato', icon: 'keypad-outline', confianca: 100 },
-  { key: 'vigencia', label: 'Vigência', icon: 'time-outline', confianca: 100 },
-  { key: 'valor', label: 'Valor', icon: 'pricetag-outline', confianca: 100 },
+  {
+    key: "empresa",
+    label: "Empresa",
+    icon: "business-outline",
+    confianca: 100,
+  },
+  {
+    key: "cnpj",
+    label: "CNPJ",
+    icon: "scan-outline",
+    confianca: 72,
+  },
+  {
+    key: "data",
+    label: "Data de entrada",
+    icon: "calendar-outline",
+    confianca: 100,
+  },
+  {
+    key: "modelo",
+    label: "Modelo de Documento",
+    icon: "document-text-outline",
+    confianca: 99,
+  },
+  {
+    key: "numero",
+    label: "Número do Contrato",
+    icon: "keypad-outline",
+    confianca: 100,
+  },
+  {
+    key: "vigencia",
+    label: "Vigência",
+    icon: "time-outline",
+    confianca: 100,
+  },
+  {
+    key: "valor",
+    label: "Valor",
+    icon: "pricetag-outline",
+    confianca: 100,
+  },
 ];
 
-function CampoLinha({ campo, valor, editando, onChange, ultimo }) {
-  const nivel = campo.confianca >= 100 ? 'alta' : campo.confianca >= 80 ? 'media' : 'baixa';
-  const badgeStyle = [styles.badgeConf, styles[`badgeConf_${nivel}`]];
-  const textStyle = [styles.badgeConfTexto, styles[`badgeConfTexto_${nivel}`]];
+// ==========================================
+// LINHA DE INFORMAÇÃO
+// ==========================================
+
+function CampoLinha({
+  campo,
+  valor,
+  editando,
+  onChange,
+  ultimo,
+}) {
+  const nivel =
+    campo.confianca >= 100
+      ? "alta"
+      : campo.confianca >= 80
+        ? "media"
+        : "baixa";
+
+  const badgeStyle = [
+    styles.badgeConf,
+    styles[`badgeConf_${nivel}`],
+  ];
+
+  const textStyle = [
+    styles.badgeConfTexto,
+    styles[`badgeConfTexto_${nivel}`],
+  ];
 
   return (
     <View style={[styles.campo, !ultimo && styles.campoLinha]}>
       <View style={styles.campoIcone}>
-        <Ionicons name={campo.icon} size={22} color="#E8F4F3" />
+        <Ionicons
+          name={campo.icon}
+          size={22}
+          color="#E8F4F3"
+        />
       </View>
+
       <View style={styles.campoTextos}>
-        <Text style={styles.campoLabel}>{campo.label}</Text>
+        <Text style={styles.campoLabel}>
+          {campo.label}
+        </Text>
+
         {editando ? (
-          <TextInput style={styles.campoInput} value={valor} onChangeText={onChange} />
+          <TextInput
+            style={styles.campoInput}
+            value={String(valor ?? "")}
+            onChangeText={onChange}
+          />
         ) : (
-          <Text style={styles.campoValor} numberOfLines={1}>{valor}</Text>
+          <Text
+            style={styles.campoValor}
+            numberOfLines={1}
+          >
+            {valor || "Não informado"}
+          </Text>
         )}
       </View>
+
       <View style={badgeStyle}>
-        <Text style={textStyle}>{campo.confianca}%</Text>
+        <Text style={textStyle}>
+          {campo.confianca}%
+        </Text>
       </View>
     </View>
   );
 }
 
+// ==========================================
+// TELA DE VALIDAÇÃO
+// ==========================================
+
 export default function CentralDeValidacao({
-  activeMenu = 'documentos',
+  activeMenu = "documentos",
   onNavigate,
   doc,
   previewSource,
@@ -71,157 +165,211 @@ export default function CentralDeValidacao({
   const base = doc || SAMPLE_DOC;
 
   const [valores, setValores] = useState({
-    empresa: 'Microsoft Ltda.',
-    cnpj: '12.345.678/0001-90',
-    data: base.data || '10/10/2026',
-    modelo: base.tipo || 'Nota Fiscal Eletrônica',
-    numero: '18291',
-    vigencia: '12 meses',
-    valor: 'R$ 48.000,00',
+    empresa: base.empresa || "Microsoft Ltda.",
+    cnpj: base.cnpj || "12.345.678/0001-90",
+    data: base.data || "10/10/2026",
+    modelo: base.tipo || "Nota Fiscal Eletrônica",
+    numero: base.numero || "18291",
+    vigencia: base.vigencia || "12 meses",
+    valor: base.valor || "R$ 48.000,00",
   });
+
   const [editando, setEditando] = useState(false);
   const [zoom, setZoom] = useState(100);
   const [tela, setTela] = useState(false);
-  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
-  const [documentos, setDocumentos] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [statusDoc, setStatusDoc] = useState("");
+  const [confirmarExclusao, setConfirmarExclusao] =
+    useState(false);
 
-  async function carregarDocumentos() {
-    try {
-      setCarregando(true);
+  // ==========================================
+  // DADOS DO DOCUMENTO
+  // ==========================================
 
-      const resultado = await listarDocumentos({
-        pagina: 1,
-        tamanho: 20,
-        status,
-      });
+  const nome =
+    base.nome ||
+    base.nomeArquivo ||
+    "Documento";
 
-      setDocumentos(resultado);
-    } catch (erro) {
-      Alert.alert("Erro", erro.message);
-    } finally {
-      setCarregando(false);
-    }
-  }
+  const tipo =
+    base.tipo ||
+    base.tipoDocumento ||
+    "Nota fiscal";
 
-  useEffect(() => {
-    carregarDocumentos();
-  }, [status]);
+  const data =
+    valores.data ||
+    base.data ||
+    "15/10/2026";
 
-  if (carregando) {
-    return <ActivityIndicator size="large" />;
-  }
-
-  return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text>Central de documentos</Text>
-
-      <View style={{ flexDirection: "row", gap: 8 }}>
-        <TouchableOpacity onPress={() => setStatus("")}>
-          <Text>Todos</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => setStatus("Processando")}>
-          <Text>Processando</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => setStatus("Revisao")}>
-          <Text>Em revisão</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => setStatus("Aprovado")}>
-          <Text>Aprovados</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => setStatus("Erro")}>
-          <Text>Com erro</Text>
-        </TouchableOpacity>
-      </View>
-
-      <FlatList
-        data={documentos}
-        keyExtractor={(item) => String(item.idDocumento)}
-        renderItem={({ item }) => (
-          <View style={{ padding: 12 }}>
-            <Text>{item.nomeArquivo}</Text>
-            <Text>{item.tipoDocumento}</Text>
-            <Text>Status: {item.statusDocumento}</Text>
-            <Text>
-              Confiança: {item.nivelConfianca ?? "Não disponível"}
-            </Text>
-          </View>
-        )}
-      />
-    </View>
-  );
-}
-
-  const nome = base.nome;
-  const tipo = base.tipo || 'Nota fiscal';
-  const data = base.data || '15/10/2026';
-  const status = base.status || 'Revisão';
+  const status =
+    base.status ||
+    base.statusDocumento ||
+    "Revisão";
 
   const source =
     previewSource ||
     base.imagem ||
-    (base.previewUri ? { uri: base.previewUri } : null);
+    (base.previewUri
+      ? { uri: base.previewUri }
+      : null);
 
   const previewDoc = useMemo(
-    () => ({ ...base, tipo: valores.modelo, data: valores.data, numero: valores.numero }),
-    [base, valores.modelo, valores.data, valores.numero]
+    () => ({
+      ...base,
+      tipo: valores.modelo,
+      data: valores.data,
+      numero: valores.numero,
+    }),
+    [
+      base,
+      valores.modelo,
+      valores.data,
+      valores.numero,
+    ]
   );
 
-  const baixas = CAMPOS.filter((c) => c.confianca < 80);
+  const baixas = CAMPOS.filter(
+    (campo) => campo.confianca < 80
+  );
 
-  const atualizar = (key, texto) => {
-    setValores((prev) => ({ ...prev, [key]: texto }));
-  };
+  // ==========================================
+  // ATUALIZAR INFORMAÇÕES
+  // ==========================================
 
-  const salvar = () => {
+  function atualizar(key, texto) {
+    setValores((prev) => ({
+      ...prev,
+      [key]: texto,
+    }));
+  }
+
+  // ==========================================
+  // SALVAR ALTERAÇÕES
+  // ==========================================
+
+  function salvar() {
     setEditando(false);
-    if (onSave) onSave(doc, { status: 'Conclusão', data: valores.data });
-  };
 
-  const excluir = () => {
+    if (onSave) {
+      onSave(doc || base, {
+        ...valores,
+        status: "Conclusão",
+      });
+    }
+  }
+
+  // ==========================================
+  // EXCLUIR DOCUMENTO
+  // ==========================================
+
+  function excluir() {
     setConfirmarExclusao(false);
-    if (onDelete) onDelete(doc);
-  };
+
+    if (onDelete) {
+      onDelete(doc || base);
+    }
+  }
+
+  // ==========================================
+  // ESTILO DO STATUS
+  // ==========================================
 
   const statusEstilo =
-    status === 'Conclusão' ? styles.statusConclusao : status === 'Erro' ? styles.statusErro : styles.statusRevisao;
+    status === "Conclusão" ||
+    status === "Concluido" ||
+    status === "Concluído"
+      ? styles.statusConclusao
+      : status === "Erro"
+        ? styles.statusErro
+        : styles.statusRevisao;
+
+  // ==========================================
+  // INTERFACE
+  // ==========================================
 
   return (
     <View style={styles.container}>
-      <MenuGlobal activeMenu={activeMenu} onNavigate={onNavigate} />
-      <ScrollView style={docStyles.main} contentContainerStyle={docStyles.mainContent} showsVerticalScrollIndicator={false}>
+      <MenuGlobal
+        activeMenu={activeMenu}
+        onNavigate={onNavigate}
+      />
+
+      <ScrollView
+        style={docStyles.main}
+        contentContainerStyle={docStyles.mainContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* BOTÃO VOLTAR */}
+
         <Pressable
-          style={({ hovered }) => [styles.botaoVoltar, hovered && styles.botaoVoltarHover]}
+          style={({ hovered }) => [
+            styles.botaoVoltar,
+            hovered && styles.botaoVoltarHover,
+          ]}
           onPress={onBack}
           accessibilityLabel="Voltar"
         >
-          <Ionicons name="arrow-back-outline" size={18} color="#FFFFFF" />
+          <Ionicons
+            name="arrow-back-outline"
+            size={18}
+            color="#FFFFFF"
+          />
         </Pressable>
 
+        {/* TÍTULO */}
+
         <View style={docStyles.titleRow}>
-          <Ionicons name="shield-checkmark-outline" size={32} color={docColors.sidebar} style={docStyles.titleIcon} />
-          <Text style={docStyles.title}>Central de Validação</Text>
+          <Ionicons
+            name="shield-checkmark-outline"
+            size={32}
+            color={docColors.sidebar}
+            style={docStyles.titleIcon}
+          />
+
+          <Text style={docStyles.title}>
+            Central de Validação
+          </Text>
         </View>
-        <Text style={docStyles.subtitle}>Revise e aprove as informações extraídas pela IA.</Text>
+
+        <Text style={docStyles.subtitle}>
+          Revise e aprove as informações extraídas pela IA.
+        </Text>
+
+        {/* CARD PRINCIPAL */}
 
         <View style={styles.card}>
           <View style={styles.cardCabecalho}>
-            <Ionicons name="document-text-outline" size={34} color={COR} />
+            <Ionicons
+              name="document-text-outline"
+              size={34}
+              color={COR}
+            />
+
             <View style={styles.cardCabecalhoTextos}>
-              <Text style={styles.docNome}>{nome}</Text>
-              <Text style={styles.docSub}>{`${tipo} • ${data} • ${valores.empresa}`}</Text>
+              <Text style={styles.docNome}>
+                {nome}
+              </Text>
+
+              <Text style={styles.docSub}>
+                {`${tipo} • ${data} • ${valores.empresa}`}
+              </Text>
             </View>
-            <View style={[styles.status, statusEstilo]}>
-              <Text style={styles.statusTexto}>{status}</Text>
+
+            <View
+              style={[
+                styles.status,
+                statusEstilo,
+              ]}
+            >
+              <Text style={styles.statusTexto}>
+                {status}
+              </Text>
             </View>
           </View>
 
+          {/* CORPO */}
+
           <View style={styles.corpo}>
+            {/* COLUNA ESQUERDA */}
+
             <View style={styles.colunaEsquerda}>
               <DocumentViewer
                 doc={previewDoc}
@@ -231,58 +379,151 @@ export default function CentralDeValidacao({
                 frameStyle={styles.previa}
               />
 
+              {/* CONTROLES DE ZOOM */}
+
               <View style={styles.barraZoom}>
-                <Ionicons name="search-outline" size={22} color="#FFFFFF" />
+                <Ionicons
+                  name="search-outline"
+                  size={22}
+                  color="#FFFFFF"
+                />
+
                 <View style={styles.zoomControles}>
                   <Pressable
-                    onPress={() => setZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP))}
+                    onPress={() =>
+                      setZoom((z) =>
+                        Math.max(
+                          ZOOM_MIN,
+                          z - ZOOM_STEP
+                        )
+                      )
+                    }
                     style={styles.zoomBotao}
                     accessibilityLabel="Diminuir zoom"
                   >
-                    <Ionicons name="remove-outline" size={16} color="#FFFFFF" />
+                    <Ionicons
+                      name="remove-outline"
+                      size={16}
+                      color="#FFFFFF"
+                    />
                   </Pressable>
-                  <Pressable onPress={() => setZoom(100)} accessibilityLabel="Voltar o zoom para 100%">
-                    <Text style={styles.zoomTexto}>{zoom}%</Text>
-                  </Pressable>
+
                   <Pressable
-                    onPress={() => setZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP))}
+                    onPress={() => setZoom(100)}
+                    accessibilityLabel="Voltar o zoom para 100%"
+                  >
+                    <Text style={styles.zoomTexto}>
+                      {zoom}%
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() =>
+                      setZoom((z) =>
+                        Math.min(
+                          ZOOM_MAX,
+                          z + ZOOM_STEP
+                        )
+                      )
+                    }
                     style={styles.zoomBotao}
                     accessibilityLabel="Aumentar zoom"
                   >
-                    <Ionicons name="add-outline" size={16} color="#FFFFFF" />
+                    <Ionicons
+                      name="add-outline"
+                      size={16}
+                      color="#FFFFFF"
+                    />
                   </Pressable>
                 </View>
-                <Pressable onPress={() => setTela(true)} accessibilityLabel="Tela cheia">
-                  <Ionicons name="expand-outline" size={22} color="#FFFFFF" />
+
+                <Pressable
+                  onPress={() => setTela(true)}
+                  accessibilityLabel="Tela cheia"
+                >
+                  <Ionicons
+                    name="expand-outline"
+                    size={22}
+                    color="#FFFFFF"
+                  />
                 </Pressable>
               </View>
+
+              {/* AÇÕES */}
 
               <View style={styles.acoes}>
                 <Pressable
                   onPress={() => setEditando(!editando)}
-                  style={({ hovered }) => [styles.acao, (hovered || editando) && styles.acaoAtiva]}
+                  style={({ hovered }) => [
+                    styles.acao,
+                    (hovered || editando) &&
+                      styles.acaoAtiva,
+                  ]}
                 >
-                  <Ionicons name="create-outline" size={16} color="#6B1010" />
-                  <Text style={styles.acaoTexto}>Editar</Text>
+                  <Ionicons
+                    name="create-outline"
+                    size={16}
+                    color="#6B1010"
+                  />
+
+                  <Text style={styles.acaoTexto}>
+                    {editando ? "Cancelar edição" : "Editar"}
+                  </Text>
                 </Pressable>
+
                 <Pressable
-                  onPress={() => setConfirmarExclusao(true)}
-                  style={({ hovered }) => [styles.acao, hovered && styles.acaoAtiva]}
+                  onPress={() =>
+                    setConfirmarExclusao(true)
+                  }
+                  style={({ hovered }) => [
+                    styles.acao,
+                    hovered && styles.acaoAtiva,
+                  ]}
                 >
-                  <Ionicons name="trash-outline" size={16} color="#6B1010" />
-                  <Text style={styles.acaoTexto}>Deletar</Text>
+                  <Ionicons
+                    name="trash-outline"
+                    size={16}
+                    color="#6B1010"
+                  />
+
+                  <Text style={styles.acaoTexto}>
+                    Deletar
+                  </Text>
                 </Pressable>
-                <Pressable onPress={salvar} style={({ hovered }) => [styles.acao, hovered && styles.acaoAtiva]}>
-                  <Ionicons name="save-outline" size={16} color="#6B1010" />
-                  <Text style={styles.acaoTexto}>Salvar</Text>
+
+                <Pressable
+                  onPress={salvar}
+                  style={({ hovered }) => [
+                    styles.acao,
+                    hovered && styles.acaoAtiva,
+                  ]}
+                >
+                  <Ionicons
+                    name="save-outline"
+                    size={16}
+                    color="#6B1010"
+                  />
+
+                  <Text style={styles.acaoTexto}>
+                    Salvar
+                  </Text>
                 </Pressable>
               </View>
             </View>
 
+            {/* PAINEL DE INFORMAÇÕES */}
+
             <View style={styles.painel}>
               <View style={styles.painelTitulo}>
-                <Ionicons name="information-circle-outline" size={28} color="#FFFFFF" />
-                <Text style={styles.painelTituloTexto}>Informações Extraídas</Text>
+                <Ionicons
+                  name="information-circle-outline"
+                  size={28}
+                  color="#FFFFFF"
+                />
+
+                <Text style={styles.painelTituloTexto}>
+                  Informações Extraídas
+                </Text>
               </View>
 
               <View style={styles.painelLista}>
@@ -292,21 +533,36 @@ export default function CentralDeValidacao({
                     campo={campo}
                     valor={valores[campo.key]}
                     editando={editando}
-                    onChange={(t) => atualizar(campo.key, t)}
+                    onChange={(texto) =>
+                      atualizar(campo.key, texto)
+                    }
                     ultimo={i === CAMPOS.length - 1}
                   />
                 ))}
               </View>
 
+              {/* AVISOS DE CONFIANÇA */}
+
               {baixas.length > 0 && (
                 <View style={styles.atencao}>
                   <View style={styles.atencaoTitulo}>
-                    <Ionicons name="alert-circle-outline" size={24} color={COR} />
-                    <Text style={styles.atencaoTituloTexto}>Atenção</Text>
+                    <Ionicons
+                      name="alert-circle-outline"
+                      size={24}
+                      color={COR}
+                    />
+
+                    <Text style={styles.atencaoTituloTexto}>
+                      Atenção
+                    </Text>
                   </View>
-                  {baixas.map((c) => (
-                    <Text key={c.key} style={styles.atencaoTexto}>
-                      {`O campo ${c.label} apresentou baixa confiança (${c.confianca}%).`}
+
+                  {baixas.map((campo) => (
+                    <Text
+                      key={campo.key}
+                      style={styles.atencaoTexto}
+                    >
+                      {`O campo ${campo.label} apresentou baixa confiança (${campo.confianca}%).`}
                     </Text>
                   ))}
                 </View>
@@ -316,15 +572,42 @@ export default function CentralDeValidacao({
         </View>
       </ScrollView>
 
-      <Modal visible={tela} transparent animationType="fade" onRequestClose={() => setTela(false)}>
-        <Pressable style={styles.overlay} onPress={() => setTela(false)}>
-          <Pressable style={styles.telaCheia} onPress={() => { }}>
+      {/* MODAL DE TELA CHEIA */}
+
+      <Modal
+        visible={tela}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setTela(false)}
+      >
+        <Pressable
+          style={styles.overlay}
+          onPress={() => setTela(false)}
+        >
+          <Pressable
+            style={styles.telaCheia}
+            onPress={() => {}}
+          >
             <View style={styles.telaCheiaCabecalho}>
-              <Text style={styles.telaCheiaNome} numberOfLines={1}>{nome}</Text>
-              <Pressable onPress={() => setTela(false)} accessibilityLabel="Fechar">
-                <Ionicons name="close" size={22} color="#FFFFFF" />
+              <Text
+                style={styles.telaCheiaNome}
+                numberOfLines={1}
+              >
+                {nome}
+              </Text>
+
+              <Pressable
+                onPress={() => setTela(false)}
+                accessibilityLabel="Fechar"
+              >
+                <Ionicons
+                  name="close"
+                  size={22}
+                  color="#FFFFFF"
+                />
               </Pressable>
             </View>
+
             <View style={styles.telaCheiaCorpo}>
               <DocumentViewer
                 doc={previewDoc}
@@ -338,18 +621,63 @@ export default function CentralDeValidacao({
         </Pressable>
       </Modal>
 
-      <Modal visible={confirmarExclusao} transparent animationType="fade" onRequestClose={() => setConfirmarExclusao(false)}>
-        <Pressable style={styles.overlay} onPress={() => setConfirmarExclusao(false)}>
-          <Pressable style={styles.confirmacao} onPress={() => { }}>
-            <Ionicons name="trash-outline" size={32} color="#6B1010" />
-            <Text style={styles.confirmacaoTitulo}>Deletar documento?</Text>
-            <Text style={styles.confirmacaoTexto}>{`${nome} será removido. Essa ação não pode ser desfeita.`}</Text>
+      {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO */}
+
+      <Modal
+        visible={confirmarExclusao}
+        transparent
+        animationType="fade"
+        onRequestClose={() =>
+          setConfirmarExclusao(false)
+        }
+      >
+        <Pressable
+          style={styles.overlay}
+          onPress={() =>
+            setConfirmarExclusao(false)
+          }
+        >
+          <Pressable
+            style={styles.confirmacao}
+            onPress={() => {}}
+          >
+            <Ionicons
+              name="trash-outline"
+              size={32}
+              color="#6B1010"
+            />
+
+            <Text style={styles.confirmacaoTitulo}>
+              Deletar documento?
+            </Text>
+
+            <Text style={styles.confirmacaoTexto}>
+              {`${nome} será removido. Essa ação não pode ser desfeita.`}
+            </Text>
+
             <View style={styles.confirmacaoAcoes}>
-              <Pressable style={styles.confirmacaoCancelar} onPress={() => setConfirmarExclusao(false)}>
-                <Text style={styles.confirmacaoCancelarTexto}>Cancelar</Text>
+              <Pressable
+                style={styles.confirmacaoCancelar}
+                onPress={() =>
+                  setConfirmarExclusao(false)
+                }
+              >
+                <Text
+                  style={styles.confirmacaoCancelarTexto}
+                >
+                  Cancelar
+                </Text>
               </Pressable>
-              <Pressable style={styles.confirmacaoConfirmar} onPress={excluir}>
-                <Text style={styles.confirmacaoConfirmarTexto}>Deletar</Text>
+
+              <Pressable
+                style={styles.confirmacaoConfirmar}
+                onPress={excluir}
+              >
+                <Text
+                  style={styles.confirmacaoConfirmarTexto}
+                >
+                  Deletar
+                </Text>
               </Pressable>
             </View>
           </Pressable>
@@ -357,3 +685,4 @@ export default function CentralDeValidacao({
       </Modal>
     </View>
   );
+}
