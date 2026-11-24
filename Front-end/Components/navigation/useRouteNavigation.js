@@ -30,12 +30,12 @@ export default function useRouteNavigation() {
         const pathnameDestino = obterDestino(destino);
 
         if (params) {
-          router.push({
+          router.replace({
             pathname: pathnameDestino,
             params,
           });
         } else {
-          router.push(pathnameDestino);
+          router.replace(pathnameDestino);
         }
       },
 
