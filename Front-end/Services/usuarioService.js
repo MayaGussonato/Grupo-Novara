@@ -30,7 +30,7 @@ export function buscarMeuPerfil() {
   return apiRequest("/api/Usuario/me");
 }
 
-/** Somente Administrador. */
+// Lista todos os usuários. Somente Administrador.
 export function listarUsuarios() {
   return apiRequest("/api/Usuario");
 }
@@ -46,14 +46,14 @@ export function alterarPerfilUsuario(id, perfilAcesso) {
   });
 }
 
-/** Soft delete: desativa o acesso e libera o e-mail. Somente Administrador. */
+// Inativa a conta sem apagar o histórico.
 export function excluirUsuario(id) {
   return apiRequest(`/api/Usuario/${id}`, {
     method: "DELETE",
   });
 }
 
-/** Reativa um usuário desativado. Somente Administrador. */
+// Reativa uma conta inativa.
 export function reativarUsuario(id) {
   return apiRequest(`/api/Usuario/${id}/reativar`, {
     method: "PUT",

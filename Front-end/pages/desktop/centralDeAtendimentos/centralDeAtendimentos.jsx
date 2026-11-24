@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../login/LoginStyle';
 import { docColors } from '../centralDeDocumentos/centralDeDocumentosStyle';
 import { styles } from './centralDeAtendimentosStyle';
-import MenuGlobal from '../../../components/MenuGlobal/MenuGlobal';
+import MenuGlobal from '../../../Components/MenuGlobal/MenuGlobal';
 
 // Itens por página. Se o design pedir 16 (como em documentos) ou 15, basta trocar aqui.
 const PAGE_SIZE = 10;

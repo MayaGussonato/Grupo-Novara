@@ -85,23 +85,24 @@ export const criarAdministracaoStyles = (cores, modoEscuro) =>
     },
 
     cardUsuario: {
-      minHeight: 42,
+      minHeight: 48,
       flexDirection: "row",
       alignItems: "center",
       borderWidth: 1,
       borderColor: cores.borda,
       borderRadius: 5,
       backgroundColor: modoEscuro ? cores.input : cores.card,
-      paddingHorizontal: 8,
-      paddingVertical: 7,
+      paddingHorizontal: 9,
+      paddingVertical: 8,
       marginBottom: 9,
-      gap: 7,
+      gap: 8,
     },
 
     nomeUsuario: {
       flex: 1,
-      fontSize: 11,
+      fontSize: 12,
       color: cores.texto,
+      fontWeight: "600",
     },
 
     status: {
@@ -122,7 +123,8 @@ export const criarAdministracaoStyles = (cores, modoEscuro) =>
     },
 
     textoStatus: {
-      fontSize: 9,
+      fontSize: 10,
+      fontWeight: "600",
     },
 
     textoAtivo: {
@@ -149,7 +151,7 @@ export const criarAdministracaoStyles = (cores, modoEscuro) =>
       borderRadius: 5,
       alignItems: "center",
       justifyContent: "center",
-      marginTop: 45,
+      marginTop: 30,
       marginRight: 0,
     },
 

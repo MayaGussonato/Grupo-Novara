@@ -1,4 +1,3 @@
-
 import { StyleSheet } from "react-native";
 
 export const criarAnaliseStyles = (cores, modoEscuro) =>
@@ -9,9 +8,9 @@ export const criarAnaliseStyles = (cores, modoEscuro) =>
     },
 
     conteudo: {
-      paddingHorizontal: 27,
-      paddingTop: 12,
-      paddingBottom: 25,
+      paddingHorizontal: 16,
+      paddingTop: 10,
+      paddingBottom: 70,
     },
 
     subtitulo: {
@@ -21,7 +20,7 @@ export const criarAnaliseStyles = (cores, modoEscuro) =>
       fontSize: 13,
       color: cores.textoSecundario,
       marginTop: 8,
-      marginBottom: 32,
+      marginBottom: 18,
       paddingHorizontal: 15,
     },
 
@@ -144,7 +143,7 @@ export const criarAnaliseStyles = (cores, modoEscuro) =>
     },
 
     valorGrafico: {
-      fontSize: 19,
+      fontSize: 15,
       fontWeight: "600",
       color: cores.texto,
     },
@@ -179,89 +178,359 @@ export const criarAnaliseStyles = (cores, modoEscuro) =>
     },
 
     cardPrevia: {
-      minHeight: 210,
+      minHeight: 250,
       backgroundColor: cores.card,
       borderWidth: 1,
       borderColor: cores.borda,
       borderRadius: 5,
-      padding: 14,
-      alignItems: "center",
+      padding: 10,
+      alignItems: "stretch",
       elevation: 2,
     },
 
-    paginaDocumento: {
-      width: "76%",
-      minHeight: 200,
-      backgroundColor: "#FFFFFF",
-      borderWidth: 1,
-      borderColor: "#D8E0E8",
-      padding: 8,
+    areaPrevisualizacao: {
+      width: "100%",
+      height: 330,
+      minHeight: 260,
+      backgroundColor: "#F1F3F5",
+      borderRadius: 4,
+      overflow: "hidden",
+      alignItems: "center",
+      justifyContent: "center",
     },
 
-    cabecalhoNota: {
+    imagemPrevisualizacao: {
+      width: "100%",
+      height: "100%",
+    },
+
+    estadoPrevisualizacao: {
+      flex: 1,
+      width: "100%",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24,
+      gap: 12,
+    },
+
+    textoPrevisualizacao: {
+      color: cores.textoSecundario,
+      fontSize: 13,
+      textAlign: "center",
+      lineHeight: 20,
+    },
+
+    erroPrevisualizacao: {
+      color: cores.erro || "#C62828",
+      fontSize: 13,
+      textAlign: "center",
+      lineHeight: 20,
+    },
+
+    // Botões de baixar e atualizar, imediatamente abaixo da prévia.
+    acoesPrevisualizacao: {
+      flexDirection: "row",
+      justifyContent: "center",
+      gap: 12,
+      marginTop: 10,
+      marginBottom: 18,
+    },
+
+    botaoPrevisualizacao: {
+      flex: 1,
+      minHeight: 42,
       flexDirection: "row",
       alignItems: "center",
-      gap: 4,
-      marginBottom: 10,
+      justifyContent: "center",
+      gap: 7,
+      borderWidth: 1,
+      borderColor: cores.vinho,
+      borderRadius: 5,
+      backgroundColor: cores.card,
+      paddingHorizontal: 8,
     },
 
-    logoMicrosoft: {
-      width: 13,
-      height: 13,
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 1,
-    },
-
-    quadradoLaranja: {
-      width: 5,
-      height: 5,
-      backgroundColor: "#F25022",
-    },
-
-    quadradoVerde: {
-      width: 5,
-      height: 5,
-      backgroundColor: "#7FBA00",
-    },
-
-    quadradoAzul: {
-      width: 5,
-      height: 5,
-      backgroundColor: "#00A4EF",
-    },
-
-    quadradoAmarelo: {
-      width: 5,
-      height: 5,
-      backgroundColor: "#FFB900",
-    },
-
-    textoMicrosoft: {
-      fontSize: 9,
-      color: "#555555",
-      flex: 1,
-    },
-
-    textoNfe: {
-      fontSize: 9,
-      color: "#3373A5",
+    textoBotaoPrevisualizacao: {
+      color: cores.vinho,
+      fontSize: 12,
       fontWeight: "600",
     },
 
-    linhaNota: {
-      height: 13,
-      borderWidth: 0.5,
-      borderColor: "#DCE4EC",
-      marginBottom: 4,
+    cardInformacoes: {
+      backgroundColor: cores.card,
+      borderWidth: 1,
+      borderColor: cores.borda,
+      borderRadius: 6,
+      padding: 14,
+      marginTop: 12,
+      elevation: 2,
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
     },
 
-    linhaNotaCurta: {
-      width: "65%",
-      height: 10,
-      borderWidth: 0.5,
-      borderColor: "#DCE4EC",
-      marginBottom: 4,
+    linhaResumoExtracao: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      gap: 10,
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: cores.borda,
+    },
+
+    nomeResumoExtracao: {
+      flex: 1,
+      fontSize: 12,
+      color: cores.textoSecundario,
+      textTransform: "capitalize",
+    },
+
+    valorResumoExtracao: {
+      flex: 1,
+      fontSize: 12,
+      color: cores.texto,
+      textAlign: "right",
+    },
+
+    linhaVerificacao: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 9,
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: cores.borda,
+    },
+
+    conteudoVerificacao: {
+      flex: 1,
+    },
+
+    nomeVerificacao: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: cores.texto,
+    },
+
+    descricaoVerificacao: {
+      fontSize: 10,
+      color: cores.textoSecundario,
+      marginTop: 2,
+    },
+
+    percentualVerificacao: {
+      fontSize: 11,
+      color: cores.texto,
+      fontWeight: "600",
+    },
+
+    // Ações finais da análise.
+    acoesAnalise: {
+      gap: 10,
+      marginTop: 16,
+      marginBottom: 12,
+    },
+
+    botaoAcaoAnalise: {
+      minHeight: 46,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      borderWidth: 1,
+      borderColor: cores.vinho,
+      borderRadius: 5,
+      backgroundColor: cores.card,
+      paddingHorizontal: 12,
+    },
+
+    botaoAcaoAnaliseAtivo: {
+      backgroundColor: modoEscuro ? "#3A252B" : "#F8EDEF",
+    },
+
+    botaoSalvarAnalise: {
+      backgroundColor: cores.vinho,
+    },
+
+    textoAcaoAnalise: {
+      color: cores.vinho,
+      fontSize: 13,
+      fontWeight: "600",
+    },
+
+    textoSalvarAnalise: {
+      color: "#FFFFFF",
+      fontSize: 13,
+      fontWeight: "600",
+    },
+
+    botaoDesativado: {
+      opacity: 0.45,
+    },
+
+    // Mensagens de retorno das ações.
+    mensagemErroAcao: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      padding: 12,
+      marginTop: 5,
+      marginBottom: 10,
+      backgroundColor: modoEscuro ? "#3B2020" : "#FFF0F0",
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: "#E7B9B9",
+    },
+
+    textoMensagemErro: {
+      flex: 1,
+      fontSize: 12,
+      color: modoEscuro ? "#FFAAAA" : "#A32222",
+    },
+
+    mensagemSucessoAcao: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      padding: 12,
+      marginTop: 5,
+      marginBottom: 10,
+      backgroundColor: modoEscuro ? "#183A2A" : "#EAF7ED",
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: "#B7D9BE",
+    },
+
+    textoMensagemSucesso: {
+      flex: 1,
+      fontSize: 12,
+      color: modoEscuro ? "#9DE4AD" : "#17652D",
+    },
+
+    // Área de edição.
+    cardEdicao: {
+      backgroundColor: cores.card,
+      borderWidth: 1,
+      borderColor: cores.borda,
+      borderRadius: 5,
+      padding: 16,
+      marginTop: 10,
+      marginBottom: 15,
+    },
+
+    tituloEdicao: {
+      fontSize: 15,
+      fontWeight: "700",
+      color: cores.primario,
+      marginBottom: 5,
+    },
+
+    descricaoEdicao: {
+      fontSize: 11,
+      color: cores.textoSecundario,
+      marginBottom: 12,
+    },
+
+    campoEdicao: {
+      paddingVertical: 9,
+      borderBottomWidth: 1,
+      borderBottomColor: cores.borda,
+    },
+
+    inputEdicao: {
+      minHeight: 40,
+      borderWidth: 1,
+      borderColor: cores.borda,
+      borderRadius: 5,
+      backgroundColor: cores.input,
+      color: cores.texto,
+      fontSize: 13,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      marginTop: 6,
+    },
+
+    avisoEdicao: {
+      fontSize: 11,
+      lineHeight: 17,
+      color: cores.textoSecundario,
+      marginTop: 14,
+    },
+
+    // Modal de confirmação.
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0,0,0,0.55)",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 24,
+    },
+
+    modalExclusao: {
+      width: "100%",
+      maxWidth: 380,
+      backgroundColor: cores.card,
+      borderRadius: 9,
+      padding: 24,
+      alignItems: "center",
+      elevation: 8,
+    },
+
+    tituloModal: {
+      fontSize: 17,
+      fontWeight: "700",
+      color: cores.texto,
+      marginTop: 14,
+      marginBottom: 8,
+    },
+
+    textoModal: {
+      fontSize: 13,
+      color: cores.textoSecundario,
+      textAlign: "center",
+      lineHeight: 20,
+      marginBottom: 22,
+    },
+
+    acoesModal: {
+      width: "100%",
+      flexDirection: "row",
+      justifyContent: "center",
+      gap: 10,
+    },
+
+    botaoCancelarModal: {
+      flex: 1,
+      minHeight: 42,
+      borderWidth: 1,
+      borderColor: cores.borda,
+      borderRadius: 5,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 10,
+    },
+
+    textoCancelarModal: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: cores.texto,
+    },
+
+    botaoConfirmarModal: {
+      flex: 1,
+      minHeight: 42,
+      backgroundColor: "#A32222",
+      borderRadius: 5,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 10,
+    },
+
+    textoConfirmarModal: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: "#FFFFFF",
     },
 
     cardDados: {
@@ -310,4 +579,54 @@ export const criarAnaliseStyles = (cores, modoEscuro) =>
     infoEvento: {
       flex: 1,
     },
+
+   botaoExcluirAnalise: {
+  minHeight: 46,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  borderWidth: 1,
+  borderColor: cores.vinho,
+  borderRadius: 5,
+  backgroundColor: cores.card,
+  paddingHorizontal: 12,
+},
+
+textoExcluirAnalise: {
+  color: cores.vinho,
+  fontSize: 13,
+  fontWeight: "600",
+},
+
+botaoCancelarModal: {
+  flex: 1,
+  minHeight: 42,
+  borderWidth: 1,
+  borderColor: cores.vinho,
+  borderRadius: 5,
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+textoCancelarModal: {
+  fontSize: 12,
+  fontWeight: "600",
+  color: cores.vinho,
+},
+
+botaoConfirmarModal: {
+  flex: 1,
+  minHeight: 42,
+  backgroundColor: cores.vinho,
+  borderRadius: 5,
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+textoConfirmarModal: {
+  fontSize: 12,
+  fontWeight: "600",
+  color: "#FFFFFF",
+},
   });

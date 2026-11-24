@@ -129,7 +129,7 @@ GO
 PRINT 'LabFlowDB pronto.';
 GO
 
-select * from Documento 
+select * from Usuario
 
 
 UPDATE Usuario

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
+import { useFocusEffect } from "expo-router";
 import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { atendimentoStyles as styles } from "./AtendimentoStyles";
@@ -27,11 +28,9 @@ export default function Atendimento({ navigation }) {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
-  const { cores, modoEscuro } = useTema();
+  const { cores } = useTema();
 
-  async function carregarDocumentos() {
-    console.log("ENTROU NA FUNÇÃO carregarDocumentos");
-
+  const carregarDocumentos = useCallback(async () => {
     try {
       setCarregando(true);
       setErro(null);
@@ -42,14 +41,14 @@ export default function Atendimento({ navigation }) {
       });
 
       console.log("DOCUMENTOS RECEBIDOS:", resposta);
-      console.log("QUANTIDADE:", resposta?.length);
 
       const lista = Array.isArray(resposta)
         ? resposta
         : resposta?.documentos ||
-        resposta?.dados ||
-        resposta?.items ||
-        [];
+          resposta?.dados ||
+          resposta?.items ||
+          resposta?.itens ||
+          [];
 
       setDocumentos(lista);
     } catch (falha) {
@@ -61,11 +60,16 @@ export default function Atendimento({ navigation }) {
     } finally {
       setCarregando(false);
     }
-  }
-
-  useEffect(() => {
-    carregarDocumentos();
   }, []);
+
+  // Atualiza os documentos sempre que a tela recebe foco.
+  useFocusEffect(
+    useCallback(() => {
+      carregarDocumentos();
+
+      return undefined;
+    }, [carregarDocumentos])
+  );
 
   const filtros = [
     "Todos",
@@ -190,13 +194,6 @@ export default function Atendimento({ navigation }) {
                 documento.statusDocumento
               );
 
-              const corStatus =
-                statusInfo.cor;
-
-              const backgroundStatus = modoEscuro
-                ? "#263A38"
-                : "#E3F1F0";
-
               return (
                 <TouchableOpacity
                   key={documento.idDocumento}
@@ -240,14 +237,14 @@ export default function Atendimento({ navigation }) {
                       style={[
                         styles.status,
                         {
-                          backgroundColor: backgroundStatus,
+                          backgroundColor: statusInfo.fundo,
                         },
                       ]}
                     >
                       <Text
                         style={[
                           styles.textoStatus,
-                          { color: corStatus },
+                          { color: statusInfo.cor },
                         ]}
                       >
                         {statusInfo.rotulo}

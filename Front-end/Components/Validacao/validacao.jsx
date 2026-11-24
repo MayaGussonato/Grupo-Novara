@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
+
+import { useFocusEffect } from "expo-router";
 
 import {
   useFonts,
@@ -23,19 +25,21 @@ import styles from "./validacaoStyle";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
 import { useTema } from "../tema/TemaContext";
+
 import { listarDocumentos } from "../../Services/documentoService";
+
 import {
   formatarTamanho,
   formatarData,
   statusParaInterface,
 } from "../../Services/formatadores";
 
-const filtros = ["Todos", "Revisando", "Aprovados", "Erros"];
-
-const filtrosPeriodo = [
-  { valor: "mes", texto: "Último mês" },
-  { valor: "antigos", texto: "Mais antigos" },
-  { valor: "todos", texto: "Todos os períodos" },
+const filtros = [
+  "Todos",
+  "Processando",
+  "Revisando",
+  "Aprovados",
+  "Erros",
 ];
 
 function extrairLista(resposta) {
@@ -73,10 +77,7 @@ export default function Validacao({ navigation }) {
   const [pesquisa, setPesquisa] = useState("");
   const [filtro, setFiltro] = useState("Todos");
 
-  // A tela começa mostrando os documentos do último mês.
-  const [periodo, setPeriodo] = useState("mes");
-
-  // Ordenação por data ou nome.
+  const [periodo] = useState("mes");
   const [ordenacao, setOrdenacao] = useState("recentes");
 
   const [pagina, setPagina] = useState(1);
@@ -99,7 +100,7 @@ export default function Validacao({ navigation }) {
     Poppins_700Bold,
   });
 
-  async function carregarDocumentos() {
+  const carregarDocumentos = useCallback(async () => {
     try {
       setErro(null);
 
@@ -112,6 +113,7 @@ export default function Validacao({ navigation }) {
 
       const normalizados = lista.map((doc) => ({
         id: String(doc.idDocumento),
+        idDocumento: doc.idDocumento,
         nome: doc.nomeArquivo || "Documento sem nome",
         tamanho: formatarTamanho(doc.tamanhoBytes),
         formato: (doc.formato || "").toUpperCase(),
@@ -125,19 +127,27 @@ export default function Validacao({ navigation }) {
 
       setDocumentos(normalizados);
     } catch (falha) {
+      console.error("ERRO AO BUSCAR DOCUMENTOS:", falha);
+
       setErro(
         falha.message || "Não foi possível carregar os documentos."
       );
+
       setDocumentos([]);
     } finally {
       setCarregando(false);
       setAtualizando(false);
     }
-  }
-
-  useEffect(() => {
-    carregarDocumentos();
   }, []);
+
+  // Busca novamente os documentos sempre que a tela é aberta.
+  useFocusEffect(
+    useCallback(() => {
+      carregarDocumentos();
+
+      return undefined;
+    }, [carregarDocumentos])
+  );
 
   function atualizar() {
     setAtualizando(true);
@@ -148,7 +158,6 @@ export default function Validacao({ navigation }) {
 
   const quantidadePorPagina = 4;
 
-  // Define a data limite de um mês atrás.
   const hoje = new Date();
   const dataLimite = subtrairUmMes(hoje);
 
@@ -212,11 +221,6 @@ export default function Validacao({ navigation }) {
     pagina * quantidadePorPagina
   );
 
-  function alterarPeriodo(novoPeriodo) {
-    setPeriodo(novoPeriodo);
-    setPagina(1);
-  }
-
   function alterarOrdenacao() {
     setOrdenacao((atual) => {
       if (atual === "recentes") return "antigos";
@@ -227,13 +231,9 @@ export default function Validacao({ navigation }) {
     setPagina(1);
   }
 
-  function corStatus(item) {
-    return item.cor || "#398BFF";
-  }
-
   function abrirDocumento(item) {
     navigation?.navigate?.("Analise", {
-      idDocumento: item.id,
+      idDocumento: item.idDocumento,
       nomeDocumento: item.nome,
     });
   }
@@ -257,7 +257,6 @@ export default function Validacao({ navigation }) {
           Gerencie e acompanhe seus documentos
         </Text>
 
-        {/* Pesquisa */}
         <TextInput
           style={[
             styles.pesquisa,
@@ -276,7 +275,6 @@ export default function Validacao({ navigation }) {
           }}
         />
 
-        {/* Filtros de status */}
         <View style={styles.filtros}>
           {filtros.map((item) => (
             <TouchableOpacity
@@ -309,9 +307,6 @@ export default function Validacao({ navigation }) {
           ))}
         </View>
 
-        {/* Filtro de período */}
-
-        {/* Quantidade e ordenação */}
         <View style={styles.linhaOrdenacao}>
           <Text
             style={[
@@ -342,7 +337,6 @@ export default function Validacao({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* Lista */}
         <FlatList
           data={documentosPagina}
           keyExtractor={(item) => item.id}
@@ -366,19 +360,32 @@ export default function Validacao({ navigation }) {
                 color={cores.primario}
               />
             ) : (
-              <Text
-                style={[
-                  styles.vazio,
-                  { color: cores.textoSecundario },
-                ]}
-              >
-                {erro ||
-                  (periodo === "mes"
-                    ? "Nenhum documento enviado no último mês."
-                    : periodo === "antigos"
-                      ? "Nenhum documento antigo encontrado."
-                      : "Nenhum documento encontrado.")}
-              </Text>
+              <View style={{ alignItems: "center", marginTop: 24 }}>
+                <Text
+                  style={[
+                    styles.vazio,
+                    { color: cores.textoSecundario },
+                  ]}
+                >
+                  {erro ||
+                    (periodo === "mes"
+                      ? "Nenhum documento enviado no último mês."
+                      : periodo === "antigos"
+                        ? "Nenhum documento antigo encontrado."
+                        : "Nenhum documento encontrado.")}
+                </Text>
+
+                {erro ? (
+                  <TouchableOpacity
+                    onPress={carregarDocumentos}
+                    style={{ padding: 12 }}
+                  >
+                    <Text style={{ color: cores.primario }}>
+                      Tentar novamente
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
             )
           }
           renderItem={({ item }) => (
@@ -450,7 +457,7 @@ export default function Validacao({ navigation }) {
                 <View
                   style={[
                     styles.status,
-                    { backgroundColor: corStatus(item) },
+                    { backgroundColor: item.cor },
                   ]}
                 >
                   <Text style={styles.textoStatus}>
@@ -459,7 +466,6 @@ export default function Validacao({ navigation }) {
                 </View>
               </View>
 
-              {/* Progresso */}
               <View
                 style={[
                   styles.fundoProgresso,
@@ -471,7 +477,7 @@ export default function Validacao({ navigation }) {
                     styles.progresso,
                     {
                       width: `${item.progresso}%`,
-                      backgroundColor: corStatus(item),
+                      backgroundColor: item.cor,
                     },
                   ]}
                 />
@@ -489,7 +495,6 @@ export default function Validacao({ navigation }) {
           )}
         />
 
-        {/* Paginação */}
         <View
           style={[
             styles.paginacao,
