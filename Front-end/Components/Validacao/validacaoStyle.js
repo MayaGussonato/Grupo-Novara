@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
 
   filtros: {
     flexDirection: "row",
+    justifyContent: "space-between",
     flexWrap: "wrap",
     gap: 8,
     marginBottom: 18,
@@ -60,8 +61,13 @@ const styles = StyleSheet.create({
   },
 
   ordenacao: {
-    fontFamily: "Poppins_500Medium",
+    fontFamily: "Poppins_400Regular",
     fontSize: 11,
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    overflow: "hidden",
   },
 
   lista: {

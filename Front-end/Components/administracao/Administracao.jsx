@@ -81,8 +81,8 @@ export default function Usuarios({ navigation }) {
   async function alterarPerfil(usuario) {
     const proximoPerfil =
       perfisDisponiveis[
-        (perfisDisponiveis.indexOf(usuario.perfilAcesso) + 1) %
-          perfisDisponiveis.length
+      (perfisDisponiveis.indexOf(usuario.perfilAcesso) + 1) %
+      perfisDisponiveis.length
       ];
 
     try {
@@ -142,7 +142,7 @@ export default function Usuarios({ navigation }) {
                 style={[
                   styles.textoAba,
                   abaAtiva === aba &&
-                    styles.textoAbaSelecionado,
+                  styles.textoAbaSelecionado,
                 ]}
               >
                 {aba}
@@ -198,13 +198,63 @@ export default function Usuarios({ navigation }) {
                   activeOpacity={0.7}
                   onPress={() => {
                     if (!ehAdministrador) {
-                      return;
+                      return (
+                        <View
+                          style={{
+                            flex: 1,
+                            backgroundColor: cores.background,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            padding: 25,
+                          }}
+                        >
+                          <Ionicons
+                            name="lock-closed-outline"
+                            size={55}
+                            color={cores.primario}
+                          />
+
+                          <Text
+                            style={{
+                              color: cores.texto,
+                              fontSize: 18,
+                              fontWeight: "600",
+                              marginTop: 15,
+                            }}
+                          >
+                            Acesso restrito
+                          </Text>
+
+                          <Text
+                            style={{
+                              color: cores.textoSecundario,
+                              textAlign: "center",
+                              marginTop: 8,
+                            }}
+                          >
+                            Somente administradores podem acessar esta área.
+                          </Text>
+
+                          <TouchableOpacity
+                            onPress={() => navigation?.navigate?.("Dashboard")}
+                            style={{
+                              marginTop: 20,
+                              padding: 12,
+                              backgroundColor: cores.primario,
+                              borderRadius: 7,
+                            }}
+                          >
+                            <Text style={{ color: "#FFFFFF" }}>
+                              Voltar ao início
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      );
                     }
 
                     Alert.alert(
                       usuario.nome,
-                      `${usuario.email}\nPerfil: ${usuario.perfilAcesso}\nStatus: ${
-                        ativo ? "Ativo" : "Inativo"
+                      `${usuario.email}\nPerfil: ${usuario.perfilAcesso}\nStatus: ${ativo ? "Ativo" : "Inativo"
                       }`,
                       [
                         {
@@ -213,12 +263,12 @@ export default function Usuarios({ navigation }) {
                         },
                         ...(ativo
                           ? [
-                              {
-                                text: "Excluir",
-                                style: "destructive",
-                                onPress: () => confirmarExclusao(usuario),
-                              },
-                            ]
+                            {
+                              text: "Excluir",
+                              style: "destructive",
+                              onPress: () => confirmarExclusao(usuario),
+                            },
+                          ]
                           : []),
                         { text: "Fechar", style: "cancel" },
                       ]

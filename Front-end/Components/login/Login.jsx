@@ -1,4 +1,6 @@
+
 import React, { useMemo, useState } from "react";
+
 import {
   View,
   Text,
@@ -17,6 +19,9 @@ import { criarLoginStyles } from "./LoginStyles";
 import { useTema } from "../tema/TemaContext";
 import { useAuth } from "../../Services/AuthContext";
 
+import { useIdioma } from "../idioma/IdiomaContext";
+import SeletorIdioma from "../idioma/SeletorIdioma";
+
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -24,6 +29,7 @@ export default function Login({ navigation }) {
 
   const { cores, modoEscuro } = useTema();
   const { entrar: autenticar } = useAuth();
+  const { t } = useIdioma();
 
   const styles = useMemo(
     () => criarLoginStyles(cores, modoEscuro),
@@ -32,14 +38,20 @@ export default function Login({ navigation }) {
 
   async function entrar() {
     if (!email.trim() || !senha) {
-      Alert.alert("Atenção", "Preencha e-mail e senha.");
+      Alert.alert(
+        t("erro"),
+        t("preencherCampos")
+      );
       return;
     }
 
     try {
       await autenticar(email.trim(), senha);
     } catch (erro) {
-      Alert.alert("Erro no login", erro.message);
+      Alert.alert(
+        t("erro"),
+        erro.message
+      );
     }
   }
 
@@ -70,7 +82,8 @@ export default function Login({ navigation }) {
         />
 
         <Text style={styles.slogan}>
-          Automação inteligente{"\n"}de documentos.
+          {t("automacao")}{"\n"}
+          {t("documentos")}
         </Text>
       </View>
 
@@ -81,14 +94,24 @@ export default function Login({ navigation }) {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.boasVindas}>Bem-Vindo (A)</Text>
 
-        <Text style={styles.titulo}>Login</Text>
+        {/* Seletor de idioma */}
+        <View style={{ marginBottom: 22 }}>
+          <SeletorIdioma />
+        </View>
+
+        <Text style={styles.boasVindas}>
+          {t("boasVindas")}
+        </Text>
+
+        <Text style={styles.titulo}>
+          {t("tituloLogin")}
+        </Text>
 
         {/* E-mail */}
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder={t("email")}
           placeholderTextColor={cores.textoSecundario}
           keyboardType="email-address"
           autoCapitalize="none"
@@ -101,7 +124,7 @@ export default function Login({ navigation }) {
         <View style={styles.senhaContainer}>
           <TextInput
             style={styles.inputSenha}
-            placeholder="Senha"
+            placeholder={t("senha")}
             placeholderTextColor={cores.textoSecundario}
             secureTextEntry={!mostrarSenha}
             value={senha}
@@ -132,7 +155,7 @@ export default function Login({ navigation }) {
           }
         >
           <Text style={styles.textoLink}>
-            Esqueceu sua senha?
+            {t("esqueceuSenha")}
           </Text>
         </TouchableOpacity>
 
@@ -143,7 +166,7 @@ export default function Login({ navigation }) {
           onPress={entrar}
         >
           <Text style={styles.textoBotaoEntrar}>
-            Entrar
+            {t("login")}
           </Text>
         </TouchableOpacity>
 
@@ -151,7 +174,9 @@ export default function Login({ navigation }) {
         <View style={styles.divisor}>
           <View style={styles.linha} />
 
-          <Text style={styles.textoOu}>ou</Text>
+          <Text style={styles.textoOu}>
+            {t("ou")}
+          </Text>
 
           <View style={styles.linha} />
         </View>
@@ -174,7 +199,7 @@ export default function Login({ navigation }) {
           />
 
           <Text style={styles.textoGoogle}>
-            Entrar com Google
+            {t("entrarGoogle")}
           </Text>
         </TouchableOpacity>
 
@@ -184,9 +209,10 @@ export default function Login({ navigation }) {
           onPress={() => navigation?.navigate?.("Cadastro")}
         >
           <Text style={styles.textoCriarConta}>
-            Crie uma conta
+            {t("criarConta")}
           </Text>
         </TouchableOpacity>
+
       </ScrollView>
     </LinearGradient>
   );

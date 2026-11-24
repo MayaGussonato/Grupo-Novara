@@ -30,6 +30,8 @@ export default function Atendimento({ navigation }) {
   const { cores, modoEscuro } = useTema();
 
   async function carregarDocumentos() {
+    console.log("ENTROU NA FUNÇÃO carregarDocumentos");
+
     try {
       setCarregando(true);
       setErro(null);
@@ -39,15 +41,20 @@ export default function Atendimento({ navigation }) {
         tamanho: 100,
       });
 
+      console.log("DOCUMENTOS RECEBIDOS:", resposta);
+      console.log("QUANTIDADE:", resposta?.length);
+
       const lista = Array.isArray(resposta)
         ? resposta
         : resposta?.documentos ||
-          resposta?.dados ||
-          resposta?.items ||
-          [];
+        resposta?.dados ||
+        resposta?.items ||
+        [];
 
       setDocumentos(lista);
     } catch (falha) {
+      console.error("ERRO AO BUSCAR DOCUMENTOS:", falha);
+
       setErro(
         falha.message || "Não foi possível carregar os documentos."
       );

@@ -1,5 +1,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
+
 import {
   View,
   Text,
@@ -10,16 +11,19 @@ import {
 
 import Ionicons from "@react-native-vector-icons/ionicons";
 import MaterialCommunityIcons from "@react-native-vector-icons/material-design-icons";
+import Svg, { Circle } from "react-native-svg";
 
 import { criarAnaliseStyles } from "./AnaliseStyles";
 import Footer from "../footer/Footer";
 import Header from "../header/Header";
 import { useTema } from "../tema/TemaContext";
+
 import {
   buscarDocumento,
   buscarExtracoes,
   buscarHistorico,
 } from "../../Services/documentoService";
+
 import {
   formatarData,
   formatarDataHora,
@@ -45,36 +49,70 @@ export default function Analise({ route, navigation }) {
 
   const idDocumento = route?.params?.idDocumento;
 
+  // Estados
   const [documento, setDocumento] = useState(null);
   const [extracao, setExtracao] = useState(null);
   const [historico, setHistorico] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
+  // Cálculo do gráfico: precisa ficar depois da declaração de extracao.
+  const valorConfianca = Number(extracao?.nivelConfianca);
+
+  const temConfianca =
+    extracao?.nivelConfianca !== null &&
+    extracao?.nivelConfianca !== undefined &&
+    extracao?.nivelConfianca !== "" &&
+    Number.isFinite(valorConfianca) &&
+    valorConfianca >= 0 &&
+    valorConfianca <= 100;
+
+  const progressoConfianca = temConfianca
+    ? valorConfianca
+    : 0;
+
+  const raioGrafico = 52;
+  const circunferencia = 2 * Math.PI * raioGrafico;
+
+  // Carregar informações do documento
   useEffect(() => {
     let ativo = true;
 
     async function carregar() {
       if (!idDocumento) {
+        setErro("Nenhum documento foi selecionado.");
         setCarregando(false);
         return;
       }
 
       try {
+        setCarregando(true);
         setErro(null);
 
         const doc = await buscarDocumento(idDocumento);
 
-        // A extração mais recente é a que aparece em "Dados Extraídos"
         const extracoes = await buscarExtracoes(idDocumento);
-        const ultima = Array.isArray(extracoes) && extracoes.length > 0
-          ? extracoes[0]
-          : null;
+
+        const listaExtracoes = Array.isArray(extracoes)
+          ? extracoes
+          : extracoes?.dados ||
+            extracoes?.items ||
+            extracoes?.extracoes ||
+            [];
+
+        const ultima =
+          listaExtracoes.length > 0
+            ? listaExtracoes[0]
+            : null;
 
         let hist = [];
 
         try {
-          hist = await buscarHistorico(idDocumento);
+          const respostaHistorico = await buscarHistorico(idDocumento);
+
+          hist = Array.isArray(respostaHistorico)
+            ? respostaHistorico
+            : respostaHistorico?.dados || [];
         } catch {
           hist = [];
         }
@@ -82,11 +120,14 @@ export default function Analise({ route, navigation }) {
         if (ativo) {
           setDocumento(doc);
           setExtracao(ultima);
-          setHistorico(Array.isArray(hist) ? hist : []);
+          setHistorico(hist);
         }
       } catch (falha) {
         if (ativo) {
-          setErro(falha.message || "Não foi possível carregar o documento.");
+          setErro(
+            falha.message ||
+              "Não foi possível carregar o documento."
+          );
         }
       } finally {
         if (ativo) {
@@ -103,11 +144,15 @@ export default function Analise({ route, navigation }) {
   }, [idDocumento]);
 
   const nomeDocumento =
-    documento?.nomeArquivo || route?.params?.nomeDocumento || "Documento";
+    documento?.nomeArquivo ||
+    route?.params?.nomeDocumento ||
+    "Documento";
 
-  const statusInfo = statusParaInterface(documento?.statusDocumento);
+  const statusInfo = statusParaInterface(
+    documento?.statusDocumento
+  );
 
-  // JSON gravado em Extracao.Dados_Estruturados (vem como texto)
+  // Interpretar os dados estruturados da extração
   const dadosJson = useMemo(() => {
     if (!extracao?.dadosEstruturados) {
       return {};
@@ -116,13 +161,15 @@ export default function Analise({ route, navigation }) {
     try {
       const bruto = extracao.dadosEstruturados;
 
-      return typeof bruto === "string" ? JSON.parse(bruto) : bruto;
+      return typeof bruto === "string"
+        ? JSON.parse(bruto)
+        : bruto;
     } catch {
       return {};
     }
   }, [extracao]);
 
-  // Converte o JSON da extração em pares campo/valor para a aba de dados
+  // Transformar os dados em pares de campo e valor
   const dadosExtraidos = useMemo(() => {
     const linhas = [];
 
@@ -144,8 +191,14 @@ export default function Analise({ route, navigation }) {
         return;
       }
 
-      if (typeof valor === "string" && chave !== "observacoes") {
-        linhas.push([chave.replace(/_/g, " "), valor]);
+      if (
+        typeof valor === "string" &&
+        chave !== "observacoes"
+      ) {
+        linhas.push([
+          chave.replace(/_/g, " "),
+          valor,
+        ]);
       }
     });
 
@@ -153,6 +206,7 @@ export default function Analise({ route, navigation }) {
   }, [dadosJson]);
 
   const camposComValor = dadosExtraidos.length;
+
   const camposConferidos = Object.values(dadosJson).filter(
     (valor) =>
       valor &&
@@ -160,25 +214,31 @@ export default function Analise({ route, navigation }) {
       valor.conferido === true
   ).length;
 
+  // Indicadores
   const indicadores = [
-  {
-    texto: "Campos Extraídos",
-    valor: String(camposComValor),
-    icone: "checkmark-circle-outline",
-    cor: corSucesso,
-  },
-  {
-    texto: "Campos Confirmados",
-    valor: String(camposConferidos),
-    icone: "checkmark-circle-outline",
-    cor: corSucesso,
-  },
+    {
+      texto: "Campos Extraídos",
+      valor: String(camposComValor),
+      icone: "checkmark-circle-outline",
+      cor: corSucesso,
+    },
+    {
+      texto: "Campos Confirmados",
+      valor: String(camposConferidos),
+      icone: "checkmark-circle-outline",
+      cor: corSucesso,
+    },
     {
       texto: "Nível de Confiança",
-      valor: formatarConfianca(extracao?.nivelConfianca),
+      valor: temConfianca
+        ? formatarConfianca(valorConfianca)
+        : "—",
       icone: "analytics-outline",
-      cor:
-        Number(extracao?.nivelConfianca) >= 90 ? corSucesso : corAlerta,
+      cor: temConfianca
+        ? valorConfianca >= 90
+          ? corSucesso
+          : corAlerta
+        : cores.textoSecundario,
     },
     {
       texto: "Tecnologia",
@@ -197,11 +257,12 @@ export default function Analise({ route, navigation }) {
           Resultado do processamento gerado pela IA
         </Text>
       </View>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-
+        {/* Informações do documento */}
         <View style={styles.documento}>
           <MaterialCommunityIcons
             name="file-pdf-box"
@@ -216,9 +277,11 @@ export default function Analise({ route, navigation }) {
 
             <Text style={styles.detalheDocumento}>
               {(documento?.formato || "").toUpperCase()}
+
               {documento?.tamanhoBytes
                 ? `    ${formatarTamanho(documento.tamanhoBytes)}`
                 : ""}
+
               {documento?.dataEnvio
                 ? `    ${formatarData(documento.dataEnvio)}`
                 : ""}
@@ -238,6 +301,7 @@ export default function Analise({ route, navigation }) {
           </View>
         </View>
 
+        {/* Abas */}
         <View style={styles.abas}>
           {abas.map((aba) => (
             <TouchableOpacity
@@ -260,19 +324,85 @@ export default function Analise({ route, navigation }) {
           ))}
         </View>
 
+        {/* RESUMO */}
         {abaAtiva === "Resumo" && (
           <>
             <View style={styles.cardResumo}>
               <View style={styles.areaGrafico}>
                 <View style={styles.grafico}>
+                  <Svg
+                    width={130}
+                    height={130}
+                    viewBox="0 0 130 130"
+                  >
+                    {/* Círculo de fundo */}
+                    <Circle
+                      cx="65"
+                      cy="65"
+                      r={raioGrafico}
+                      stroke={cores.borda}
+                      strokeWidth="13"
+                      fill="none"
+                    />
+
+                    {/* Progresso real */}
+                    {temConfianca && (
+                      <Circle
+                        cx="65"
+                        cy="65"
+                        r={raioGrafico}
+                        stroke={cores.primario}
+                        strokeWidth="13"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeDasharray={[
+                          circunferencia,
+                          circunferencia,
+                        ]}
+                        strokeDashoffset={
+                          circunferencia *
+                          (1 - progressoConfianca / 100)
+                        }
+                        transform="rotate(-90 65 65)"
+                      />
+                    )}
+                  </Svg>
+
                   <View style={styles.graficoInterno}>
-                    <Text style={styles.valorGrafico}>
-                      {formatarConfianca(extracao?.nivelConfianca)}
-                    </Text>
+                    {carregando ? (
+                      <ActivityIndicator
+                        color={cores.primario}
+                      />
+                    ) : (
+                      <Text
+                        style={[
+                          styles.valorGrafico,
+                          !temConfianca &&
+                            styles.graficoSemDados,
+                        ]}
+                      >
+                        {temConfianca
+                          ? `${progressoConfianca
+                              .toFixed(1)
+                              .replace(".", ",")}%`
+                          : "Sem informações"}
+                      </Text>
+                    )}
                   </View>
                 </View>
+
+                <Text
+                  style={{
+                    color: cores.textoSecundario,
+                    fontSize: 11,
+                    marginTop: 12,
+                  }}
+                >
+                  Nível de confiança da análise
+                </Text>
               </View>
 
+              {/* Indicadores */}
               <View style={styles.listaIndicadores}>
                 {indicadores.map((item) => (
                   <View
@@ -297,6 +427,7 @@ export default function Analise({ route, navigation }) {
               </View>
             </View>
 
+            {/* Pré-visualização */}
             <Text style={styles.tituloPrevia}>
               Pré Visualização
             </Text>
@@ -305,9 +436,13 @@ export default function Analise({ route, navigation }) {
               style={styles.cardPrevia}
               activeOpacity={0.8}
               onPress={() =>
-                navigation?.navigate?.("VisualizarDocumento", {
-                  nomeDocumento,
-                })
+                navigation?.navigate?.(
+                  "VisualizarDocumento",
+                  {
+                    idDocumento,
+                    nomeDocumento,
+                  }
+                )
               }
             >
               <View style={styles.paginaDocumento}>
@@ -323,7 +458,9 @@ export default function Analise({ route, navigation }) {
                     Microsoft
                   </Text>
 
-                  <Text style={styles.textoNfe}>NF-e</Text>
+                  <Text style={styles.textoNfe}>
+                    NF-e
+                  </Text>
                 </View>
 
                 <View style={styles.linhaNota} />
@@ -339,6 +476,7 @@ export default function Analise({ route, navigation }) {
           </>
         )}
 
+        {/* DADOS EXTRAÍDOS */}
         {abaAtiva === "Dados Extraídos" && (
           <View style={styles.cardDados}>
             <Text style={styles.tituloSecao}>
@@ -351,10 +489,18 @@ export default function Analise({ route, navigation }) {
                 color={cores.primario}
               />
             ) : dadosExtraidos.length > 0 ? (
-              dadosExtraidos.map(([campo, valor]) => (
-                <View key={campo} style={styles.campoExtraido}>
-                  <Text style={styles.nomeCampo}>{campo}</Text>
-                  <Text style={styles.valorCampo}>{valor}</Text>
+              dadosExtraidos.map(([campo, valor], indice) => (
+                <View
+                  key={`${campo}-${indice}`}
+                  style={styles.campoExtraido}
+                >
+                  <Text style={styles.nomeCampo}>
+                    {campo}
+                  </Text>
+
+                  <Text style={styles.valorCampo}>
+                    {String(valor)}
+                  </Text>
                 </View>
               ))
             ) : (
@@ -366,13 +512,24 @@ export default function Analise({ route, navigation }) {
           </View>
         )}
 
+        {/* HISTÓRICO */}
         {abaAtiva === "Histórico" && (
           <View style={styles.cardDados}>
-            <Text style={styles.tituloSecao}>Histórico</Text>
+            <Text style={styles.tituloSecao}>
+              Histórico
+            </Text>
 
-            {historico.length > 0 ? (
-              historico.map((evento) => (
-                <View key={evento.idHistorico} style={styles.evento}>
+            {carregando ? (
+              <ActivityIndicator
+                style={{ marginVertical: 18 }}
+                color={cores.primario}
+              />
+            ) : historico.length > 0 ? (
+              historico.map((evento, indice) => (
+                <View
+                  key={evento.idHistorico || indice}
+                  style={styles.evento}
+                >
                   <Ionicons
                     name="checkmark-circle"
                     size={17}
@@ -380,9 +537,15 @@ export default function Analise({ route, navigation }) {
                   />
 
                   <View style={styles.infoEvento}>
-                    <Text style={styles.nomeCampo}>{evento.acao}</Text>
+                    <Text style={styles.nomeCampo}>
+                      {evento.acao}
+                    </Text>
+
                     <Text style={styles.valorCampo}>
-                      {evento.detalhes ? `${evento.detalhes} • ` : ""}
+                      {evento.detalhes
+                        ? `${evento.detalhes} • `
+                        : ""}
+
                       {formatarDataHora(evento.dataHora)}
                     </Text>
                   </View>
