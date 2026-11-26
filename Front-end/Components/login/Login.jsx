@@ -14,6 +14,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@react-native-vector-icons/ionicons";
+import { useRouter } from "expo-router";
 
 import { criarLoginStyles } from "./LoginStyles";
 import { useTema } from "../tema/TemaContext";
@@ -22,7 +23,9 @@ import { useAuth } from "../../Services/AuthContext";
 import { useIdioma } from "../idioma/IdiomaContext";
 import SeletorIdioma from "../idioma/SeletorIdioma";
 
-export default function Login({ navigation }) {
+export default function Login() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -38,20 +41,14 @@ export default function Login({ navigation }) {
 
   async function entrar() {
     if (!email.trim() || !senha) {
-      Alert.alert(
-        t("erro"),
-        t("preencherCampos")
-      );
+      Alert.alert(t("erro"), t("preencherCampos"));
       return;
     }
 
     try {
       await autenticar(email.trim(), senha);
     } catch (erro) {
-      Alert.alert(
-        t("erro"),
-        erro.message
-      );
+      Alert.alert(t("erro"), erro.message);
     }
   }
 
@@ -68,7 +65,6 @@ export default function Login({ navigation }) {
     >
       <StatusBar style="light" />
 
-      {/* Banner superior */}
       <View style={styles.banner}>
         <Image
           source={require("../../assets/fundo.png")}
@@ -87,15 +83,12 @@ export default function Login({ navigation }) {
         </Text>
       </View>
 
-      {/* Cartão de login */}
       <ScrollView
         style={styles.cartao}
         contentContainerStyle={styles.conteudoCartao}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-
-        {/* Seletor de idioma */}
         <View style={{ marginBottom: 22 }}>
           <SeletorIdioma />
         </View>
@@ -108,7 +101,6 @@ export default function Login({ navigation }) {
           {t("tituloLogin")}
         </Text>
 
-        {/* E-mail */}
         <TextInput
           style={styles.input}
           placeholder={t("email")}
@@ -120,7 +112,6 @@ export default function Login({ navigation }) {
           onChangeText={setEmail}
         />
 
-        {/* Senha */}
         <View style={styles.senhaContainer}>
           <TextInput
             style={styles.inputSenha}
@@ -136,30 +127,22 @@ export default function Login({ navigation }) {
             onPress={() => setMostrarSenha(!mostrarSenha)}
           >
             <Ionicons
-              name={
-                mostrarSenha
-                  ? "eye-off-outline"
-                  : "eye-outline"
-              }
+              name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
               size={20}
               color={cores.textoSecundario}
             />
           </TouchableOpacity>
         </View>
 
-        {/* Recuperar senha */}
         <TouchableOpacity
           style={styles.esqueciSenha}
-          onPress={() =>
-            navigation?.navigate?.("RecuperarSenha")
-          }
+          onPress={() => router.push("/recuperar-senha")}
         >
           <Text style={styles.textoLink}>
             {t("esqueceuSenha")}
           </Text>
         </TouchableOpacity>
 
-        {/* Entrar */}
         <TouchableOpacity
           style={styles.botaoEntrar}
           activeOpacity={0.8}
@@ -170,18 +153,12 @@ export default function Login({ navigation }) {
           </Text>
         </TouchableOpacity>
 
-        {/* Divisor */}
         <View style={styles.divisor}>
           <View style={styles.linha} />
-
-          <Text style={styles.textoOu}>
-            {t("ou")}
-          </Text>
-
+          <Text style={styles.textoOu}>{t("ou")}</Text>
           <View style={styles.linha} />
         </View>
 
-        {/* Google */}
         <TouchableOpacity
           style={styles.botaoGoogle}
           activeOpacity={0.8}
@@ -203,16 +180,14 @@ export default function Login({ navigation }) {
           </Text>
         </TouchableOpacity>
 
-        {/* Criar conta */}
         <TouchableOpacity
           style={styles.criarConta}
-          onPress={() => navigation?.navigate?.("Cadastro")}
+          onPress={() => router.push("/cadastro")}
         >
           <Text style={styles.textoCriarConta}>
             {t("criarConta")}
           </Text>
         </TouchableOpacity>
-
       </ScrollView>
     </LinearGradient>
   );

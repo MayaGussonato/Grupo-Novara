@@ -18,6 +18,7 @@ import ValidacaoMobile from "./Components/Validacao/validacao";
 import DadosMobile from "./Components/dados/Dados";
 import AdministracaoMobile from "./Components/administracao/Administracao";
 import PerfilMobile from "./Components/perfil/Perfil";
+import RecuperarSenhaMobile from "./Components/recuperarSenha/RecuperarSenha";
 
 // DESKTOP
 import { PreferencesProvider, usePreferences } from "./context/PreferencesContext";
@@ -294,6 +295,7 @@ function AppDesktop() {
 // APLICAÇÃO MOBILE E TABLET
 // ==========================================
 
+
 function AppMobile() {
   const { usuario, carregando, entrar, sair } = useAuth();
 
@@ -308,7 +310,7 @@ function AppMobile() {
 
     goBack: () => {
       setParametros({});
-      setTela("Dashboard");
+      setTela(usuario ? "Dashboard" : "Login");
     },
   };
 
@@ -316,7 +318,16 @@ function AppMobile() {
     return <ActivityIndicator size="large" />;
   }
 
+  // TELAS SEM AUTENTICAÇÃO
   if (!usuario) {
+    if (tela === "RecuperarSenha") {
+      return (
+        <RecuperarSenhaMobile
+          navigation={navigation}
+        />
+      );
+    }
+
     if (tela === "Cadastro") {
       return (
         <CadastroMobile
@@ -340,9 +351,12 @@ function AppMobile() {
     );
   }
 
+  // TELAS AUTENTICADAS
   switch (tela) {
     case "Importacao":
-      return <ImportacaoMobile navigation={navigation} />;
+      return (
+        <ImportacaoMobile navigation={navigation} />
+      );
 
     case "Analise":
       return (
@@ -353,7 +367,9 @@ function AppMobile() {
       );
 
     case "Validacao":
-      return <ValidacaoMobile navigation={navigation} />;
+      return (
+        <ValidacaoMobile navigation={navigation} />
+      );
 
     case "Dados":
       return (
@@ -372,7 +388,9 @@ function AppMobile() {
         return null;
       }
 
-      return <AdministracaoMobile navigation={navigation} />;
+      return (
+        <AdministracaoMobile navigation={navigation} />
+      );
 
     case "Perfil":
       return (
@@ -392,36 +410,4 @@ function AppMobile() {
         />
       );
   }
-}
-
-// ==========================================
-// DETECÇÃO AUTOMÁTICA DA TELA
-// ==========================================
-
-function AppResponsive() {
-  const { width } = useWindowDimensions();
-
-  const ehDesktop = width >= 1024;
-
-  return (
-    <PreferencesProvider>
-      {ehDesktop ? <AppDesktop /> : <AppMobile />}
-    </PreferencesProvider>
-  );
-}
-
-// ==========================================
-// PROVEDORES GLOBAIS
-// ==========================================
-
-export default function App() {
-  return (
-    <IdiomaProvider>
-      <TemaProvider>
-        <AuthProvider>
-          <AppResponsive />
-        </AuthProvider>
-      </TemaProvider>
-    </IdiomaProvider>
-  );
 }
