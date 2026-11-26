@@ -10,10 +10,11 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  Modal,
 } from "react-native";
 
+import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import { Picker } from "@react-native-picker/picker";
 
 import { cadastroStyles as styles } from "./CadastroStyles";
 import { useTema } from "../tema/TemaContext";
@@ -26,7 +27,7 @@ const opcoes = [
   { label: "Estagiário", value: "estagiario" },
 ];
 
-// Seletor de cargo
+// Seletor personalizado de cargo
 function Seletor({
   valor,
   aoMudar,
@@ -34,48 +35,131 @@ function Seletor({
   cores,
   erro,
 }) {
-  return (
-    <View
-      style={[
-        styles.cargoContainer,
-        {
-          backgroundColor: cores.input,
-          borderColor: erro ? "#E53935" : cores.borda,
-        },
-      ]}
-    >
-      <Picker
-        selectedValue={valor}
-        onValueChange={aoMudar}
-        mode="dropdown"
-        itemStyle={{ color: cores.texto }}
-        dropdownIconColor={cores.textoSecundario}
-        style={[
-          styles.cargoPicker,
-          {
-            color: cores.texto,
-            backgroundColor: cores.input,
-          },
-        ]}
-      >
-        <Picker.Item
-          label={placeholder}
-          value=""
-          style={{
-            backgroundColor: cores.input,
-            color: cores.textoSecundario,
-          }}
-        />
+  const [aberto, setAberto] = useState(false);
 
-        {opcoes.map((opcao) => (
-          <Picker.Item
-            key={opcao.value}
-            label={opcao.label}
-            value={opcao.value}
-          />
-        ))}
-      </Picker>
-    </View>
+  const selecionado = opcoes.find(
+    (opcao) => opcao.value === valor
+  );
+
+  return (
+    <>
+      <TouchableOpacity
+        style={[
+          styles.cargoContainer,
+          {
+            backgroundColor: cores.input,
+            borderColor: erro ? "#E53935" : cores.borda,
+          },
+          estilosExtras.seletor,
+        ]}
+        onPress={() => setAberto(true)}
+        activeOpacity={0.8}
+      >
+        <Text
+          style={{
+            color: selecionado
+              ? cores.texto
+              : cores.textoSecundario,
+            fontSize: 15,
+            flex: 1,
+          }}
+        >
+          {selecionado
+            ? selecionado.label
+            : placeholder}
+        </Text>
+
+        <Ionicons
+          name="chevron-down"
+          size={21}
+          color={cores.textoSecundario}
+        />
+      </TouchableOpacity>
+
+      <Modal
+        visible={aberto}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setAberto(false)}
+      >
+        <TouchableOpacity
+          style={estilosExtras.modalFundo}
+          activeOpacity={1}
+          onPress={() => setAberto(false)}
+        >
+          <View
+            style={[
+              estilosExtras.modalConteudo,
+              {
+                backgroundColor: cores.card,
+                borderColor: cores.borda,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                estilosExtras.modalTitulo,
+                { color: cores.texto },
+              ]}
+            >
+              Selecione um cargo
+            </Text>
+
+            {opcoes.map((opcao) => (
+              <TouchableOpacity
+                key={opcao.value}
+                style={[
+                  estilosExtras.opcao,
+                  {
+                    backgroundColor:
+                      valor === opcao.value
+                        ? cores.input
+                        : "transparent",
+                  },
+                ]}
+                onPress={() => {
+                  aoMudar(opcao.value);
+                  setAberto(false);
+                }}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={{
+                    color: cores.texto,
+                    fontSize: 15,
+                  }}
+                >
+                  {opcao.label}
+                </Text>
+
+                {valor === opcao.value && (
+                  <Ionicons
+                    name="checkmark"
+                    size={21}
+                    color={cores.primario}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              style={estilosExtras.botaoFechar}
+              onPress={() => setAberto(false)}
+            >
+              <Text
+                style={{
+                  color: cores.primario,
+                  fontWeight: "600",
+                }}
+              >
+                Fechar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </>
   );
 }
 
@@ -85,6 +169,7 @@ export default function Cadastro({ navigation }) {
   const [senha, setSenha] = useState("");
   const [cargo, setCargo] = useState("");
 
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [tentouCadastrar, setTentouCadastrar] = useState(false);
   const [carregando, setCarregando] = useState(false);
 
@@ -100,16 +185,16 @@ export default function Cadastro({ navigation }) {
     email: !email.trim()
       ? "O email é obrigatório."
       : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-      ? "Digite um email válido."
-      : "",
+        ? "Digite um email válido."
+        : "",
 
     senha: !senha
       ? "A senha é obrigatória."
       : senha.length < 8
-      ? "A senha precisa ter no mínimo 8 caracteres."
-      : senha.length > 72
-      ? "A senha não pode ultrapassar 72 caracteres."
-      : "",
+        ? "A senha precisa ter no mínimo 8 caracteres."
+        : senha.length > 72
+          ? "A senha não pode ultrapassar 72 caracteres."
+          : "",
 
     cargo: !cargo
       ? "Selecione um cargo."
@@ -296,25 +381,54 @@ export default function Cadastro({ navigation }) {
               Senha
             </Text>
 
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: cores.input,
-                  borderColor:
-                    tentouCadastrar && erros.senha
-                      ? "#E53935"
-                      : cores.borda,
-                  color: cores.texto,
-                },
-              ]}
-              placeholder="Mínimo de 8 caracteres"
-              placeholderTextColor={cores.textoSecundario}
-              value={senha}
-              onChangeText={setSenha}
-              secureTextEntry
-              autoComplete="new-password"
-            />
+            <View
+              style={{
+                position: "relative",
+                justifyContent: "center",
+              }}
+            >
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: cores.input,
+                    borderColor:
+                      tentouCadastrar && erros.senha
+                        ? "#E53935"
+                        : cores.borda,
+                    color: cores.texto,
+                    paddingRight: 48,
+                  },
+                ]}
+                placeholder="Mínimo de 8 caracteres"
+                placeholderTextColor={cores.textoSecundario}
+                value={senha}
+                onChangeText={setSenha}
+                secureTextEntry={!mostrarSenha}
+                autoComplete="new-password"
+              />
+
+              <TouchableOpacity
+                onPress={() => setMostrarSenha(!mostrarSenha)}
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: 0,
+                  bottom: 15,
+                  justifyContent: "center",
+                }}
+              >
+                <Ionicons
+                  name={
+                    mostrarSenha
+                      ? "eye-off-outline"
+                      : "eye-outline"
+                  }
+                  size={23}
+                  color={cores.textoSecundario}
+                />
+              </TouchableOpacity>
+            </View>
 
             {tentouCadastrar && erros.senha !== "" && (
               <Text style={estiloErro}>
@@ -395,3 +509,49 @@ export default function Cadastro({ navigation }) {
     </ScrollView>
   );
 }
+
+const estilosExtras = {
+  seletor: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+  },
+
+  modalFundo: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.60)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 25,
+  },
+
+  modalConteudo: {
+    width: "100%",
+    maxWidth: 400,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 18,
+  },
+
+  modalTitulo: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 15,
+  },
+
+  opcao: {
+    minHeight: 48,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  botaoFechar: {
+    alignItems: "center",
+    padding: 13,
+    marginTop: 8,
+  },
+};

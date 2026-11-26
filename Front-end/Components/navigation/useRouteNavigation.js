@@ -1,9 +1,11 @@
+
 import { useMemo } from "react";
 import { useRouter, usePathname } from "expo-router";
 
 const rotas = {
   Login: "/login",
   Cadastro: "/cadastro",
+  RecuperarSenha: "/recuperar-senha",
   Dashboard: "/Dashboard",
   Documento: "/atendimento",
   Integrar: "/integracoes",
@@ -14,6 +16,7 @@ const rotas = {
   Administracao: "/administracao",
   Perfil: "/Perfil",
   ProcessamentoInteligente: "/analise",
+  CadastroAdmin: "/cadastroAdmin",
 };
 
 export default function useRouteNavigation() {
@@ -27,28 +30,28 @@ export default function useRouteNavigation() {
 
     return {
       navigate(destino, params) {
-        const pathnameDestino = obterDestino(destino);
+        const caminho = obterDestino(destino);
 
         if (params) {
-          router.replace({
-            pathname: pathnameDestino,
+          router.push({
+            pathname: caminho,
             params,
           });
         } else {
-          router.replace(pathnameDestino);
+          router.push(caminho);
         }
       },
 
       replace(destino, params) {
-        const pathnameDestino = obterDestino(destino);
+        const caminho = obterDestino(destino);
 
         if (params) {
           router.replace({
-            pathname: pathnameDestino,
+            pathname: caminho,
             params,
           });
         } else {
-          router.replace(pathnameDestino);
+          router.replace(caminho);
         }
       },
 
@@ -56,13 +59,15 @@ export default function useRouteNavigation() {
         if (router.canGoBack()) {
           router.back();
         } else {
-          router.replace("/Dashboard");
+          router.replace("/login");
         }
       },
 
       isActive(destino) {
-        return pathname.toLowerCase() ===
-          obterDestino(destino).toLowerCase();
+        return (
+          pathname.toLowerCase() ===
+          obterDestino(destino).toLowerCase()
+        );
       },
     };
   }, [router, pathname]);

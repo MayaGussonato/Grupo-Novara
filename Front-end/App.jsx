@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import {
   View,
@@ -7,20 +6,31 @@ import {
 } from "react-native";
 
 import { StatusBar } from "expo-status-bar";
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+} from "react-native-safe-area-context";
 
-// MOBILE E TABLET
+// MOBILE
 import LoginMobile from "./Components/login/Login";
 import CadastroMobile from "./Components/cadastro/Cadastro";
 import DashboardMobile from "./Components/dashboard/Dashboard";
 import ImportacaoMobile from "./Components/importacao/Importacao";
 import AnaliseMobile from "./Components/analise/Analise";
 import ValidacaoMobile from "./Components/Validacao/validacao";
-import DadosMobile from "./Components/dados/Dados";
 import AdministracaoMobile from "./Components/administracao/Administracao";
 import PerfilMobile from "./Components/perfil/Perfil";
+<<<<<<< HEAD
+import RecuperarSenhaMobile from "./Components/recuperarSenha/RecuperarSenha";
+=======
+import CadastroAdminMobile from "./Components/administracao/CadastroAdmin";
+>>>>>>> abe255b21240e1f423a0fc135508cbfc3c3d080a
 
 // DESKTOP
-import { PreferencesProvider, usePreferences } from "./context/PreferencesContext";
+import {
+  PreferencesProvider,
+  usePreferences,
+} from "./context/PreferencesContext";
 
 import LoginDesktop from "./pages/desktop/login/Login";
 import DashboardDesktop from "./pages/desktop/dashboard/dashboard";
@@ -110,8 +120,8 @@ function AppDesktop() {
     setTela("cadastroUsuario");
   }
 
-  function handleEditUser(usuario) {
-    setEditingUser(usuario);
+  function handleEditUser(usuarioSelecionado) {
+    setEditingUser(usuarioSelecionado);
     setTela("cadastroUsuario");
   }
 
@@ -142,7 +152,13 @@ function AppDesktop() {
 
   if (carregando) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
@@ -282,17 +298,13 @@ function AppDesktop() {
     }
   }
 
-  return (
-    <>
-      <StatusBar style={colors.statusBar} />
-      {renderScreen()}
-    </>
-  );
+  return renderScreen();
 }
 
 // ==========================================
 // APLICAÇÃO MOBILE E TABLET
 // ==========================================
+
 
 function AppMobile() {
   const { usuario, carregando, entrar, sair } = useAuth();
@@ -308,7 +320,22 @@ function AppMobile() {
 
     goBack: () => {
       setParametros({});
-      setTela("Dashboard");
+<<<<<<< HEAD
+      setTela(usuario ? "Dashboard" : "Login");
+=======
+
+      setTela((telaAtual) => {
+        if (telaAtual === "CadastroAdmin") {
+          return "Administracao";
+        }
+
+        if (telaAtual === "Administracao") {
+          return "Dashboard";
+        }
+
+        return "Dashboard";
+      });
+>>>>>>> abe255b21240e1f423a0fc135508cbfc3c3d080a
     },
   };
 
@@ -316,7 +343,20 @@ function AppMobile() {
     return <ActivityIndicator size="large" />;
   }
 
+<<<<<<< HEAD
+  // TELAS SEM AUTENTICAÇÃO
+=======
+  // Usuário ainda não autenticado: Login ou Cadastro público.
+>>>>>>> abe255b21240e1f423a0fc135508cbfc3c3d080a
   if (!usuario) {
+    if (tela === "RecuperarSenha") {
+      return (
+        <RecuperarSenhaMobile
+          navigation={navigation}
+        />
+      );
+    }
+
     if (tela === "Cadastro") {
       return (
         <CadastroMobile
@@ -340,9 +380,18 @@ function AppMobile() {
     );
   }
 
+  // TELAS AUTENTICADAS
   switch (tela) {
     case "Importacao":
-      return <ImportacaoMobile navigation={navigation} />;
+      return (
+<<<<<<< HEAD
+        <ImportacaoMobile navigation={navigation} />
+=======
+        <ImportacaoMobile
+          navigation={navigation}
+        />
+>>>>>>> abe255b21240e1f423a0fc135508cbfc3c3d080a
+      );
 
     case "Analise":
       return (
@@ -353,13 +402,17 @@ function AppMobile() {
       );
 
     case "Validacao":
-      return <ValidacaoMobile navigation={navigation} />;
+<<<<<<< HEAD
+      return (
+        <ValidacaoMobile navigation={navigation} />
+      );
 
     case "Dados":
+=======
+>>>>>>> abe255b21240e1f423a0fc135508cbfc3c3d080a
       return (
-        <DadosMobile
+        <ValidacaoMobile
           navigation={navigation}
-          route={{ params: parametros }}
         />
       );
 
@@ -368,11 +421,50 @@ function AppMobile() {
         usuario?.perfilAcesso?.trim().toLowerCase() !==
         "administrador"
       ) {
-        setTela("Dashboard");
-        return null;
+        return (
+          <DashboardMobile
+            navigation={navigation}
+            usuario={usuario}
+          />
+        );
       }
 
-      return <AdministracaoMobile navigation={navigation} />;
+      return (
+<<<<<<< HEAD
+        <AdministracaoMobile navigation={navigation} />
+=======
+        <AdministracaoMobile
+          navigation={navigation}
+        />
+      );
+
+    case "CadastroAdmin":
+      if (
+        usuario?.perfilAcesso?.trim().toLowerCase() !==
+        "administrador"
+      ) {
+        return (
+          <DashboardMobile
+            navigation={navigation}
+            usuario={usuario}
+          />
+        );
+      }
+
+      return (
+        <CadastroAdminMobile
+          navigation={navigation}
+          onCancelar={() => {
+            setParametros({});
+            setTela("Administracao");
+          }}
+          onSucesso={() => {
+            setParametros({});
+            setTela("Administracao");
+          }}
+        />
+>>>>>>> abe255b21240e1f423a0fc135508cbfc3c3d080a
+      );
 
     case "Perfil":
       return (
@@ -393,6 +485,8 @@ function AppMobile() {
       );
   }
 }
+<<<<<<< HEAD
+=======
 
 // ==========================================
 // DETECÇÃO AUTOMÁTICA DA TELA
@@ -416,12 +510,29 @@ function AppResponsive() {
 
 export default function App() {
   return (
-    <IdiomaProvider>
-      <TemaProvider>
-        <AuthProvider>
-          <AppResponsive />
-        </AuthProvider>
-      </TemaProvider>
-    </IdiomaProvider>
+    <SafeAreaProvider>
+      <StatusBar
+        style="dark"
+        backgroundColor="#FFFFFF"
+        translucent={false}
+      />
+
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: "#FFFFFF",
+        }}
+        edges={["top", "bottom", "left", "right"]}
+      >
+        <IdiomaProvider>
+          <TemaProvider>
+            <AuthProvider>
+              <AppResponsive />
+            </AuthProvider>
+          </TemaProvider>
+        </IdiomaProvider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
+>>>>>>> abe255b21240e1f423a0fc135508cbfc3c3d080a

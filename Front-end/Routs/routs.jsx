@@ -29,6 +29,7 @@ import Dados from "./Components/dados/Dados";
 import Integracoes from "./Components/integracoes/Integracoes";
 import Administracao from "./Components/administracao/Administracao";
 import Perfil from "./Components/perfil/Perfil";
+import RecuperarSenha from "../Components/recuperarSenha/RecuperarSenha"; 
 
 const rotasPorNome = {
   Login: "/login",
@@ -46,7 +47,7 @@ const rotasPorNome = {
   Administracao: "/administracao",
   Usuarios: "/administracao",
   Perfil: "/perfil",
-  RecuperarSenha: "/recuperar-senha",
+  RecuperarSenha: "/Recuperar-Senha",
 };
 
 function Carregando() {

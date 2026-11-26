@@ -61,7 +61,7 @@ export default function Administracao({ navigation }) {
   const { cores, modoEscuro } = useTema();
 
   const ehAdministrador =
-    normalizar(usuarioLogado?.cargo) === "administrador";
+    normalizar(usuarioLogado?.perfilAcesso) === "administrador";;
 
   const styles = useMemo(
     () => criarAdministracaoStyles(cores, modoEscuro),
@@ -99,12 +99,43 @@ export default function Administracao({ navigation }) {
     carregarUsuarios();
   }, [carregarUsuarios]);
 
-  // Ativos primeiro; inativos no final.
+  // Identifica o usuário conectado.
+  const idUsuarioLogado =
+    usuarioLogado?.idUsuario ??
+    usuarioLogado?.IdUsuario ??
+    usuarioLogado?.id;
+
+  const emailUsuarioLogado = normalizar(
+    usuarioLogado?.email ?? usuarioLogado?.Email
+  );
+
+  // Pesquisa, filtros e remoção do próprio usuário da listagem.
   const usuariosFiltrados = useMemo(() => {
     const termo = normalizar(pesquisa);
 
     return [...usuarios]
       .filter((usuario) => {
+        const idUsuario =
+          usuario.idUsuario ??
+          usuario.IdUsuario ??
+          usuario.id;
+
+        const mesmoId =
+          idUsuarioLogado != null &&
+          idUsuario != null &&
+          String(idUsuario) === String(idUsuarioLogado);
+
+        const emailUsuario = normalizar(usuario.email);
+
+        const mesmoEmail =
+          emailUsuarioLogado !== "" &&
+          emailUsuario === emailUsuarioLogado;
+
+        // Não exibe a própria conta do administrador.
+        if (mesmoId || mesmoEmail) {
+          return false;
+        }
+
         const nome = normalizar(usuario.nome);
         const email = normalizar(usuario.email);
         const perfil = normalizar(usuario.perfilAcesso);
@@ -125,7 +156,13 @@ export default function Administracao({ navigation }) {
 
         return Number(ativoB) - Number(ativoA);
       });
-  }, [usuarios, pesquisa, abaAtiva]);
+  }, [
+    usuarios,
+    pesquisa,
+    abaAtiva,
+    idUsuarioLogado,
+    emailUsuarioLogado,
+  ]);
 
   function abrirDetalhes(usuario) {
     setUsuarioSelecionado(usuario);
@@ -189,21 +226,22 @@ export default function Administracao({ navigation }) {
     );
   }
 
+  // Ativa ou inativa a conta conforme o status atual.
   function confirmarAlteracaoStatus(usuario) {
     const estaAtivo = usuario.ativo === true;
 
     Alert.alert(
-      estaAtivo ? "Inativar conta" : "Reativar conta",
+      estaAtivo ? "Inativar conta" : "Ativar conta",
       estaAtivo
         ? `Deseja realmente inativar a conta de ${usuario.nome}?`
-        : `Deseja reativar a conta de ${usuario.nome}?`,
+        : `Deseja realmente ativar a conta de ${usuario.nome}?`,
       [
         {
           text: "Cancelar",
           style: "cancel",
         },
         {
-          text: estaAtivo ? "Inativar" : "Reativar",
+          text: estaAtivo ? "Inativar" : "Ativar",
           style: estaAtivo ? "destructive" : "default",
           onPress: async () => {
             try {
@@ -222,7 +260,7 @@ export default function Administracao({ navigation }) {
                 "Sucesso",
                 estaAtivo
                   ? "A conta foi inativada e movida para o final da lista."
-                  : "A conta foi reativada e voltou para o início da lista."
+                  : "A conta foi ativada e voltou para o início da lista."
               );
             } catch (falha) {
               Alert.alert(
@@ -300,17 +338,18 @@ export default function Administracao({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Header titulo="Administração" />
 
       <ScrollView
         contentContainerStyle={styles.conteudo}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.subtitulo}>
-          Gerenciamento de usuários cadastrados
-        </Text>
-
+        <View style>
+          <Header titulo="Administração" />
+          <Text style={styles.subtitulo}>
+            Gerenciamento de usuários cadastrados
+          </Text>
+        </View>
         <View style={styles.abas}>
           {["Resumo", "Perfil de Acesso"].map((aba) => (
             <TouchableOpacity
@@ -464,7 +503,7 @@ export default function Administracao({ navigation }) {
         <TouchableOpacity
           style={styles.botaoNovo}
           activeOpacity={0.8}
-          onPress={() => navigation?.navigate?.("Cadastro")}
+          onPress={() => navigation?.navigate?.("cadastroAdmin")}
         >
           <Text style={styles.textoBotaoNovo}>
             Novo Usuário
@@ -750,8 +789,8 @@ export default function Administracao({ navigation }) {
                         }}
                       >
                         {selecionadoAtivo
-                          ? "Inativar conta"
-                          : "Reativar conta"}
+                          ? "Inativar usuário"
+                          : "Ativar usuário"}
                       </Text>
                     )}
                   </TouchableOpacity>
