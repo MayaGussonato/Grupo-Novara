@@ -101,7 +101,7 @@ export default function Integracoes() {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.conteudo}
             >
-                <Header />
+                <Header  titulo="Integrações Corporativas"/>
                 <View style={styles.sim}>
                     <Text style={styles.subtitulo}>
                         Conecte o LabFlow aos sistemas da sua

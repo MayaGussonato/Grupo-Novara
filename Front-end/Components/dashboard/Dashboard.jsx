@@ -10,6 +10,8 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Modal,
+  Pressable,
 } from "react-native";
 
 import { StatusBar } from "expo-status-bar";
@@ -38,6 +40,16 @@ export default function Dashboard({ navigation }) {
   const [pendentes, setPendentes] = useState(0);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+
+  // Controle do período do gráfico
+  const [periodoGrafico, setPeriodoGrafico] = useState(6);
+  const [menuPeriodoAberto, setMenuPeriodoAberto] = useState(false);
+
+  const opcoesPeriodo = [
+    { valor: 3, texto: "Últimos 3 meses" },
+    { valor: 6, texto: "Últimos 6 meses" },
+    { valor: 12, texto: "Últimos 12 meses" },
+  ];
 
   // Carrega os dados sempre que o Dashboard recebe foco
   useFocusEffect(
@@ -155,7 +167,7 @@ export default function Dashboard({ navigation }) {
     ];
   }, [documentos, pendentes]);
 
-  // Documentos enviados nos últimos seis meses
+  // Gráfico de documentos enviados no período selecionado
   const meses = useMemo(() => {
     const nomes = [
       "Jan", "Fev", "Mar", "Abr",
@@ -166,7 +178,7 @@ export default function Dashboard({ navigation }) {
     const agora = new Date();
     const baldes = [];
 
-    for (let i = 5; i >= 0; i -= 1) {
+    for (let i = periodoGrafico - 1; i >= 0; i -= 1) {
       const data = new Date(
         agora.getFullYear(),
         agora.getMonth() - i,
@@ -209,7 +221,7 @@ export default function Dashboard({ navigation }) {
       quantidade: item.quantidade,
       valor: (item.quantidade / maior) * 100,
     }));
-  }, [documentos]);
+  }, [documentos, periodoGrafico]);
 
   const escalaGrafico = Math.max(
     1,
@@ -331,6 +343,7 @@ export default function Dashboard({ navigation }) {
             },
           ]}
         >
+          {/* Cabeçalho do gráfico */}
           <View style={styles.cabecalhoGrafico}>
             <Text
               style={[
@@ -341,7 +354,8 @@ export default function Dashboard({ navigation }) {
               Documentos enviados
             </Text>
 
-            <View
+            <Pressable
+              onPress={() => setMenuPeriodoAberto(true)}
               style={[
                 styles.seletorPeriodo,
                 { borderColor: cores.borda },
@@ -353,17 +367,18 @@ export default function Dashboard({ navigation }) {
                   { color: cores.textoSecundario },
                 ]}
               >
-                Últimos 6 meses
+                Últimos {periodoGrafico} meses
               </Text>
 
               <Ionicons
                 name="chevron-down"
-                size={10}
+                size={12}
                 color={cores.textoSecundario}
               />
-            </View>
+            </Pressable>
           </View>
 
+          {/* Área das barras */}
           <View style={styles.grafico}>
             <View style={styles.eixoY}>
               {[4, 3, 2, 1, 0].map((divisao) => (
@@ -443,6 +458,82 @@ export default function Dashboard({ navigation }) {
             </View>
           </View>
         </View>
+
+        {/* Modal para escolher o período */}
+        <Modal
+          visible={menuPeriodoAberto}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setMenuPeriodoAberto(false)}
+        >
+          <Pressable
+            onPress={() => setMenuPeriodoAberto(false)}
+            style={{
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.35)",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 25,
+            }}
+          >
+            <View
+              style={{
+                width: "100%",
+                maxWidth: 300,
+                backgroundColor: cores.card,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: cores.borda,
+                padding: 12,
+              }}
+            >
+              <Text
+                style={{
+                  color: cores.texto,
+                  fontSize: 16,
+                  fontWeight: "600",
+                  marginBottom: 12,
+                }}
+              >
+                Período do gráfico
+              </Text>
+
+              {opcoesPeriodo.map((opcao) => (
+                <Pressable
+                  key={opcao.valor}
+                  onPress={() => {
+                    setPeriodoGrafico(opcao.valor);
+                    setMenuPeriodoAberto(false);
+                  }}
+                  style={{
+                    paddingVertical: 13,
+                    paddingHorizontal: 10,
+                    borderRadius: 8,
+                    backgroundColor:
+                      periodoGrafico === opcao.valor
+                        ? cores.background
+                        : "transparent",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: cores.texto }}>
+                    {opcao.texto}
+                  </Text>
+
+                  {periodoGrafico === opcao.valor && (
+                    <Ionicons
+                      name="checkmark"
+                      size={18}
+                      color={cores.vinho || "#650000"}
+                    />
+                  )}
+                </Pressable>
+              ))}
+            </View>
+          </Pressable>
+        </Modal>
 
         {/* Arquivos recentes */}
         <Text

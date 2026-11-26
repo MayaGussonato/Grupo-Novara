@@ -28,6 +28,9 @@ public partial class LabFlowContext : DbContext
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     public virtual DbSet<Validacao> Validacaos { get; set; }
+    public virtual DbSet<Atendimento> Atendimentos { get; set; }
+
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -57,6 +60,14 @@ public partial class LabFlowContext : DbContext
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Documentos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("Documento_Usuario");
+
+            // dentro do OnModelCreating:
+            modelBuilder.Entity<Atendimento>(entity =>
+            {
+                entity.ToTable("Atendimento");
+                entity.HasKey(e => e.IdAtendimento);
+                entity.Property(e => e.Protocolo).HasMaxLength(20).ValueGeneratedOnAddOrUpdate();
+            });
         });
 
         modelBuilder.Entity<Extracao>(entity =>

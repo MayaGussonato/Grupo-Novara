@@ -64,7 +64,7 @@ export const criarLoginStyles = (cores, modoEscuro) =>
     },
 
     input: {
-      height: 38,
+      height: 40,
       borderWidth: 1,
       borderColor: cores.secundario,
       borderRadius: 5,
@@ -76,7 +76,7 @@ export const criarLoginStyles = (cores, modoEscuro) =>
     },
 
     senhaContainer: {
-      height: 38,
+      height: 40,
       flexDirection: "row",
       alignItems: "center",
       borderWidth: 1,

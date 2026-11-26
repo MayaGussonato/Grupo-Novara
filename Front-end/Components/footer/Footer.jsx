@@ -42,9 +42,7 @@ const icones = [
 
 const outrasTelas = [
   { nome: "Importação", destino: "Importacao" },
-  { nome: "Análise", destino: "Analise" },
   { nome: "Validação", destino: "Validacao" },
-  { nome: "Dados", destino: "Dados" },
   { nome: "Administração", destino: "Administracao" },
 ];
 
@@ -54,8 +52,6 @@ export default function Footer() {
   const pathname = usePathname();
   const { usuario } = useAuth();
 
-  // Verifica o perfil sem depender de maiúsculas ou espaços.
-  // Não utiliza o cargo para conceder acesso administrativo.
   const cargo = String(usuario?.cargo || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -64,7 +60,6 @@ export default function Footer() {
 
   const ehAdministrador = cargo === "administrador";
 
-  // Mostra Administração somente para administradores.
   const telasDisponiveis = outrasTelas.filter(
     (item) =>
       item.destino !== "Administracao" || ehAdministrador
@@ -72,9 +67,11 @@ export default function Footer() {
 
   const [menuAberto, setMenuAberto] = useState(false);
 
-  const deslocamento = useRef(new Animated.Value(300)).current;
+  const deslocamento = useRef(
+    new Animated.Value(300)
+  ).current;
 
-  // Animação de abertura do HUD
+  // Animação de abertura do menu
   useEffect(() => {
     if (menuAberto) {
       Animated.timing(deslocamento, {
@@ -85,7 +82,7 @@ export default function Footer() {
     }
   }, [menuAberto, deslocamento]);
 
-  // Fechar o HUD com animação
+  // Fechar o menu com animação
   function fecharMenu() {
     Animated.timing(deslocamento, {
       toValue: 300,
@@ -96,13 +93,12 @@ export default function Footer() {
     });
   }
 
-  // Navegar e fechar o HUD
+  // Navegar e fechar o menu
   function navegarPara(destino) {
     fecharMenu();
     navigation.navigate(destino);
   }
 
-  // Rotas dos botões principais
   const rotas = {
     Dashboard: "/Dashboard",
     Documento: "/atendimento",
@@ -122,10 +118,25 @@ export default function Footer() {
         ]}
       >
         {icones.map((icone) => {
-          const ativo = icone.destino
-            ? pathname.toLowerCase() ===
-            rotas[icone.nome].toLowerCase()
-            : false;
+          // Os três pontinhos também ficam selecionados
+          // enquanto o menu de opções estiver aberto.
+          const rotasOpcoes = [
+            "/importacao",
+            "/analise",
+            "/validacao",
+            "/administracao",
+            "/perfil",
+          ];
+
+          const estaEmUmaOpcao = rotasOpcoes.some((rota) =>
+            pathname.toLowerCase().includes(rota)
+          );
+
+          const ativo =
+            icone.nome === "Opcoes"
+              ? menuAberto || estaEmUmaOpcao
+              : pathname.toLowerCase() ===
+              rotas[icone.nome]?.toLowerCase();
 
           return (
             <TouchableOpacity
@@ -133,7 +144,11 @@ export default function Footer() {
               style={styles.botao}
               onPress={() => {
                 if (icone.nome === "Opcoes") {
-                  setMenuAberto(true);
+                  if (menuAberto) {
+                    fecharMenu();
+                  } else {
+                    setMenuAberto(true);
+                  }
                 } else {
                   navigation.navigate(icone.destino);
                 }
@@ -170,7 +185,7 @@ export default function Footer() {
         })}
       </View>
 
-      {/* HUD LATERAL */}
+      {/* MENU LATERAL */}
       <Modal
         visible={menuAberto}
         transparent
@@ -201,7 +216,9 @@ export default function Footer() {
               padding: 20,
               borderLeftWidth: 1,
               borderColor: cores.secundario,
-              transform: [{ translateX: deslocamento }],
+              transform: [
+                { translateX: deslocamento },
+              ],
             }}
           >
             {/* CABEÇALHO */}
@@ -256,7 +273,9 @@ export default function Footer() {
                 return (
                   <TouchableOpacity
                     key={item.destino}
-                    onPress={() => navegarPara(item.destino)}
+                    onPress={() =>
+                      navegarPara(item.destino)
+                    }
                     activeOpacity={0.7}
                     style={{
                       paddingVertical: 17,
