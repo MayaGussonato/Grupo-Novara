@@ -338,17 +338,18 @@ export default function Administracao({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Header titulo="Administração" />
 
       <ScrollView
         contentContainerStyle={styles.conteudo}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.subtitulo}>
-          Gerenciamento de usuários cadastrados
-        </Text>
-
+        <View style>
+          <Header titulo="Administração" />
+          <Text style={styles.subtitulo}>
+            Gerenciamento de usuários cadastrados
+          </Text>
+        </View>
         <View style={styles.abas}>
           {["Resumo", "Perfil de Acesso"].map((aba) => (
             <TouchableOpacity
@@ -502,7 +503,7 @@ export default function Administracao({ navigation }) {
         <TouchableOpacity
           style={styles.botaoNovo}
           activeOpacity={0.8}
-          onPress={() => navigation?.navigate?.("CadastroAdmin")}
+          onPress={() => navigation?.navigate?.("cadastroAdmin")}
         >
           <Text style={styles.textoBotaoNovo}>
             Novo Usuário

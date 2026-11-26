@@ -43,7 +43,6 @@ const icones = [
 const outrasTelas = [
   { nome: "Importação", destino: "Importacao" },
   { nome: "Validação", destino: "Validacao" },
-  { nome: "Dados", destino: "Dados" },
   { nome: "Administração", destino: "Administracao" },
 ];
 
@@ -125,7 +124,6 @@ export default function Footer() {
             "/importacao",
             "/analise",
             "/validacao",
-            "/dados",
             "/administracao",
             "/perfil",
           ];

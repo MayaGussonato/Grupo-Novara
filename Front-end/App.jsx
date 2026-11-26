@@ -18,7 +18,6 @@ import DashboardMobile from "./Components/dashboard/Dashboard";
 import ImportacaoMobile from "./Components/importacao/Importacao";
 import AnaliseMobile from "./Components/analise/Analise";
 import ValidacaoMobile from "./Components/Validacao/validacao";
-import DadosMobile from "./Components/dados/Dados";
 import AdministracaoMobile from "./Components/administracao/Administracao";
 import PerfilMobile from "./Components/perfil/Perfil";
 import CadastroAdminMobile from "./Components/administracao/CadastroAdmin";
@@ -380,14 +379,6 @@ function AppMobile() {
       return (
         <ValidacaoMobile
           navigation={navigation}
-        />
-      );
-
-    case "Dados":
-      return (
-        <DadosMobile
-          navigation={navigation}
-          route={{ params: parametros }}
         />
       );
 
