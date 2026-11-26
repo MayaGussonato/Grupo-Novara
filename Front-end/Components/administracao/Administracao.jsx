@@ -99,12 +99,43 @@ export default function Administracao({ navigation }) {
     carregarUsuarios();
   }, [carregarUsuarios]);
 
-  // Ativos primeiro; inativos no final.
+  // Identifica o usuário conectado.
+  const idUsuarioLogado =
+    usuarioLogado?.idUsuario ??
+    usuarioLogado?.IdUsuario ??
+    usuarioLogado?.id;
+
+  const emailUsuarioLogado = normalizar(
+    usuarioLogado?.email ?? usuarioLogado?.Email
+  );
+
+  // Pesquisa, filtros e remoção do próprio usuário da listagem.
   const usuariosFiltrados = useMemo(() => {
     const termo = normalizar(pesquisa);
 
     return [...usuarios]
       .filter((usuario) => {
+        const idUsuario =
+          usuario.idUsuario ??
+          usuario.IdUsuario ??
+          usuario.id;
+
+        const mesmoId =
+          idUsuarioLogado != null &&
+          idUsuario != null &&
+          String(idUsuario) === String(idUsuarioLogado);
+
+        const emailUsuario = normalizar(usuario.email);
+
+        const mesmoEmail =
+          emailUsuarioLogado !== "" &&
+          emailUsuario === emailUsuarioLogado;
+
+        // Não exibe a própria conta do administrador.
+        if (mesmoId || mesmoEmail) {
+          return false;
+        }
+
         const nome = normalizar(usuario.nome);
         const email = normalizar(usuario.email);
         const perfil = normalizar(usuario.perfilAcesso);
@@ -125,7 +156,13 @@ export default function Administracao({ navigation }) {
 
         return Number(ativoB) - Number(ativoA);
       });
-  }, [usuarios, pesquisa, abaAtiva]);
+  }, [
+    usuarios,
+    pesquisa,
+    abaAtiva,
+    idUsuarioLogado,
+    emailUsuarioLogado,
+  ]);
 
   function abrirDetalhes(usuario) {
     setUsuarioSelecionado(usuario);
@@ -144,8 +181,8 @@ export default function Administracao({ navigation }) {
 
     const proximoPerfil =
       perfisDisponiveis[
-      (indice + 1 + perfisDisponiveis.length) %
-      perfisDisponiveis.length
+        (indice + 1 + perfisDisponiveis.length) %
+        perfisDisponiveis.length
       ];
 
     Alert.alert(
@@ -178,7 +215,7 @@ export default function Administracao({ navigation }) {
               Alert.alert(
                 "Erro",
                 falha?.message ||
-                "Não foi possível alterar o perfil."
+                  "Não foi possível alterar o perfil."
               );
             } finally {
               setProcessando(false);
@@ -189,21 +226,22 @@ export default function Administracao({ navigation }) {
     );
   }
 
+  // Ativa ou inativa a conta conforme o status atual.
   function confirmarAlteracaoStatus(usuario) {
     const estaAtivo = usuario.ativo === true;
 
     Alert.alert(
-      estaAtivo ? "Inativar conta" : "Reativar conta",
+      estaAtivo ? "Inativar conta" : "Ativar conta",
       estaAtivo
         ? `Deseja realmente inativar a conta de ${usuario.nome}?`
-        : `Deseja reativar a conta de ${usuario.nome}?`,
+        : `Deseja realmente ativar a conta de ${usuario.nome}?`,
       [
         {
           text: "Cancelar",
           style: "cancel",
         },
         {
-          text: estaAtivo ? "Inativar" : "Reativar",
+          text: estaAtivo ? "Inativar" : "Ativar",
           style: estaAtivo ? "destructive" : "default",
           onPress: async () => {
             try {
@@ -222,13 +260,13 @@ export default function Administracao({ navigation }) {
                 "Sucesso",
                 estaAtivo
                   ? "A conta foi inativada e movida para o final da lista."
-                  : "A conta foi reativada e voltou para o início da lista."
+                  : "A conta foi ativada e voltou para o início da lista."
               );
             } catch (falha) {
               Alert.alert(
                 "Erro",
                 falha?.message ||
-                "Não foi possível alterar o status da conta."
+                  "Não foi possível alterar o status da conta."
               );
             } finally {
               setProcessando(false);
@@ -325,7 +363,7 @@ export default function Administracao({ navigation }) {
                 style={[
                   styles.textoAba,
                   abaAtiva === aba &&
-                  styles.textoAbaSelecionado,
+                    styles.textoAbaSelecionado,
                 ]}
               >
                 {aba}
@@ -643,12 +681,12 @@ export default function Administracao({ navigation }) {
                     },
                     ...(usuarioSelecionado.telefone
                       ? [
-                        {
-                          label: "Telefone",
-                          value: usuarioSelecionado.telefone,
-                          icon: "call-outline",
-                        },
-                      ]
+                          {
+                            label: "Telefone",
+                            value: usuarioSelecionado.telefone,
+                            icon: "call-outline",
+                          },
+                        ]
                       : []),
                   ].map((campo) => (
                     <View
@@ -750,8 +788,8 @@ export default function Administracao({ navigation }) {
                         }}
                       >
                         {selecionadoAtivo
-                          ? "Inativar conta"
-                          : "Reativar conta"}
+                          ? "Inativar usuário"
+                          : "Ativar usuário"}
                       </Text>
                     )}
                   </TouchableOpacity>

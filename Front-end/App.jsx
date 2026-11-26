@@ -7,8 +7,21 @@ import {
 } from "react-native";
 
 import { StatusBar } from "expo-status-bar";
+import React, { useState, useRef } from "react";
+import {
+  View,
+  ActivityIndicator,
+  useWindowDimensions,
+} from "react-native";
 
-// MOBILE E TABLET
+import { StatusBar } from "expo-status-bar";
+
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+} from "react-native-safe-area-context";
+
+// MOBILE
 import LoginMobile from "./Components/login/Login";
 import CadastroMobile from "./Components/cadastro/Cadastro";
 import DashboardMobile from "./Components/dashboard/Dashboard";
@@ -282,12 +295,7 @@ function AppDesktop() {
     }
   }
 
-  return (
-    <>
-      <StatusBar style={colors.statusBar} />
-      {renderScreen()}
-    </>
-  );
+  return renderScreen();
 }
 
 // ==========================================
@@ -416,12 +424,28 @@ function AppResponsive() {
 
 export default function App() {
   return (
-    <IdiomaProvider>
-      <TemaProvider>
-        <AuthProvider>
-          <AppResponsive />
-        </AuthProvider>
-      </TemaProvider>
-    </IdiomaProvider>
+    <SafeAreaProvider>
+      <StatusBar
+        style="dark"
+        backgroundColor="#FFFFFF"
+        translucent={false}
+      />
+
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: "#FFFFFF",
+        }}
+        edges={["top", "bottom", "left", "right"]}
+      >
+        <IdiomaProvider>
+          <TemaProvider>
+            <AuthProvider>
+              <AppResponsive />
+            </AuthProvider>
+          </TemaProvider>
+        </IdiomaProvider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

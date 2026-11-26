@@ -81,7 +81,7 @@ export function statusParaInterface(statusApi) {
       return {
         rotulo: "Revisando",
         descricao: "Aguardando validação",
-        cor: "#0B4F8A",
+        cor: "#A85D00",
         fundo: "#E2EDF7",
         progresso: 65,
       };
@@ -101,7 +101,7 @@ export function statusParaInterface(statusApi) {
       return {
         rotulo: "Processando",
         descricao: "Documento em processamento pela IA",
-        cor: "#A85D00",
+        cor: "#3ba3ff",
         fundo: "#FFF0D9",
         progresso: 15,
       };
