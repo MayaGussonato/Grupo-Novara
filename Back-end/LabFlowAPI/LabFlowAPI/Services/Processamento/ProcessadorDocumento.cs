@@ -63,6 +63,9 @@ public class ProcessadorDocumento : IProcessadorDocumento
     /// <summary>Quantos exemplos aprovados entram no prompt (few-shot).</summary>
     private const int LimiteExemplosFewShot = 3;
 
+    /// <summary>Recorte do texto de cada exemplo enviado ao prompt.</summary>
+    private const int LimiteTextoExemplo = 1500;
+
     private readonly ILeitorDocumento _leitor;
     private readonly ILhamaIa _ia;
     private readonly IConferenciaExtracao _conferencia;
@@ -201,19 +204,22 @@ public class ProcessadorDocumento : IProcessadorDocumento
 
         var aprovadas = await consulta
             .OrderByDescending(x => x.IdValidacao)
-            .Take(LimiteExemplosFewShot)
+            .Take(LimiteExemplosFewShot * 4)
             .ToListAsync(cancellationToken);
 
+        // Um exemplo ruim é pior do que nenhum: só entra o par texto+JSON em que todo
+        // trecho_origem citado aparece no texto. O recorte termina no fim de uma linha
+        // para não partir um trecho ao meio, e CPF/CNPJ saem mascarados (LGPD).
         return aprovadas
             .Select(x => new ExemploFewShot
             {
-                // O prompt não precisa do texto inteiro: um recorte já dá o padrão
-                TextoDocumento = Truncar(x.TextoExtraido!, 1500),
-                JsonAprovado = x.JsonAprovado!
+                TextoDocumento = ValidadorExemploFewShot.Mascarar(
+                    ValidadorExemploFewShot.TruncarEmLinha(x.TextoExtraido!, LimiteTextoExemplo)),
+
+                JsonAprovado = ValidadorExemploFewShot.Mascarar(x.JsonAprovado)
             })
+            .Where(e => ValidadorExemploFewShot.Consistente(e.TextoDocumento, e.JsonAprovado))
+            .Take(LimiteExemplosFewShot)
             .ToList();
     }
-
-    private static string Truncar(string texto, int tamanho)
-        => texto.Length <= tamanho ? texto : texto[..tamanho];
 }

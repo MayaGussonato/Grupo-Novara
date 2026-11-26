@@ -3,6 +3,10 @@ using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using UglyToad.PdfPig;
+using Syncfusion.OCRProcessor;
+using Syncfusion.Pdf.Parsing;
+
+using PdfPigDocument = UglyToad.PdfPig.PdfDocument;
 
 namespace LabFlowAPI.Services.Documentos;
 
@@ -163,4 +167,32 @@ public class LeitorDocumento : ILeitorDocumento
             ? TextoDocumento.Erro("Planilha sem conteúdo.")
             : TextoDocumento.Ok(conteudo, "xlsx");
     }
+    private static TextoDocumento LerImagemComOcr(
+    string caminho)
+    {
+        using var processor = new OCRProcessor();
+
+        // Português brasileiro.
+        processor.Settings.Language = "por";
+
+        using var stream = File.OpenRead(caminho);
+
+        var texto = processor.PerformOCR(
+            stream,
+            processor.TessDataPath
+        );
+
+        if (string.IsNullOrWhiteSpace(texto))
+        {
+            return TextoDocumento.Erro(
+                "O OCR não conseguiu identificar texto na imagem."
+            );
+        }
+
+        return TextoDocumento.Ok(
+            texto,
+            "tesseract-ocr"
+        );
+    }
+
 }
