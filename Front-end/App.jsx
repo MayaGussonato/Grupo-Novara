@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import {
   View,
@@ -7,15 +6,6 @@ import {
 } from "react-native";
 
 import { StatusBar } from "expo-status-bar";
-import React, { useState, useRef } from "react";
-import {
-  View,
-  ActivityIndicator,
-  useWindowDimensions,
-} from "react-native";
-
-import { StatusBar } from "expo-status-bar";
-
 import {
   SafeAreaProvider,
   SafeAreaView,
@@ -31,9 +21,13 @@ import ValidacaoMobile from "./Components/Validacao/validacao";
 import DadosMobile from "./Components/dados/Dados";
 import AdministracaoMobile from "./Components/administracao/Administracao";
 import PerfilMobile from "./Components/perfil/Perfil";
+import CadastroAdminMobile from "./Components/administracao/CadastroAdmin";
 
 // DESKTOP
-import { PreferencesProvider, usePreferences } from "./context/PreferencesContext";
+import {
+  PreferencesProvider,
+  usePreferences,
+} from "./context/PreferencesContext";
 
 import LoginDesktop from "./pages/desktop/login/Login";
 import DashboardDesktop from "./pages/desktop/dashboard/dashboard";
@@ -123,8 +117,8 @@ function AppDesktop() {
     setTela("cadastroUsuario");
   }
 
-  function handleEditUser(usuario) {
-    setEditingUser(usuario);
+  function handleEditUser(usuarioSelecionado) {
+    setEditingUser(usuarioSelecionado);
     setTela("cadastroUsuario");
   }
 
@@ -155,7 +149,13 @@ function AppDesktop() {
 
   if (carregando) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
@@ -316,7 +316,18 @@ function AppMobile() {
 
     goBack: () => {
       setParametros({});
-      setTela("Dashboard");
+
+      setTela((telaAtual) => {
+        if (telaAtual === "CadastroAdmin") {
+          return "Administracao";
+        }
+
+        if (telaAtual === "Administracao") {
+          return "Dashboard";
+        }
+
+        return "Dashboard";
+      });
     },
   };
 
@@ -324,6 +335,7 @@ function AppMobile() {
     return <ActivityIndicator size="large" />;
   }
 
+  // Usuário ainda não autenticado: Login ou Cadastro público.
   if (!usuario) {
     if (tela === "Cadastro") {
       return (
@@ -350,7 +362,11 @@ function AppMobile() {
 
   switch (tela) {
     case "Importacao":
-      return <ImportacaoMobile navigation={navigation} />;
+      return (
+        <ImportacaoMobile
+          navigation={navigation}
+        />
+      );
 
     case "Analise":
       return (
@@ -361,7 +377,11 @@ function AppMobile() {
       );
 
     case "Validacao":
-      return <ValidacaoMobile navigation={navigation} />;
+      return (
+        <ValidacaoMobile
+          navigation={navigation}
+        />
+      );
 
     case "Dados":
       return (
@@ -376,11 +396,46 @@ function AppMobile() {
         usuario?.perfilAcesso?.trim().toLowerCase() !==
         "administrador"
       ) {
-        setTela("Dashboard");
-        return null;
+        return (
+          <DashboardMobile
+            navigation={navigation}
+            usuario={usuario}
+          />
+        );
       }
 
-      return <AdministracaoMobile navigation={navigation} />;
+      return (
+        <AdministracaoMobile
+          navigation={navigation}
+        />
+      );
+
+    case "CadastroAdmin":
+      if (
+        usuario?.perfilAcesso?.trim().toLowerCase() !==
+        "administrador"
+      ) {
+        return (
+          <DashboardMobile
+            navigation={navigation}
+            usuario={usuario}
+          />
+        );
+      }
+
+      return (
+        <CadastroAdminMobile
+          navigation={navigation}
+          onCancelar={() => {
+            setParametros({});
+            setTela("Administracao");
+          }}
+          onSucesso={() => {
+            setParametros({});
+            setTela("Administracao");
+          }}
+        />
+      );
 
     case "Perfil":
       return (

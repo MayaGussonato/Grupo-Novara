@@ -61,7 +61,7 @@ export default function Administracao({ navigation }) {
   const { cores, modoEscuro } = useTema();
 
   const ehAdministrador =
-    normalizar(usuarioLogado?.cargo) === "administrador";
+    normalizar(usuarioLogado?.perfilAcesso) === "administrador";;
 
   const styles = useMemo(
     () => criarAdministracaoStyles(cores, modoEscuro),
@@ -181,8 +181,8 @@ export default function Administracao({ navigation }) {
 
     const proximoPerfil =
       perfisDisponiveis[
-        (indice + 1 + perfisDisponiveis.length) %
-        perfisDisponiveis.length
+      (indice + 1 + perfisDisponiveis.length) %
+      perfisDisponiveis.length
       ];
 
     Alert.alert(
@@ -215,7 +215,7 @@ export default function Administracao({ navigation }) {
               Alert.alert(
                 "Erro",
                 falha?.message ||
-                  "Não foi possível alterar o perfil."
+                "Não foi possível alterar o perfil."
               );
             } finally {
               setProcessando(false);
@@ -266,7 +266,7 @@ export default function Administracao({ navigation }) {
               Alert.alert(
                 "Erro",
                 falha?.message ||
-                  "Não foi possível alterar o status da conta."
+                "Não foi possível alterar o status da conta."
               );
             } finally {
               setProcessando(false);
@@ -363,7 +363,7 @@ export default function Administracao({ navigation }) {
                 style={[
                   styles.textoAba,
                   abaAtiva === aba &&
-                    styles.textoAbaSelecionado,
+                  styles.textoAbaSelecionado,
                 ]}
               >
                 {aba}
@@ -502,7 +502,7 @@ export default function Administracao({ navigation }) {
         <TouchableOpacity
           style={styles.botaoNovo}
           activeOpacity={0.8}
-          onPress={() => navigation?.navigate?.("Cadastro")}
+          onPress={() => navigation?.navigate?.("CadastroAdmin")}
         >
           <Text style={styles.textoBotaoNovo}>
             Novo Usuário
@@ -681,12 +681,12 @@ export default function Administracao({ navigation }) {
                     },
                     ...(usuarioSelecionado.telefone
                       ? [
-                          {
-                            label: "Telefone",
-                            value: usuarioSelecionado.telefone,
-                            icon: "call-outline",
-                          },
-                        ]
+                        {
+                          label: "Telefone",
+                          value: usuarioSelecionado.telefone,
+                          icon: "call-outline",
+                        },
+                      ]
                       : []),
                   ].map((campo) => (
                     <View

@@ -59,3 +59,39 @@ export function reativarUsuario(id) {
     method: "PUT",
   });
 }
+
+// Cadastro administrativo persistente.
+export async function cadastrarUsuarioAdmin(dados) {
+  // Primeiro, cria o usuário pela rota de registro existente.
+  const novoUsuario = await cadastrarUsuario({
+    nome: dados.nome,
+    email: dados.email,
+    senha: dados.senha,
+    cargo: dados.cargo,
+  });
+
+  const id =
+    novoUsuario?.idUsuario ??
+    novoUsuario?.IdUsuario;
+
+  if (!id) {
+    throw new Error(
+      "O usuário foi cadastrado, mas a API não retornou seu identificador."
+    );
+  }
+
+  // Depois, utiliza o token do administrador para definir o perfil.
+  try {
+    if (dados.perfilAcesso !== "Funcionario") {
+      await alterarPerfilUsuario(id, dados.perfilAcesso);
+    }
+  } catch (erro) {
+    throw new Error(
+      "O usuário foi salvo, mas não foi possível alterar seu perfil. " +
+      "Ele permanece como Funcionário. " +
+      (erro?.message || "")
+    );
+  }
+
+  return novoUsuario;
+}

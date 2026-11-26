@@ -12,6 +12,7 @@ import {
   ScrollView,
 } from "react-native";
 
+import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { Picker } from "@react-native-picker/picker";
 
@@ -85,6 +86,7 @@ export default function Cadastro({ navigation }) {
   const [senha, setSenha] = useState("");
   const [cargo, setCargo] = useState("");
 
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [tentouCadastrar, setTentouCadastrar] = useState(false);
   const [carregando, setCarregando] = useState(false);
 
@@ -100,16 +102,16 @@ export default function Cadastro({ navigation }) {
     email: !email.trim()
       ? "O email é obrigatório."
       : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-      ? "Digite um email válido."
-      : "",
+        ? "Digite um email válido."
+        : "",
 
     senha: !senha
       ? "A senha é obrigatória."
       : senha.length < 8
-      ? "A senha precisa ter no mínimo 8 caracteres."
-      : senha.length > 72
-      ? "A senha não pode ultrapassar 72 caracteres."
-      : "",
+        ? "A senha precisa ter no mínimo 8 caracteres."
+        : senha.length > 72
+          ? "A senha não pode ultrapassar 72 caracteres."
+          : "",
 
     cargo: !cargo
       ? "Selecione um cargo."
@@ -296,25 +298,45 @@ export default function Cadastro({ navigation }) {
               Senha
             </Text>
 
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: cores.input,
-                  borderColor:
-                    tentouCadastrar && erros.senha
-                      ? "#E53935"
-                      : cores.borda,
-                  color: cores.texto,
-                },
-              ]}
-              placeholder="Mínimo de 8 caracteres"
-              placeholderTextColor={cores.textoSecundario}
-              value={senha}
-              onChangeText={setSenha}
-              secureTextEntry
-              autoComplete="new-password"
-            />
+            <View style={{ position: "relative", justifyContent: "center" }}>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: cores.input,
+                    borderColor:
+                      tentouCadastrar && erros.senha
+                        ? "#E53935"
+                        : cores.borda,
+                    color: cores.texto,
+                    paddingRight: 48,
+                  },
+                ]}
+                placeholder="Mínimo de 8 caracteres"
+                placeholderTextColor={cores.textoSecundario}
+                value={senha}
+                onChangeText={setSenha}
+                secureTextEntry={!mostrarSenha}
+                autoComplete="new-password"
+              />
+
+              <TouchableOpacity
+                onPress={() => setMostrarSenha(!mostrarSenha)}
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: 0,
+                  bottom: 15,
+                  justifyContent: "center",
+                }}
+              >
+                <Ionicons
+                  name={mostrarSenha ? "eye-off-outline" : "eye-outline"}
+                  size={23}
+                  color={cores.textoSecundario}
+                />
+              </TouchableOpacity>
+            </View>
 
             {tentouCadastrar && erros.senha !== "" && (
               <Text style={estiloErro}>

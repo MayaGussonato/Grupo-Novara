@@ -14,6 +14,7 @@ const rotas = {
   Administracao: "/administracao",
   Perfil: "/Perfil",
   ProcessamentoInteligente: "/analise",
+  CadastroAdmin: "/cadastroAdmin",
 };
 
 export default function useRouteNavigation() {
