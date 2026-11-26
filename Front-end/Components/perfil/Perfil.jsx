@@ -10,6 +10,7 @@ import {
   Alert,
   ActivityIndicator,
   Platform,
+  Modal,
 } from "react-native";
 
 import Ionicons from "@react-native-vector-icons/ionicons";
@@ -52,6 +53,9 @@ function formatarTelefone(valor) {
 export default function Perfil({ navigation }) {
   const [aba, setAba] = useState("Perfil");
   const [deslogando, setDeslogando] = useState(false);
+
+  // Controle do modal personalizado de logout
+  const [modalLogout, setModalLogout] = useState(false);
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -204,36 +208,11 @@ export default function Perfil({ navigation }) {
     }
   }
 
+  // Abre nosso modal em vez do alerta padrão.
   function confirmarDeslogar() {
     if (deslogando) return;
 
-    if (Platform.OS === "web") {
-      const confirmou = window.confirm(
-        t("confirmarSaida")
-      );
-
-      if (confirmou) {
-        executarLogout();
-      }
-
-      return;
-    }
-
-    Alert.alert(
-      t("deslogar"),
-      t("confirmarSaida"),
-      [
-        {
-          text: t("cancelar"),
-          style: "cancel",
-        },
-        {
-          text: t("deslogar"),
-          style: "destructive",
-          onPress: executarLogout,
-        },
-      ]
-    );
+    setModalLogout(true);
   }
 
   const corTexto = cores.texto;
@@ -704,8 +683,126 @@ export default function Perfil({ navigation }) {
             </Text>
           )}
         </TouchableOpacity>
-
       </ScrollView>
+
+      {/* Modal personalizado de confirmação */}
+      <Modal
+        visible={modalLogout}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          if (!deslogando) {
+            setModalLogout(false);
+          }
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.55)",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 25,
+          }}
+        >
+          <View
+            style={{
+              width: "100%",
+              maxWidth: 340,
+              backgroundColor: cores.card,
+              borderRadius: 16,
+              padding: 22,
+              borderWidth: 1,
+              borderColor: cores.borda,
+              alignItems: "center",
+            }}
+          >
+            <Ionicons
+              name="log-out-outline"
+              size={42}
+              color={cores.vinho || "#650000"}
+            />
+
+            <Text
+              style={{
+                color: cores.texto,
+                fontSize: 20,
+                fontWeight: "bold",
+                marginTop: 12,
+                marginBottom: 8,
+              }}
+            >
+              Sair da conta?
+            </Text>
+
+            <Text
+              style={{
+                color: cores.textoSecundario,
+                fontSize: 14,
+                textAlign: "center",
+                lineHeight: 21,
+                marginBottom: 24,
+              }}
+            >
+              Tem certeza de que deseja encerrar sua sessão?
+            </Text>
+
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                gap: 10,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => setModalLogout(false)}
+                disabled={deslogando}
+                style={{
+                  flex: 1,
+                  paddingVertical: 13,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: cores.borda,
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    color: cores.texto,
+                    fontWeight: "600",
+                  }}
+                >
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setModalLogout(false);
+                  executarLogout();
+                }}
+                disabled={deslogando}
+                style={{
+                  flex: 1,
+                  paddingVertical: 13,
+                  borderRadius: 8,
+                  backgroundColor: cores.vinho || "#650000",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#FFFFFF",
+                    fontWeight: "600",
+                  }}
+                >
+                  Sair
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <Footer />
     </View>
